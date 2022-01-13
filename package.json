@@ -1,7 +1,6 @@
 {
 	"name": "user_migration",
 	"private": true,
-	"description": "An app for migrating users",
 	"license": "agpl",
 	"scripts": {
 		"build": "webpack --node-env production --progress",

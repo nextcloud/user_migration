@@ -3,7 +3,7 @@
 	  xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
 	<id>user_migration</id>
 	<name>User Migration</name>
-	<summary>An app for migrating users</summary>
+	<summary>Migrate user data</summary>
 	<description>
 		<![CDATA[This application allows migration of user data between Nextcloud servers]]>
 	</description>

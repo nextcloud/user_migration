@@ -7,7 +7,7 @@
 	<description>
 		<![CDATA[This application allows migration of user data between Nextcloud servers]]>
 	</description>
-	<version>24.0.0</version>
+	<version>0.0.1</version>
 	<licence>agpl</licence>
 	<author>Côme Chilliet</author>
 	<author>Christopher Ng</author>

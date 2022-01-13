@@ -1,7 +1,6 @@
 {
 	"name": "user_migration",
 	"private": true,
-	"version": "24.0.0",
 	"description": "An app for migrating users",
 	"license": "agpl",
 	"scripts": {

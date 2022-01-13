@@ -1,23 +1,20 @@
 <?xml version="1.0"?>
 <info xmlns:xsi= "http://www.w3.org/2001/XMLSchema-instance"
-      xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
-    <id>user_migration</id>
-    <name>User Migration</name>
-    <summary>An app for migrating users</summary>
-    <description><![CDATA[This app may be used to migrate users between Nextcloud servers]]></description>
-    <version>24.0.0</version>
-    <licence>agpl</licence>
-    <author mail=""></author>
-    <namespace>UserMigration</namespace>
-    <category>tools</category>
-    <bugs>https://github.com/nextcloud/user_migration</bugs>
-    <dependencies>
-        <nextcloud min-version="24" max-version="24"/>
-    </dependencies>
-    <navigations>
-        <navigation>
-            <name>User Migration</name>
-            <route>user_migration.page.index</route>
-        </navigation>
-    </navigations>
+	  xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+	<id>user_migration</id>
+	<name>User Migration</name>
+	<summary>An app for migrating users</summary>
+	<description>
+		<![CDATA[This application allows migration of user data between Nextcloud servers]]>
+	</description>
+	<version>24.0.0</version>
+	<licence>agpl</licence>
+	<author>Côme Chilliet</author>
+	<author>Christopher Ng</author>
+	<namespace>UserMigration</namespace>
+	<category>tools</category>
+	<bugs>https://github.com/nextcloud/user_migration</bugs>
+	<dependencies>
+		<nextcloud min-version="24" max-version="24"/>
+	</dependencies>
  </info>

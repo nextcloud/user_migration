@@ -17,4 +17,19 @@
 	<dependencies>
 		<nextcloud min-version="24" max-version="24"/>
 	</dependencies>
+
+	<background-jobs>
+		<job>OCA\UserMigration\BackgroundJob\UserExportJob</job>
+	</background-jobs>
+
+	<commands>
+		<command>OCA\UserMigration\Command\Export</command>
+	</commands>
+
+	<navigations>
+		<navigation>
+			<name>User Migration</name>
+			<route>user_migration.page.index</route>
+		</navigation>
+	</navigations>
  </info>

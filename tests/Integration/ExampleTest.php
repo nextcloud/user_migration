@@ -1,7 +1,11 @@
+<?php
+
+declare(strict_types=1);
+
 /**
- * @copyright 2022 John Molakvoæ <skjnldsv@protonmail.com>
+ * @copyright 2022 Christopher Ng <chrng8@gmail.com>
  *
- * @author John Molakvoæ <skjnldsv@protonmail.com>
+ * @author Christopher Ng <chrng8@gmail.com>
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -20,17 +24,16 @@
  *
  */
 
-import { generateFilePath } from '@nextcloud/router'
+namespace OCA\UserMigration\Tests\Integration;
 
-import Vue from 'vue'
-import App from './App'
+use Test\TestCase;
 
-// eslint-disable-next-line
-__webpack_public_path__ = generateFilePath(appName, '', 'js/')
+class ExampleTest extends TestCase {
+	protected function setUp(): void {
+		parent::setUp();
+	}
 
-Vue.mixin({ methods: { t, n } })
-
-export default new Vue({
-	el: '#content',
-	render: h => h(App),
-})
+	public function testExample(): void {
+		$this->assertEquals(true, true);
+	}
+}

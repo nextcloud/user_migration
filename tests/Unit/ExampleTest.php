@@ -24,15 +24,16 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\UserMigration\AppInfo;
+namespace OCA\UserMigration\Tests\Unit;
 
-use OCP\AppFramework\App;
+use Test\TestCase;
 
-class Application extends App {
-	public const APP_ID = 'user_migration';
-	public const APP_NAME = 'User Migration';
+class ExampleTest extends TestCase {
+	protected function setUp(): void {
+		parent::setUp();
+	}
 
-	public function __construct() {
-		parent::__construct(self::APP_ID);
+	public function testExample(): void {
+		$this->assertEquals(true, true);
 	}
 }

@@ -1,12 +1,8 @@
 {
 	"name": "user_migration",
 	"private": true,
-	"version": "24.0.0",
 	"description": "An app for migrating users",
 	"license": "agpl",
-	"author": "",
-	"contributors": [
-	],
 	"scripts": {
 		"build": "webpack --node-env production --progress",
 		"dev": "webpack --node-env development --progress",

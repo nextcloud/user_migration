@@ -35,12 +35,16 @@ use Symfony\Component\Console\Output\OutputInterface;
 use function count;
 use function date;
 use OCP\Accounts\IAccountManager;
+use OCP\ITempManager;
 
 class UserExportService {
 	protected IAccountManager $accountManager;
 
-	public function __construct(IAccountManager $accountManager) {
+	protected ITempManager $tempManager;
+
+	public function __construct(IAccountManager $accountManager, ITempManager $tempManager) {
 		$this->accountManager = $accountManager;
+		$this->tempManager = $tempManager;
 	}
 
 	/**
@@ -58,9 +62,10 @@ class UserExportService {
 
 		$view = new View();
 
-		// TODO use a temp folder instead
+		// TODO use a temp folder instead?
+		//~ $exportFolder = $this->tempManager->getTemporaryFolder();
 		$exportFolder = "$uid/export/";
-		$exportName = date('Y-m-d H-i-s');
+		$exportName = $uid.'_'.date('Y-m-d_H-i-s');
 		$finalTarget = $exportFolder.$exportName;
 
 		if (count($view->getDirectoryContent($exportFolder)) > 0) {
@@ -82,11 +87,12 @@ class UserExportService {
 			$output
 		);
 
-		// zip/tar the result
+		// TODO zip/tar the result
 		//~ \OC_Files::get($exportFolder, $exportName);
-		$archive = new \OC\Archive\TAR($exportFolder.'/'.$exportName.'.tar.gz');
-		$archive->addRecursive('', $finalTarget);
-		$output->writeln("Packing in ".$exportFolder.'/'.$exportName.'.tar.gz'."…");
+		//~ $archive = new \OC\Archive\TAR($exportFolder.$exportName.'.tar.gz');
+		//~ $archive->addRecursive('a', $finalTarget);
+		//~ $output->writeln(getcwd());
+		//~ $output->writeln("Packing in ".$exportFolder.$exportName.'.tar.gz'."…");
 	}
 
 	/**

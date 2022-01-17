@@ -60,7 +60,8 @@ class UserExportService {
 
 		// TODO use a temp folder instead
 		$exportFolder = "$uid/export/";
-		$finalTarget = $exportFolder.date('Y-m-d H-i-s');
+		$exportName = date('Y-m-d H-i-s');
+		$finalTarget = $exportFolder.$exportName;
 
 		if (count($view->getDirectoryContent($exportFolder)) > 0) {
 			throw new UserExportException("There is already an export for this user");
@@ -81,7 +82,8 @@ class UserExportService {
 			$output
 		);
 
-		// TODO zip/tar the result
+		// zip/tar the result
+		\OC_Files::get($exportFolder, $exportName);
 	}
 
 	/**

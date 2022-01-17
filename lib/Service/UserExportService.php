@@ -26,6 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration\Service;
 
+use OCA\UserMigration\Exception\UserExportException;
 use OC\Files\Filesystem;
 use OC\Files\View;
 use OCP\IUser;
@@ -43,8 +44,7 @@ class UserExportService {
 	}
 
 	/**
-	 * TODO Use our own exception class
-	 * @throws \Exception
+	 * @throws UserExportException
 	 * @throws \OC\User\NoUserException
 	 */
 	public function export(IUser $user, ?OutputInterface $output = null): void {
@@ -63,7 +63,7 @@ class UserExportService {
 		$finalTarget = $exportFolder.date('Y-m-d H-i-s');
 
 		if (count($view->getDirectoryContent($exportFolder)) > 0) {
-			throw new \Exception("There is already an export for this user");
+			throw new UserExportException("There is already an export for this user");
 		}
 
 		// copy the files
@@ -85,7 +85,7 @@ class UserExportService {
 	}
 
 	/**
-	 * @throws \Exception
+	 * @throws UserExportException
 	 */
 	protected function copyFiles(string $uid,
 									 string $finalTarget,
@@ -94,12 +94,12 @@ class UserExportService {
 		$output->writeln("Copying files to $finalTarget/files ...");
 
 		if ($view->copy("$uid/files", "$finalTarget/files", true) === false) {
-			throw new \Exception("Could not copy files.");
+			throw new UserExportException("Could not copy files.");
 		}
 	}
 
 	/**
-	 * @throws \Exception
+	 * @throws UserExportException
 	 */
 	protected function exportAccountInformation(IUser $user,
 									 string $finalTarget,
@@ -108,7 +108,7 @@ class UserExportService {
 		$output->writeln("Exporting account information in $finalTarget/account.json ...");
 
 		if ($view->file_put_contents("$finalTarget/account.json", json_encode($this->accountManager->getAccount($user))) === false) {
-			throw new \Exception("Could not export account information.");
+			throw new UserExportException("Could not export account information.");
 		}
 	}
 }

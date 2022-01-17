@@ -64,7 +64,7 @@ class UserExportService {
 		$finalTarget = $exportFolder.$exportName;
 
 		if (count($view->getDirectoryContent($exportFolder)) > 0) {
-			throw new UserExportException("There is already an export for this user");
+			throw new UserExportException("There is already an export for this user $exportFolder");
 		}
 
 		// copy the files
@@ -83,7 +83,10 @@ class UserExportService {
 		);
 
 		// zip/tar the result
-		\OC_Files::get($exportFolder, $exportName);
+		//~ \OC_Files::get($exportFolder, $exportName);
+		$archive = new \OC\Archive\TAR($exportFolder.'/'.$exportName.'.tar.gz');
+		$archive->addRecursive('', $finalTarget);
+		$output->writeln("Packing in ".$exportFolder.'/'.$exportName.'.tar.gz'."…");
 	}
 
 	/**

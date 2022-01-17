@@ -33,9 +33,13 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use function count;
 use function date;
+use OCP\Accounts\IAccountManager;
 
 class UserExportService {
-	public function __construct() {
+	protected IAccountManager $accountManager;
+
+	public function __construct(IAccountManager $accountManager) {
+		$this->accountManager = $accountManager;
 	}
 
 	/**
@@ -54,7 +58,7 @@ class UserExportService {
 
 		$view = new View();
 
-		// TODO config option?
+		// TODO use a temp folder instead
 		$exportFolder = "$uid/export/";
 		$finalTarget = $exportFolder.date('Y-m-d H-i-s');
 
@@ -69,6 +73,15 @@ class UserExportService {
 			$view,
 			$output
 		);
+
+		$this->exportAccountInformation(
+			$user,
+			$finalTarget,
+			$view,
+			$output
+		);
+
+		// TODO zip/tar the result
 	}
 
 	/**
@@ -78,11 +91,24 @@ class UserExportService {
 									 string $finalTarget,
 									 View $view,
 									 OutputInterface $output): void {
-		$output->writeln("Copying files to $finalTarget ...");
+		$output->writeln("Copying files to $finalTarget/files ...");
 
-		$sourcePath = "$uid/files";
-		if ($view->copy($sourcePath, $finalTarget, true) === false) {
+		if ($view->copy("$uid/files", "$finalTarget/files", true) === false) {
 			throw new \Exception("Could not copy files.");
+		}
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	protected function exportAccountInformation(IUser $user,
+									 string $finalTarget,
+									 View $view,
+									 OutputInterface $output): void {
+		$output->writeln("Exporting account information in $finalTarget/account.json ...");
+
+		if ($view->file_put_contents("$finalTarget/account.json", json_encode($this->accountManager->getAccount($user))) === false) {
+			throw new \Exception("Could not export account information.");
 		}
 	}
 }

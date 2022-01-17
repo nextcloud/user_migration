@@ -35,6 +35,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use function count;
 use function date;
 use OCP\Accounts\IAccountManager;
+use OCP\IConfig;
 use OCP\ITempManager;
 
 class UserExportService {
@@ -42,7 +43,10 @@ class UserExportService {
 
 	protected ITempManager $tempManager;
 
-	public function __construct(IAccountManager $accountManager, ITempManager $tempManager) {
+	protected IConfig $config;
+
+	public function __construct(IConfig $config, IAccountManager $accountManager, ITempManager $tempManager) {
+		$this->config = $config;
 		$this->accountManager = $accountManager;
 		$this->tempManager = $tempManager;
 	}
@@ -87,6 +91,13 @@ class UserExportService {
 			$output
 		);
 
+		$this->exportAppsSettingsAndVersions(
+			$uid,
+			$finalTarget,
+			$view,
+			$output
+		);
+
 		// TODO zip/tar the result
 		//~ \OC_Files::get($exportFolder, $exportName);
 		//~ $archive = new \OC\Archive\TAR($exportFolder.$exportName.'.tar.gz');
@@ -120,6 +131,37 @@ class UserExportService {
 
 		if ($view->file_put_contents("$finalTarget/account.json", json_encode($this->accountManager->getAccount($user))) === false) {
 			throw new UserExportException("Could not export account information.");
+		}
+	}
+
+	/**
+	 * @throws UserExportException
+	 */
+	protected function exportAppsSettingsAndVersions(string $uid,
+									 string $finalTarget,
+									 View $view,
+									 OutputInterface $output): void {
+		$output->writeln("Exporting versions in $finalTarget/versions.json ...");
+
+		if ($view->file_put_contents("$finalTarget/versions.json", json_encode(\OC_App::getAppVersions())) === false) {
+			throw new UserExportException("Could not export versions.");
+		}
+
+		// TODO settings from core and some special fake appids like login/avatar are not exported
+		$output->writeln("Exporting settings in $finalTarget/settings.json ...");
+		$data = [];
+
+		$apps = \OC_App::getEnabledApps(false, true);
+
+		foreach ($apps as $app) {
+			$keys = $this->config->getUserKeys($uid, $app);
+			foreach ($keys as $key) {
+				$data[$app][$key] = $this->config->getUserValue($uid, $app, $key);
+			}
+		}
+
+		if ($view->file_put_contents("$finalTarget/settings.json", json_encode($data)) === false) {
+			throw new UserExportException("Could not export settings.");
 		}
 	}
 }

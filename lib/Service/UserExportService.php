@@ -26,6 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration\Service;
 
+use OCA\UserMigration\AppInfo\Application;
 use OCA\UserMigration\Exception\UserExportException;
 use OC\Files\Filesystem;
 use OC\Files\View;
@@ -37,6 +38,10 @@ use function date;
 use OCP\Accounts\IAccountManager;
 use OCP\IConfig;
 use OCP\ITempManager;
+use OCP\Files\IRootFolder;
+use ZipStreamer\ZipStreamer;
+use OC\Files\AppData;
+use ZipStreamer\COMPR;
 
 class UserExportService {
 	protected IAccountManager $accountManager;
@@ -45,10 +50,22 @@ class UserExportService {
 
 	protected IConfig $config;
 
-	public function __construct(IConfig $config, IAccountManager $accountManager, ITempManager $tempManager) {
+	protected IRootFolder $root;
+
+	protected AppData\Factory $appDataFactory;
+
+	public function __construct(
+		IRootFolder $rootFolder,
+		IConfig $config,
+		IAccountManager $accountManager,
+		ITempManager $tempManager,
+		AppData\Factory $appDataFactory
+	) {
+		$this->root = $rootFolder;
 		$this->config = $config;
 		$this->accountManager = $accountManager;
 		$this->tempManager = $tempManager;
+		$this->appDataFactory = $appDataFactory;
 	}
 
 	/**
@@ -113,11 +130,33 @@ class UserExportService {
 		);
 
 		// TODO zip/tar the result
-		//~ \OC_Files::get($exportFolder, $exportName);
-		//~ $archive = new \OC\Archive\TAR($exportFolder.$exportName.'.tar.gz');
-		//~ $archive->addRecursive('a', $finalTarget);
-		//~ $output->writeln(getcwd());
-		//~ $output->writeln("Packing in ".$exportFolder.$exportName.'.tar.gz'."…");
+		$appDataRoot = $this->appDataFactory->get(Application::APP_ID);
+		try {
+			$folder = $appDataRoot->getFolder('export');
+		} catch (\OCP\Files\NotFoundException $e) {
+			$folder = $appDataRoot->newFolder('export');
+		}
+		$file = $folder->newFile('test.zip');
+		$zip = new ZipStreamer(
+			[
+				'outstream' => $file->write(),
+				'zip64' => true,
+				'compress' => COMPR::STORE,
+				'level' => COMPR::NONE
+			]
+		);
+		$files = $view->getDirectoryContent($finalTarget);
+		foreach ($files as $f) {
+			switch ($f->getType()) {
+				case \OCP\Files\FileInfo::TYPE_FILE:
+					$read = $view->fopen($f->getPath(), 'rb');
+					$zip->addFileFromStream($read, $f->getName());
+				case \OCP\Files\FileInfo::TYPE_FOLDER:
+					// TODO
+				break;
+			}
+		}
+		$zip->finalize();
 	}
 
 	/**

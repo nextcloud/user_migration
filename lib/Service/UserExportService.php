@@ -84,6 +84,13 @@ class UserExportService {
 			$output
 		);
 
+		$this->exportUserInformation(
+			$user,
+			$finalTarget,
+			$view,
+			$output
+		);
+
 		$this->exportAccountInformation(
 			$user,
 			$finalTarget,
@@ -91,7 +98,14 @@ class UserExportService {
 			$output
 		);
 
-		$this->exportAppsSettingsAndVersions(
+		$this->exportAppsSettings(
+			$uid,
+			$finalTarget,
+			$view,
+			$output
+		);
+
+		$this->exportVersions(
 			$uid,
 			$finalTarget,
 			$view,
@@ -113,10 +127,33 @@ class UserExportService {
 									 string $finalTarget,
 									 View $view,
 									 OutputInterface $output): void {
-		$output->writeln("Copying files to $finalTarget/files ...");
+		$output->writeln("Copying files to $finalTarget/files…");
 
 		if ($view->copy("$uid/files", "$finalTarget/files", true) === false) {
 			throw new UserExportException("Could not copy files.");
+		}
+	}
+
+	/**
+	 * @throws UserExportException
+	 */
+	protected function exportUserInformation(IUser $user,
+									 string $finalTarget,
+									 View $view,
+									 OutputInterface $output): void {
+		$output->writeln("Exporting user information in $finalTarget/user.json…");
+
+		// TODO store backend? email? avatar? cloud id? quota?
+		$userinfo = [
+			'uid' => $user->getUID(),
+			'displayName' => $user->getDisplayName(),
+			'lastLogin' => $user->getLastLogin(),
+			'home' => $user->getHome(),
+			'enabled' => $user->isEnabled(),
+		];
+
+		if ($view->file_put_contents("$finalTarget/user.json", json_encode($userinfo)) === false) {
+			throw new UserExportException("Could not export user information.");
 		}
 	}
 
@@ -127,7 +164,7 @@ class UserExportService {
 									 string $finalTarget,
 									 View $view,
 									 OutputInterface $output): void {
-		$output->writeln("Exporting account information in $finalTarget/account.json ...");
+		$output->writeln("Exporting account information in $finalTarget/account.json…");
 
 		if ($view->file_put_contents("$finalTarget/account.json", json_encode($this->accountManager->getAccount($user))) === false) {
 			throw new UserExportException("Could not export account information.");
@@ -137,18 +174,32 @@ class UserExportService {
 	/**
 	 * @throws UserExportException
 	 */
-	protected function exportAppsSettingsAndVersions(string $uid,
+	protected function exportVersions(string $uid,
 									 string $finalTarget,
 									 View $view,
 									 OutputInterface $output): void {
-		$output->writeln("Exporting versions in $finalTarget/versions.json ...");
+		$output->writeln("Exporting versions in $finalTarget/versions.json…");
 
-		if ($view->file_put_contents("$finalTarget/versions.json", json_encode(\OC_App::getAppVersions())) === false) {
+		$versions = array_merge(
+			['core' => $this->config->getSystemValue('version')],
+			\OC_App::getAppVersions()
+		);
+
+		if ($view->file_put_contents("$finalTarget/versions.json", json_encode($versions)) === false) {
 			throw new UserExportException("Could not export versions.");
 		}
+	}
 
+
+	/**
+	 * @throws UserExportException
+	 */
+	protected function exportAppsSettings(string $uid,
+									 string $finalTarget,
+									 View $view,
+									 OutputInterface $output): void {
 		// TODO settings from core and some special fake appids like login/avatar are not exported
-		$output->writeln("Exporting settings in $finalTarget/settings.json ...");
+		$output->writeln("Exporting settings in $finalTarget/settings.json…");
 		$data = [];
 
 		$apps = \OC_App::getEnabledApps(false, true);

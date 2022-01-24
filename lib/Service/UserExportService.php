@@ -26,22 +26,19 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration\Service;
 
-use OCA\UserMigration\AppInfo\Application;
 use OCA\UserMigration\Exception\UserExportException;
+use OCA\UserMigration\ExportDestination;
+use OCA\UserMigration\IExportDestination;
+use OC\Files\AppData;
 use OC\Files\Filesystem;
 use OC\Files\View;
+use OCP\Accounts\IAccountManager;
+use OCP\Files\IRootFolder;
+use OCP\IConfig;
+use OCP\ITempManager;
 use OCP\IUser;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
-use function count;
-use function date;
-use OCP\Accounts\IAccountManager;
-use OCP\IConfig;
-use OCP\ITempManager;
-use OCP\Files\IRootFolder;
-use ZipStreamer\ZipStreamer;
-use OC\Files\AppData;
-use ZipStreamer\COMPR;
 
 class UserExportService {
 	protected IAccountManager $accountManager;
@@ -83,104 +80,74 @@ class UserExportService {
 
 		$view = new View();
 
-		// TODO use a temp folder instead?
-		//~ $exportFolder = $this->tempManager->getTemporaryFolder();
-		$exportFolder = "$uid/export/";
-		$exportName = $uid.'_'.date('Y-m-d_H-i-s');
-		$finalTarget = $exportFolder.$exportName;
-
-		if (count($view->getDirectoryContent($exportFolder)) > 0) {
-			throw new UserExportException("There is already an export for this user $exportFolder");
-		}
+		$exportDestination = new ExportDestination($this->appDataFactory, $uid);
 
 		// copy the files
 		$this->copyFiles(
 			$uid,
-			$finalTarget,
+			$exportDestination,
 			$view,
 			$output
 		);
 
 		$this->exportUserInformation(
 			$user,
-			$finalTarget,
+			$exportDestination,
 			$view,
 			$output
 		);
 
 		$this->exportAccountInformation(
 			$user,
-			$finalTarget,
+			$exportDestination,
 			$view,
 			$output
 		);
 
 		$this->exportAppsSettings(
 			$uid,
-			$finalTarget,
+			$exportDestination,
 			$view,
 			$output
 		);
 
 		$this->exportVersions(
 			$uid,
-			$finalTarget,
+			$exportDestination,
 			$view,
 			$output
 		);
 
-		// TODO zip/tar the result
-		$appDataRoot = $this->appDataFactory->get(Application::APP_ID);
-		try {
-			$folder = $appDataRoot->getFolder('export');
-		} catch (\OCP\Files\NotFoundException $e) {
-			$folder = $appDataRoot->newFolder('export');
-		}
-		$file = $folder->newFile('test.zip');
-		$zip = new ZipStreamer(
-			[
-				'outstream' => $file->write(),
-				'zip64' => true,
-				'compress' => COMPR::STORE,
-				'level' => COMPR::NONE
-			]
-		);
-		$files = $view->getDirectoryContent($finalTarget);
-		foreach ($files as $f) {
-			switch ($f->getType()) {
-				case \OCP\Files\FileInfo::TYPE_FILE:
-					$read = $view->fopen($f->getPath(), 'rb');
-					$zip->addFileFromStream($read, $f->getName());
-				case \OCP\Files\FileInfo::TYPE_FOLDER:
-					// TODO
-				break;
-			}
-		}
-		$zip->finalize();
+		$exportDestination->close();
+		$output->writeln("Export saved in ".$exportDestination->getPath());
 	}
+
+	//~ public function import(, ?OutputInterface $output = null): void {
+	//~ }
 
 	/**
 	 * @throws UserExportException
 	 */
 	protected function copyFiles(string $uid,
-									 string $finalTarget,
+									 IExportDestination $exportDestination,
 									 View $view,
 									 OutputInterface $output): void {
-		$output->writeln("Copying files to $finalTarget/files…");
+		$output->writeln("Copying files…");
 
-		if ($view->copy("$uid/files", "$finalTarget/files", true) === false) {
+		if ($exportDestination->copyFromView($view, "$uid/files", "files") === false) {
 			throw new UserExportException("Could not copy files.");
 		}
+		// TODO files metadata should be exported as well if relevant. Maybe move this to an export operation
 	}
 
 	/**
 	 * @throws UserExportException
 	 */
 	protected function exportUserInformation(IUser $user,
-									 string $finalTarget,
+									 IExportDestination $exportDestination,
 									 View $view,
 									 OutputInterface $output): void {
-		$output->writeln("Exporting user information in $finalTarget/user.json…");
+		$output->writeln("Exporting user information in user.json…");
 
 		// TODO store backend? email? avatar? cloud id? quota?
 		$userinfo = [
@@ -191,7 +158,7 @@ class UserExportService {
 			'enabled' => $user->isEnabled(),
 		];
 
-		if ($view->file_put_contents("$finalTarget/user.json", json_encode($userinfo)) === false) {
+		if ($exportDestination->addFile("user.json", json_encode($userinfo)) === false) {
 			throw new UserExportException("Could not export user information.");
 		}
 	}
@@ -200,12 +167,12 @@ class UserExportService {
 	 * @throws UserExportException
 	 */
 	protected function exportAccountInformation(IUser $user,
-									 string $finalTarget,
+									 IExportDestination $exportDestination,
 									 View $view,
 									 OutputInterface $output): void {
-		$output->writeln("Exporting account information in $finalTarget/account.json…");
+		$output->writeln("Exporting account information in account.json…");
 
-		if ($view->file_put_contents("$finalTarget/account.json", json_encode($this->accountManager->getAccount($user))) === false) {
+		if ($exportDestination->addFile("account.json", json_encode($this->accountManager->getAccount($user))) === false) {
 			throw new UserExportException("Could not export account information.");
 		}
 	}
@@ -214,17 +181,17 @@ class UserExportService {
 	 * @throws UserExportException
 	 */
 	protected function exportVersions(string $uid,
-									 string $finalTarget,
+									 IExportDestination $exportDestination,
 									 View $view,
 									 OutputInterface $output): void {
-		$output->writeln("Exporting versions in $finalTarget/versions.json…");
+		$output->writeln("Exporting versions in versions.json…");
 
 		$versions = array_merge(
 			['core' => $this->config->getSystemValue('version')],
 			\OC_App::getAppVersions()
 		);
 
-		if ($view->file_put_contents("$finalTarget/versions.json", json_encode($versions)) === false) {
+		if ($exportDestination->addFile("versions.json", json_encode($versions)) === false) {
 			throw new UserExportException("Could not export versions.");
 		}
 	}
@@ -234,11 +201,11 @@ class UserExportService {
 	 * @throws UserExportException
 	 */
 	protected function exportAppsSettings(string $uid,
-									 string $finalTarget,
+									 IExportDestination $exportDestination,
 									 View $view,
 									 OutputInterface $output): void {
 		// TODO settings from core and some special fake appids like login/avatar are not exported
-		$output->writeln("Exporting settings in $finalTarget/settings.json…");
+		$output->writeln("Exporting settings in settings.json…");
 		$data = [];
 
 		$apps = \OC_App::getEnabledApps(false, true);
@@ -250,7 +217,7 @@ class UserExportService {
 			}
 		}
 
-		if ($view->file_put_contents("$finalTarget/settings.json", json_encode($data)) === false) {
+		if ($exportDestination->addFile("settings.json", json_encode($data)) === false) {
 			throw new UserExportException("Could not export settings.");
 		}
 	}

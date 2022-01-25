@@ -24,6 +24,7 @@
 
 	<commands>
 		<command>OCA\UserMigration\Command\Export</command>
+		<command>OCA\UserMigration\Command\Import</command>
 	</commands>
 
 	<navigations>

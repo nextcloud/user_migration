@@ -133,7 +133,7 @@ class UserExportService {
 	public function import(string $path, ?OutputInterface $output = null): void {
 		$output = $output ?? new NullOutput();
 
-		$output->writeln("Importing from $path…");
+		$output->writeln("Importing from ${path}…");
 		$importSource = new ImportSource($path);
 
 		try {

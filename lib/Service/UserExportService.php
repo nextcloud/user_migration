@@ -29,6 +29,8 @@ namespace OCA\UserMigration\Service;
 use OCA\UserMigration\Exception\UserExportException;
 use OCA\UserMigration\ExportDestination;
 use OCA\UserMigration\IExportDestination;
+use OCA\UserMigration\IImportSource;
+use OCA\UserMigration\ImportSource;
 use OC\Files\AppData;
 use OC\Files\Filesystem;
 use OC\Files\View;
@@ -37,6 +39,8 @@ use OCP\Files\IRootFolder;
 use OCP\IConfig;
 use OCP\ITempManager;
 use OCP\IUser;
+use OCP\IUserManager;
+use OCP\Security\ISecureRandom;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -44,6 +48,8 @@ class UserExportService {
 	protected IAccountManager $accountManager;
 
 	protected ITempManager $tempManager;
+
+	protected IUserManager $userManager;
 
 	protected IConfig $config;
 
@@ -56,12 +62,14 @@ class UserExportService {
 		IConfig $config,
 		IAccountManager $accountManager,
 		ITempManager $tempManager,
+		IUserManager $userManager,
 		AppData\Factory $appDataFactory
 	) {
 		$this->root = $rootFolder;
 		$this->config = $config;
 		$this->accountManager = $accountManager;
 		$this->tempManager = $tempManager;
+		$this->userManager = $userManager;
 		$this->appDataFactory = $appDataFactory;
 	}
 
@@ -122,8 +130,25 @@ class UserExportService {
 		$output->writeln("Export saved in ".$exportDestination->getPath());
 	}
 
-	//~ public function import(, ?OutputInterface $output = null): void {
-	//~ }
+	public function import(string $path, ?OutputInterface $output = null): void {
+		$output = $output ?? new NullOutput();
+
+		$output->writeln("Importing from $path…");
+		$importSource = new ImportSource($path);
+
+		try {
+			// TODO check versions
+
+			$user = $this->importUser($importSource, $output);
+			$this->importAccountInformation($user, $importSource, $output);
+			$this->importAppsSettings($user, $importSource, $output);
+			$this->importFiles($user, $importSource, $output);
+			$uid = $user->getUID();
+			$output->writeln("Successfully imported $uid from $path");
+		} finally {
+			$importSource->close();
+		}
+	}
 
 	/**
 	 * @throws UserExportException
@@ -138,6 +163,28 @@ class UserExportService {
 			throw new UserExportException("Could not copy files.");
 		}
 		// TODO files metadata should be exported as well if relevant. Maybe move this to an export operation
+	}
+
+	/**
+	 * @throws UserExportException
+	 */
+	protected function importFiles(IUser $user,
+									 IImportSource $importSource,
+									 OutputInterface $output): void {
+		$output->writeln("Importing files…");
+
+		$uid = $user->getUID();
+
+		// setup filesystem
+		// Requesting the user folder will set it up if the user hasn't logged in before
+		\OC::$server->getUserFolder($uid);
+		Filesystem::initMountPoints($uid);
+
+		$view = new View();
+
+		if ($importSource->copyToView($view, "files", "$uid/files") === false) {
+			throw new UserExportException("Could not import files.");
+		}
 	}
 
 	/**
@@ -166,6 +213,27 @@ class UserExportService {
 	/**
 	 * @throws UserExportException
 	 */
+	protected function importUser(IImportSource $importSource,
+									OutputInterface $output): IUser {
+		$output->writeln("Importing user information from user.json…");
+
+		$data = json_decode($importSource->getFileContents("user.json"), true, 512, JSON_THROW_ON_ERROR);
+
+		$user = $this->userManager->createUser($data['uid'], \OC::$server->getSecureRandom()->generate(10, ISecureRandom::CHAR_ALPHANUMERIC));
+
+		if ($user === false) {
+			throw new UserExportException("Failed to create user.");
+		}
+
+		$user->setEnabled($data['enabled']);
+		$user->setDisplayName($data['displayName']);
+
+		return $user;
+	}
+
+	/**
+	 * @throws UserExportException
+	 */
 	protected function exportAccountInformation(IUser $user,
 									 IExportDestination $exportDestination,
 									 View $view,
@@ -175,6 +243,17 @@ class UserExportService {
 		if ($exportDestination->addFile("account.json", json_encode($this->accountManager->getAccount($user))) === false) {
 			throw new UserExportException("Could not export account information.");
 		}
+	}
+
+	/**
+	 * @throws UserExportException
+	 */
+	protected function importAccountInformation(IUser $user,
+									 IImportSource $importSource,
+									 OutputInterface $output): void {
+		$output->writeln("Importing account information from account.json…?");
+
+		// TODO
 	}
 
 	/**
@@ -195,7 +274,6 @@ class UserExportService {
 			throw new UserExportException("Could not export versions.");
 		}
 	}
-
 
 	/**
 	 * @throws UserExportException
@@ -219,6 +297,22 @@ class UserExportService {
 
 		if ($exportDestination->addFile("settings.json", json_encode($data)) === false) {
 			throw new UserExportException("Could not export settings.");
+		}
+	}
+
+	/**
+	 * @throws UserExportException
+	 */
+	protected function importAppsSettings(IUser $user,
+									 IImportSource $importSource,
+									 OutputInterface $output): void {
+		$output->writeln("Importing settings from settings.json…");
+
+		$data = json_decode($importSource->getFileContents("settings.json"), true, 512, JSON_THROW_ON_ERROR);
+		foreach ($data as $add => $values) {
+			foreach ($values as $key => $value) {
+				$this->config->setUserValue($user->getUID(), $app, $key, $value);
+			}
 		}
 	}
 }

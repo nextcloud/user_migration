@@ -26,8 +26,6 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration;
 
-use OCA\UserMigration\AppInfo\Application;
-use OC\Files\AppData;
 use OC\Files\View;
 use OCP\ITempManager;
 use ZipStreamer\COMPR;
@@ -55,7 +53,7 @@ class ExportDestination implements IExportDestination {
 	 * {@inheritDoc}
 	 */
 	public function addFile(string $path, string $content): bool {
-		$stream = fopen('php://temp','r+');
+		$stream = fopen('php://temp', 'r+');
 		fwrite($stream, $content);
 		rewind($stream);
 		$this->streamer->addFileFromStream($stream, $path);

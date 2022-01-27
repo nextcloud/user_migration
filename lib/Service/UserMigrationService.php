@@ -6,6 +6,7 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2022 Côme Chilliet <come.chilliet@nextcloud.com>
  *
  * @author Côme Chilliet <come.chilliet@nextcloud.com>
+ * @author Christopher Ng <chrng8@gmail.com>
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -26,9 +27,13 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration\Service;
 
+use function count;
+use function date;
+use OC\AppFramework\Bootstrap\Coordinator;
 use OCA\UserMigration\Exception\UserMigrationException;
 use OCA\UserMigration\ExportDestination;
 use OCA\UserMigration\IExportDestination;
+use OCA\UserMigration\IExportOperation;
 use OCA\UserMigration\IImportSource;
 use OCA\UserMigration\ImportSource;
 use OC\Files\AppData;
@@ -37,14 +42,18 @@ use OC\Files\View;
 use OCP\Accounts\IAccountManager;
 use OCP\Files\IRootFolder;
 use OCP\IConfig;
+use OCP\IL10N;
 use OCP\ITempManager;
 use OCP\IUser;
 use OCP\IUserManager;
 use OCP\Security\ISecureRandom;
+use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class UserMigrationService {
+
 	protected IAccountManager $accountManager;
 
 	protected ITempManager $tempManager;
@@ -57,13 +66,25 @@ class UserMigrationService {
 
 	protected AppData\Factory $appDataFactory;
 
+	private ContainerInterface $container;
+
+	private Coordinator $coordinator;
+
+	private LoggerInterface $logger;
+
+	private IL10N $l10n;
+
 	public function __construct(
 		IRootFolder $rootFolder,
 		IConfig $config,
 		IAccountManager $accountManager,
 		ITempManager $tempManager,
 		IUserManager $userManager,
-		AppData\Factory $appDataFactory
+		AppData\Factory $appDataFactory,
+		ContainerInterface $container,
+		Coordinator $coordinator,
+		LoggerInterface $logger,
+		IL10N $l10n
 	) {
 		$this->root = $rootFolder;
 		$this->config = $config;
@@ -71,6 +92,10 @@ class UserMigrationService {
 		$this->tempManager = $tempManager;
 		$this->userManager = $userManager;
 		$this->appDataFactory = $appDataFactory;
+		$this->container = $container;
+		$this->coordinator = $coordinator;
+		$this->logger = $logger;
+		$this->l10n = $l10n;
 	}
 
 	/**
@@ -126,6 +151,17 @@ class UserMigrationService {
 			$view,
 			$output
 		);
+
+		// Run exports for other apps
+		$context = $this->coordinator->getRegistrationContext();
+
+		if ($context !== null) {
+			foreach ($context->getExportOperations() as $registration) {
+				/** @var IExportOperation $operation */
+				$operation = $this->container->get($registration->getService());
+				$operation->run($registration->getAppId(), $user, $exportFolder);
+			}
+		}
 
 		$exportDestination->close();
 		$output->writeln("Export saved in ".$exportDestination->getPath());

@@ -25,5 +25,5 @@ declare(strict_types=1);
  */
 namespace OCA\UserMigration\Exception;
 
-class UserExportException extends \Exception {
+class UserMigrationException extends \Exception {
 }

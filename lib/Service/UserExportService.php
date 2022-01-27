@@ -255,7 +255,7 @@ class UserExportService {
 									 OutputInterface $output): void {
 		$output->writeln("Importing account information from account.json…?");
 
-		// TODO
+		// TODO Import account information
 	}
 
 	/**

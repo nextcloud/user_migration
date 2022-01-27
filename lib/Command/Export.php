@@ -33,7 +33,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-// TODO: Should this export directly or trigger a job?
 class Export extends Command {
 
 	/** @var IUserManager */

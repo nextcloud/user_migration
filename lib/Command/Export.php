@@ -58,6 +58,11 @@ class Export extends Command {
 				'user',
 				InputArgument::REQUIRED,
 				'user to export'
+			)
+			->addArgument(
+				'folder',
+				InputArgument::REQUIRED,
+				'folder to export into'
 			);
 	}
 
@@ -70,7 +75,13 @@ class Export extends Command {
 		}
 
 		try {
-			$this->exportService->export($userObject, $output);
+			$path = $this->exportService->export($userObject, $output);
+			$exportName = $userObject->getUID().'_'.date('Y-m-d_H-i-s');
+			$folder = realpath($input->getArgument('folder'));
+			if (rename($path, $folder.'/'.$exportName.'.zip') === false) {
+				throw new \Exception("Failed to move $path to $folder/$exportName.zip");
+			}
+			$output->writeln("Moved the export to $folder/$exportName.zip");
 		} catch (\Exception $e) {
 			$output->writeln("<error>" . $e->getMessage() . "</error>");
 			return $e->getCode() !== 0 ? $e->getCode() : 1;

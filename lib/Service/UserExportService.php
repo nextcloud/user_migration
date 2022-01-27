@@ -76,8 +76,9 @@ class UserExportService {
 	/**
 	 * @throws UserExportException
 	 * @throws \OC\User\NoUserException
+	 * @return string path of the export
 	 */
-	public function export(IUser $user, ?OutputInterface $output = null): void {
+	public function export(IUser $user, ?OutputInterface $output = null): string {
 		$output = $output ?? new NullOutput();
 		$uid = $user->getUID();
 
@@ -88,7 +89,7 @@ class UserExportService {
 
 		$view = new View();
 
-		$exportDestination = new ExportDestination($this->appDataFactory, $uid);
+		$exportDestination = new ExportDestination($this->tempManager, $uid);
 
 		// copy the files
 		$this->copyFiles(
@@ -128,6 +129,7 @@ class UserExportService {
 
 		$exportDestination->close();
 		$output->writeln("Export saved in ".$exportDestination->getPath());
+		return $exportDestination->getPath();
 	}
 
 	public function import(string $path, ?OutputInterface $output = null): void {

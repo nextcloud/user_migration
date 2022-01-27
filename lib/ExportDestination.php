@@ -29,6 +29,7 @@ namespace OCA\UserMigration;
 use OCA\UserMigration\AppInfo\Application;
 use OC\Files\AppData;
 use OC\Files\View;
+use OCP\ITempManager;
 use ZipStreamer\COMPR;
 use ZipStreamer\ZipStreamer;
 
@@ -37,22 +38,11 @@ class ExportDestination implements IExportDestination {
 
 	private string $path;
 
-	public function __construct(AppData\Factory $appDataFactory, string $uid) {
-		$exportName = $uid.'_'.date('Y-m-d_H-i-s');
-		//~ $appDataRoot = $appDataFactory->get(Application::APP_ID);
-		//~ try {
-			//~ $folder = $appDataRoot->getFolder('export');
-		//~ } catch (\OCP\Files\NotFoundException $e) {
-			//~ $folder = $appDataRoot->newFolder('export');
-		//~ }
-		//~ $file = $folder->newFile($exportName.'.zip');
-		// TODO For now, hardcoding /tmp for tests
-		$this->path = '/tmp/'.$exportName.'.zip';
+	public function __construct(ITempManager $tempManager, string $uid) {
+		$this->path = $tempManager->getTemporaryFile('.zip');
 		$r = fopen($this->path, 'w');
-		//~ $this->path = 'export/'.$file->getName();
 		$this->streamer = new ZipStreamer(
 			[
-				//~ 'outstream' => $file->write(),
 				'outstream' => $r,
 				'zip64' => true,
 				'compress' => COMPR::STORE,

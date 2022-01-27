@@ -28,7 +28,7 @@ namespace OCA\UserMigration\BackgroundJob;
 use OCA\UserMigration\AppInfo\Application;
 use OCA\UserMigration\Db\UserExportMapper;
 use OCA\UserMigration\Db\UserExport;
-use OCA\UserMigration\Service\UserExportService;
+use OCA\UserMigration\Service\UserMigrationService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\QueuedJob;
 use OCP\ILogger;
@@ -41,7 +41,7 @@ class UserExportJob extends QueuedJob {
 	/** @var IUserManager $userManager */
 	private $userManager;
 
-	/** @var UserExportService */
+	/** @var UserMigrationService */
 	private $exportService;
 
 	/** @var ILogger */
@@ -55,7 +55,7 @@ class UserExportJob extends QueuedJob {
 
 	public function __construct(ITimeFactory $timeFactory,
 								IUserManager $userManager,
-								UserExportService $exportService,
+								UserMigrationService $exportService,
 								ILogger $logger,
 								NotificationManager $notificationManager,
 								UserExportMapper $mapper) {

@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration\Command;
 
-use OCA\UserMigration\Service\UserExportService;
+use OCA\UserMigration\Service\UserMigrationService;
 use OCP\IUser;
 use OCP\IUserManager;
 use Symfony\Component\Console\Command\Command;
@@ -38,11 +38,11 @@ class Export extends Command {
 	/** @var IUserManager */
 	private $userManager;
 
-	/** @var UserExportService */
+	/** @var UserMigrationService */
 	private $exportService;
 
 	public function __construct(IUserManager $userManager,
-								UserExportService $exportService
+								UserMigrationService $exportService
 								) {
 		parent::__construct();
 		$this->userManager = $userManager;

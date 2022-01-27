@@ -28,7 +28,16 @@ namespace OCA\UserMigration;
 
 use OCP\IUser;
 
-interface IExportOperation {
+interface IMigrationOperation {
+	public function export(
+		string $appId,
+		IUser $user,
+		IExportDestination $exportDestination,
+		OutputInterface $output): void;
 
-	public function run(string $appId, IUser $user, string $exportRoot): void;
+	public function import(
+		string $appId,
+		IUser $user,
+		IImportSource $importSource,
+		OutputInterface $output): void;
 }

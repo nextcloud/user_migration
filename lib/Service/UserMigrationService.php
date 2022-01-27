@@ -33,8 +33,8 @@ use OC\AppFramework\Bootstrap\Coordinator;
 use OCA\UserMigration\Exception\UserMigrationException;
 use OCA\UserMigration\ExportDestination;
 use OCA\UserMigration\IExportDestination;
-use OCA\UserMigration\IExportOperation;
 use OCA\UserMigration\IImportSource;
+use OCA\UserMigration\IMigrationOperation;
 use OCA\UserMigration\ImportSource;
 use OC\Files\AppData;
 use OC\Files\Filesystem;
@@ -156,10 +156,10 @@ class UserMigrationService {
 		$context = $this->coordinator->getRegistrationContext();
 
 		if ($context !== null) {
-			foreach ($context->getExportOperations() as $registration) {
-				/** @var IExportOperation $operation */
+			foreach ($context->getMigrationOperations() as $registration) {
+				/** @var IMigrationOperation $operation */
 				$operation = $this->container->get($registration->getService());
-				$operation->run($registration->getAppId(), $user, $exportFolder);
+				$operation->export($registration->getAppId(), $user, $exportDestination, $output);
 			}
 		}
 
@@ -181,6 +181,18 @@ class UserMigrationService {
 			$this->importAccountInformation($user, $importSource, $output);
 			$this->importAppsSettings($user, $importSource, $output);
 			$this->importFiles($user, $importSource, $output);
+
+			// Run imports for other apps
+			$context = $this->coordinator->getRegistrationContext();
+
+			if ($context !== null) {
+				foreach ($context->getMigrationOperations() as $registration) {
+					/** @var IMigrationOperation $operation */
+					$operation = $this->container->get($registration->getService());
+					$operation->import($registration->getAppId(), $user, $importSource, $output);
+				}
+			}
+
 			$uid = $user->getUID();
 			$output->writeln("Successfully imported $uid from $path");
 		} finally {

@@ -28,7 +28,6 @@ namespace OCA\UserMigration;
 
 use OC\Archive\Archive;
 use OC\Archive\ZIP;
-use OCA\UserMigration\AppInfo\Application;
 use OC\Files\View;
 
 class ImportSource implements IImportSource {

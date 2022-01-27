@@ -311,7 +311,7 @@ class UserMigrationService {
 		$output->writeln("Importing settings from settings.json…");
 
 		$data = json_decode($importSource->getFileContents("settings.json"), true, 512, JSON_THROW_ON_ERROR);
-		foreach ($data as $add => $values) {
+		foreach ($data as $app => $values) {
 			foreach ($values as $key => $value) {
 				$this->config->setUserValue($user->getUID(), $app, $key, $value);
 			}

@@ -37,11 +37,11 @@ class Import extends Command {
 	private $userManager;
 
 	/** @var UserMigrationService */
-	private $exportService;
+	private $migrationService;
 
-	public function __construct(UserMigrationService $exportService) {
+	public function __construct(UserMigrationService $migrationService) {
 		parent::__construct();
-		$this->exportService = $exportService;
+		$this->migrationService = $migrationService;
 	}
 
 	protected function configure() {
@@ -57,7 +57,7 @@ class Import extends Command {
 
 	protected function execute(InputInterface $input, OutputInterface $output): int {
 		try {
-			$this->exportService->import($input->getArgument('archive'), $output);
+			$this->migrationService->import($input->getArgument('archive'), $output);
 		} catch (\Exception $e) {
 			$output->writeln("$e");
 			$output->writeln("<error>" . $e->getMessage() . "</error>");

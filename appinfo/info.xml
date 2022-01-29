@@ -26,11 +26,4 @@
 		<command>OCA\UserMigration\Command\Export</command>
 		<command>OCA\UserMigration\Command\Import</command>
 	</commands>
-
-	<navigations>
-		<navigation>
-			<name>User Migration</name>
-			<route>user_migration.page.index</route>
-		</navigation>
-	</navigations>
  </info>

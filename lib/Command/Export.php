@@ -39,14 +39,14 @@ class Export extends Command {
 	private $userManager;
 
 	/** @var UserMigrationService */
-	private $exportService;
+	private $migrationService;
 
 	public function __construct(IUserManager $userManager,
-								UserMigrationService $exportService
+								UserMigrationService $migrationService
 								) {
 		parent::__construct();
 		$this->userManager = $userManager;
-		$this->exportService = $exportService;
+		$this->migrationService = $migrationService;
 	}
 
 	protected function configure() {
@@ -74,7 +74,7 @@ class Export extends Command {
 		}
 
 		try {
-			$path = $this->exportService->export($userObject, $output);
+			$path = $this->migrationService->export($userObject, $output);
 			$exportName = $userObject->getUID().'_'.date('Y-m-d_H-i-s');
 			$folder = realpath($input->getArgument('folder'));
 			if (rename($path, $folder.'/'.$exportName.'.zip') === false) {

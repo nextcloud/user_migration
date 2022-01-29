@@ -42,7 +42,7 @@ class UserExportJob extends QueuedJob {
 	private $userManager;
 
 	/** @var UserMigrationService */
-	private $exportService;
+	private $migrationService;
 
 	/** @var ILogger */
 	private $logger;
@@ -55,14 +55,14 @@ class UserExportJob extends QueuedJob {
 
 	public function __construct(ITimeFactory $timeFactory,
 								IUserManager $userManager,
-								UserMigrationService $exportService,
+								UserMigrationService $migrationService,
 								ILogger $logger,
 								NotificationManager $notificationManager,
 								UserExportMapper $mapper) {
 		parent::__construct($timeFactory);
 
 		$this->userManager = $userManager;
-		$this->exportService = $exportService;
+		$this->migrationService = $migrationService;
 		$this->logger = $logger;
 		$this->notificationManager = $notificationManager;
 		$this->mapper = $mapper;
@@ -83,7 +83,7 @@ class UserExportJob extends QueuedJob {
 		}
 
 		try {
-			$this->exportService->export($userObject);
+			$this->migrationService->export($userObject);
 			$this->successNotification($export);
 		} catch (\Exception $e) {
 			$this->logger->logException($e);

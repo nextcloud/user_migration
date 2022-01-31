@@ -284,18 +284,9 @@ class UserMigrationService {
 									 IExportDestination $exportDestination,
 									 View $view,
 									 OutputInterface $output): void {
-		// TODO settings from core and some special fake appids like login/avatar are not exported
 		$output->writeln("Exporting settings in settings.json…");
-		$data = [];
 
-		$apps = \OC_App::getEnabledApps(false, true);
-
-		foreach ($apps as $app) {
-			$keys = $this->config->getUserKeys($uid, $app);
-			foreach ($keys as $key) {
-				$data[$app][$key] = $this->config->getUserValue($uid, $app, $key);
-			}
-		}
+		$data = $this->config->getAllUserValues($uid);
 
 		if ($exportDestination->addFile("settings.json", json_encode($data)) === false) {
 			throw new UserMigrationException("Could not export settings.");

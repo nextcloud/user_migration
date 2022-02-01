@@ -26,7 +26,8 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration;
 
-use OC\Files\View;
+use OCP\Files\File;
+use OCP\Files\Folder;
 use OCP\ITempManager;
 use ZipStreamer\COMPR;
 use ZipStreamer\ZipStreamer;
@@ -63,20 +64,18 @@ class ExportDestination implements IExportDestination {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function copyFromView(View $view, string $sourcePath, string $destinationPath): bool {
+	public function copyFolder(Folder $folder, string $destinationPath): bool {
 		$this->streamer->addEmptyDir($destinationPath);
-		$files = $view->getDirectoryContent($sourcePath);
-		foreach ($files as $f) {
-			switch ($f->getType()) {
-				case \OCP\Files\FileInfo::TYPE_FILE:
-					$read = $view->fopen($f->getPath(), 'rb');
-					$this->streamer->addFileFromStream($read, $destinationPath.'/'.$f->getName());
-				break;
-				case \OCP\Files\FileInfo::TYPE_FOLDER:
-					if ($this->copyFromView($view, $sourcePath.'/'.$f->getName(), $destinationPath.'/'.$f->getName()) === false) {
-						return false;
-					}
-				break;
+		$nodes = $folder->getDirectoryListing();
+		foreach ($nodes as $node) {
+			if ($node instanceof File) {
+				$read = $node->fopen('rb');
+				$this->streamer->addFileFromStream($read, $destinationPath.'/'.$node->getName());
+			} else {
+				$success = $this->copyFolder($node, $destinationPath.'/'.$node->getName());
+				if ($success === false) {
+					return false;
+				}
 			}
 		}
 		return true;

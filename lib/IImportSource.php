@@ -26,7 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration;
 
-use OC\Files\View;
+use OCP\Files\Folder;
 
 interface IImportSource {
 	/**
@@ -46,12 +46,12 @@ interface IImportSource {
 	public function getFileAsStream(string $path);
 
 	/**
-	 * Copy files from the export to View
+	 * Copy files from the export to a Folder
 	 *
+	 * Folder $destination folder to copy into
 	 * string $sourcePath path in the export archive
-	 * string $destinationPath path to copy to in the view
 	 */
-	public function copyToView(View $view, string $sourcePath, string $destinationPath): bool;
+	public function copyToFolder(Folder $destination, string $sourcePath): bool;
 
 	/**
 	 * Called after import is complete

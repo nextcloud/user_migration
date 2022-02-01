@@ -26,7 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration;
 
-use OC\Files\View;
+use OCP\Files\Folder;
 
 interface IExportDestination {
 	/**
@@ -39,9 +39,13 @@ interface IExportDestination {
 	public function addFile(string $path, string $content): bool;
 
 	/**
-	 * Copy files from View
+	 * Copy a folder to the export
+	 *
+	 * @param Folder $folder folder to copy to the export archive.
+	 * @param string $destinationPath Full path to the folder in the export archive. Parent directories will be created if needed.
+	 * @return bool whether the folder was successfully added.
 	 */
-	public function copyFromView(View $view, string $sourcePath, string $destinationPath): bool;
+	public function copyFolder(Folder $folder, string $destinationPath): bool;
 
 	/**
 	 * Called after export is complete

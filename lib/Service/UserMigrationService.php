@@ -33,7 +33,6 @@ use OCA\UserMigration\IImportSource;
 use OCA\UserMigration\ImportSource;
 use OC\Files\AppData;
 use OC\Files\Filesystem;
-use OC\Files\View;
 use OCP\Accounts\IAccountManager;
 use OCP\Files\IRootFolder;
 use OCP\IConfig;
@@ -87,43 +86,36 @@ class UserMigrationService {
 		\OC::$server->getUserFolder($uid);
 		Filesystem::initMountPoints($uid);
 
-		$view = new View();
-
 		$exportDestination = new ExportDestination($this->tempManager, $uid);
 
 		// copy the files
 		$this->exportFiles(
 			$uid,
 			$exportDestination,
-			$view,
 			$output
 		);
 
 		$this->exportUserInformation(
 			$user,
 			$exportDestination,
-			$view,
 			$output
 		);
 
 		$this->exportAccountInformation(
 			$user,
 			$exportDestination,
-			$view,
 			$output
 		);
 
 		$this->exportAppsSettings(
 			$uid,
 			$exportDestination,
-			$view,
 			$output
 		);
 
 		$this->exportVersions(
 			$uid,
 			$exportDestination,
-			$view,
 			$output
 		);
 
@@ -157,11 +149,10 @@ class UserMigrationService {
 	 */
 	protected function exportFiles(string $uid,
 									 IExportDestination $exportDestination,
-									 View $view,
 									 OutputInterface $output): void {
 		$output->writeln("Copying files…");
 
-		if ($exportDestination->copyFromView($view, "$uid/files", "files") === false) {
+		if ($exportDestination->copyFolder($this->root->getUserFolder($uid), "files") === false) {
 			throw new UserMigrationException("Could not copy files.");
 		}
 		// TODO files metadata should be exported as well if relevant. Maybe move this to an export operation
@@ -177,14 +168,7 @@ class UserMigrationService {
 
 		$uid = $user->getUID();
 
-		// setup filesystem
-		// Requesting the user folder will set it up if the user hasn't logged in before
-		\OC::$server->getUserFolder($uid);
-		Filesystem::initMountPoints($uid);
-
-		$view = new View();
-
-		if ($importSource->copyToView($view, "files", "$uid/files") === false) {
+		if ($importSource->copyToFolder($this->root->getUserFolder($uid), "files") === false) {
 			throw new UserMigrationException("Could not import files.");
 		}
 	}
@@ -194,7 +178,6 @@ class UserMigrationService {
 	 */
 	protected function exportUserInformation(IUser $user,
 									 IExportDestination $exportDestination,
-									 View $view,
 									 OutputInterface $output): void {
 		$output->writeln("Exporting user information in user.json…");
 
@@ -238,7 +221,6 @@ class UserMigrationService {
 	 */
 	protected function exportAccountInformation(IUser $user,
 									 IExportDestination $exportDestination,
-									 View $view,
 									 OutputInterface $output): void {
 		$output->writeln("Exporting account information in account.json…");
 
@@ -263,7 +245,6 @@ class UserMigrationService {
 	 */
 	protected function exportVersions(string $uid,
 									 IExportDestination $exportDestination,
-									 View $view,
 									 OutputInterface $output): void {
 		$output->writeln("Exporting versions in versions.json…");
 
@@ -282,7 +263,6 @@ class UserMigrationService {
 	 */
 	protected function exportAppsSettings(string $uid,
 									 IExportDestination $exportDestination,
-									 View $view,
 									 OutputInterface $output): void {
 		$output->writeln("Exporting settings in settings.json…");
 

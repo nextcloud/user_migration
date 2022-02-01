@@ -28,7 +28,7 @@ namespace OCA\UserMigration;
 
 use OC\Archive\Archive;
 use OC\Archive\ZIP;
-use OC\Files\View;
+use OCP\Files\Folder;
 
 class ImportSource implements IImportSource {
 	private Archive $archive;
@@ -58,40 +58,14 @@ class ImportSource implements IImportSource {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function copyToView(View $view, string $sourcePath, string $destinationPath): bool {
+	public function copyToFolder(Folder $destination, string $sourcePath): bool {
 		// TODO at the very least log errors
 		$sourcePath = rtrim($sourcePath, '/').'/';
-		$destinationPath = rtrim($destinationPath, '/');
 		$files = $this->archive->getFolder($sourcePath);
-
-		$folderPath = $destinationPath;
-		$toCreate = [];
-		while (!empty($folderPath) && !$view->file_exists($folderPath)) {
-			$toCreate[] = $folderPath;
-			$lastSlash = strrpos($folderPath, '/');
-			if ($lastSlash !== false) {
-				$folderPath = substr($folderPath, 0, $lastSlash);
-			} else {
-				$folderPath = '';
-			}
-		}
-
-		if (!empty($folderPath) && $view->is_file($folderPath)) {
-			return false;
-		}
-
-		$toCreate = array_reverse($toCreate);
-		foreach ($toCreate as $currentPath) {
-			if ($view->mkdir($currentPath) === false) {
-				return false;
-			}
-		}
-
-		$destinationPath .= '/';
 
 		foreach ($files as $path) {
 			if (str_ends_with($path, '/')) {
-				if ($this->copyToView($view, $sourcePath.$path, $destinationPath.$path) === false) {
+				if ($this->copyToFolder($destination->newFolder($path), $sourcePath.$path) === false) {
 					return false;
 				}
 			} else {
@@ -99,7 +73,7 @@ class ImportSource implements IImportSource {
 				if ($stream === false) {
 					return false;
 				}
-				if ($view->file_put_contents($destinationPath.$path, $stream) === false) {
+				if ($destination->newFile($destinationPath.$path, $stream) === false) {
 					return false;
 				}
 			}

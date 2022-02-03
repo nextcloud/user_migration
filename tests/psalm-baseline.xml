@@ -1,2 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<files psalm-version="3.16@d03e5ef057d6adc656c0ff7e166c50b73b4f48f3"/>
+<files psalm-version="4.19.0@a2ad69ae4f5ab1f7d225a8dc4e2ec2d9415ed599">
+  <file src="lib/ExportDestination.php">
+    <InvalidArgument occurrences="2">
+      <code>$read</code>
+      <code>$stream</code>
+    </InvalidArgument>
+  </file>
+  <file src="lib/ImportSource.php">
+    <InvalidPropertyAssignmentValue occurrences="1">
+      <code>new ZIP($this-&gt;path)</code>
+    </InvalidPropertyAssignmentValue>
+  </file>
+  <file src="lib/Service/UserMigrationService.php">
+    <MissingDependency occurrences="4">
+      <code>$this-&gt;root</code>
+      <code>$this-&gt;root</code>
+      <code>IRootFolder</code>
+      <code>IRootFolder</code>
+    </MissingDependency>
+  </file>
+</files>

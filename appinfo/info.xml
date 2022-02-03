@@ -17,4 +17,9 @@
 	<dependencies>
 		<nextcloud min-version="24" max-version="24"/>
 	</dependencies>
+
+	<commands>
+		<command>OCA\UserMigration\Command\Export</command>
+		<command>OCA\UserMigration\Command\Import</command>
+	</commands>
  </info>

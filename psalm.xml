@@ -17,4 +17,14 @@
 	<extraFiles>
 		<directory name="vendor" />
 	</extraFiles>
+	<issueHandlers>
+		<UndefinedClass>
+			<errorLevel type="suppress">
+				<referencedClass name="OC" />
+				<referencedClass name="OC_App" />
+				<referencedClass name="OC\Archive\Archive" />
+				<referencedClass name="OC\Archive\ZIP" />
+			</errorLevel>
+		</UndefinedClass>
+	</issueHandlers>
 </psalm>

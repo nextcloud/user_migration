@@ -23,6 +23,7 @@
         "nextcloud/coding-standard": "^1.0.0",
         "phpunit/phpunit": "^9.5",
 		"christophwurst/nextcloud": "dev-master",
-		"vimeo/psalm": "^4.19"
+		"vimeo/psalm": "^4.19",
+		"deepdiver/zipstreamer": "^2.0"
     }
 }

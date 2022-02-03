@@ -63,20 +63,22 @@ class ImportSource implements IImportSource {
 		$sourcePath = rtrim($sourcePath, '/').'/';
 		$files = $this->archive->getFolder($sourcePath);
 
-		foreach ($files as $path) {
-			if (str_ends_with($path, '/')) {
-				if ($this->copyToFolder($destination->newFolder($path), $sourcePath.$path) === false) {
-					return false;
-				}
-			} else {
-				$stream = $this->archive->getStream($sourcePath.$path, 'r');
-				if ($stream === false) {
-					return false;
-				}
-				if ($destination->newFile($path, $stream) === false) {
-					return false;
+		try {
+			foreach ($files as $path) {
+				if (str_ends_with($path, '/')) {
+					if ($this->copyToFolder($destination->newFolder($path), $sourcePath.$path) === false) {
+						return false;
+					}
+				} else {
+					$stream = $this->archive->getStream($sourcePath.$path, 'r');
+					if ($stream === false) {
+						return false;
+					}
+					$destination->newFile($path, $stream);
 				}
 			}
+		} catch (\OCP\Files\NotPermittedException $e) {
+			return false;
 		}
 		return true;
 	}

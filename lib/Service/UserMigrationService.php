@@ -43,15 +43,15 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class UserMigrationService {
+	protected IRootFolder $root;
+
+	protected IConfig $config;
+
 	protected IAccountManager $accountManager;
 
 	protected ITempManager $tempManager;
 
 	protected IUserManager $userManager;
-
-	protected IConfig $config;
-
-	protected IRootFolder $root;
 
 	public function __construct(
 		IRootFolder $rootFolder,

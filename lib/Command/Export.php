@@ -49,7 +49,7 @@ class Export extends Command {
 		$this->migrationService = $migrationService;
 	}
 
-	protected function configure() {
+	protected function configure(): void {
 		$this
 			->setName('user:export')
 			->setDescription('Export a user.')

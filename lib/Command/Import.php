@@ -41,7 +41,7 @@ class Import extends Command {
 		$this->migrationService = $migrationService;
 	}
 
-	protected function configure() {
+	protected function configure(): void {
 		$this
 			->setName('user:import')
 			->setDescription('Import a user.')

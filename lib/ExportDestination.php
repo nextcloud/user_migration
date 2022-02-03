@@ -71,11 +71,13 @@ class ExportDestination implements IExportDestination {
 			if ($node instanceof File) {
 				$read = $node->fopen('rb');
 				$this->streamer->addFileFromStream($read, $destinationPath.'/'.$node->getName());
-			} else {
+			} elseif ($node instanceof Folder) {
 				$success = $this->copyFolder($node, $destinationPath.'/'.$node->getName());
 				if ($success === false) {
 					return false;
 				}
+			} else {
+				return false;
 			}
 		}
 		return true;

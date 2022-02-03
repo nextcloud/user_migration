@@ -33,9 +33,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Import extends Command {
 
-	/** @var IUserManager */
-	private $userManager;
-
 	/** @var UserMigrationService */
 	private $migrationService;
 
@@ -61,7 +58,7 @@ class Import extends Command {
 		} catch (\Exception $e) {
 			$output->writeln("$e");
 			$output->writeln("<error>" . $e->getMessage() . "</error>");
-			return $e->getCode() !== 0 ? $e->getCode() : 1;
+			return $e->getCode() !== 0 ? (int)$e->getCode() : 1;
 		}
 
 		return 0;

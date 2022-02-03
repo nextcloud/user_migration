@@ -73,7 +73,7 @@ class ImportSource implements IImportSource {
 				if ($stream === false) {
 					return false;
 				}
-				if ($destination->newFile($destinationPath.$path, $stream) === false) {
+				if ($destination->newFile($path, $stream) === false) {
 					return false;
 				}
 			}

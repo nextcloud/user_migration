@@ -83,7 +83,7 @@ class Export extends Command {
 			$output->writeln("Moved the export to $folder/$exportName.zip");
 		} catch (\Exception $e) {
 			$output->writeln("<error>" . $e->getMessage() . "</error>");
-			return $e->getCode() !== 0 ? $e->getCode() : 1;
+			return $e->getCode() !== 0 ? (int)$e->getCode() : 1;
 		}
 
 		return 0;

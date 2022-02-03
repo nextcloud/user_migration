@@ -17,4 +17,11 @@
 	<extraFiles>
 		<directory name="vendor" />
 	</extraFiles>
+	<issueHandlers>
+		<UndefinedClass>
+			<errorLevel type="suppress">
+				<referencedClass name="OC" />
+			</errorLevel>
+		</UndefinedClass>
+	</issueHandlers>
 </psalm>

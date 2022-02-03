@@ -31,7 +31,6 @@ use OCA\UserMigration\ExportDestination;
 use OCA\UserMigration\IExportDestination;
 use OCA\UserMigration\IImportSource;
 use OCA\UserMigration\ImportSource;
-use OC\Files\AppData;
 use OC\Files\Filesystem;
 use OCP\Accounts\IAccountManager;
 use OCP\Files\IRootFolder;
@@ -54,27 +53,22 @@ class UserMigrationService {
 
 	protected IRootFolder $root;
 
-	protected AppData\Factory $appDataFactory;
-
 	public function __construct(
 		IRootFolder $rootFolder,
 		IConfig $config,
 		IAccountManager $accountManager,
 		ITempManager $tempManager,
-		IUserManager $userManager,
-		AppData\Factory $appDataFactory
+		IUserManager $userManager
 	) {
 		$this->root = $rootFolder;
 		$this->config = $config;
 		$this->accountManager = $accountManager;
 		$this->tempManager = $tempManager;
 		$this->userManager = $userManager;
-		$this->appDataFactory = $appDataFactory;
 	}
 
 	/**
 	 * @throws UserMigrationException
-	 * @throws \OC\User\NoUserException
 	 * @return string path of the export
 	 */
 	public function export(IUser $user, ?OutputInterface $output = null): string {

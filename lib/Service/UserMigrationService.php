@@ -5,6 +5,7 @@ declare(strict_types=1);
 /**
  * @copyright Copyright (c) 2022 Côme Chilliet <come.chilliet@nextcloud.com>
  *
+ * @author Christopher Ng <chrng8@gmail.com>
  * @author Côme Chilliet <come.chilliet@nextcloud.com>
  *
  * @license GNU AGPL version 3 or any later version
@@ -26,12 +27,11 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration\Service;
 
+use OC\AppFramework\Bootstrap\Coordinator;
+use OC\Files\Filesystem;
 use OCA\UserMigration\Exception\UserMigrationException;
 use OCA\UserMigration\ExportDestination;
-use OCA\UserMigration\IExportDestination;
-use OCA\UserMigration\IImportSource;
 use OCA\UserMigration\ImportSource;
-use OC\Files\Filesystem;
 use OCP\Accounts\IAccountManager;
 use OCP\Files\IRootFolder;
 use OCP\IConfig;
@@ -39,6 +39,10 @@ use OCP\ITempManager;
 use OCP\IUser;
 use OCP\IUserManager;
 use OCP\Security\ISecureRandom;
+use OCP\UserMigration\IExportDestination;
+use OCP\UserMigration\IImportSource;
+use OCP\UserMigration\IMigrator;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -53,18 +57,26 @@ class UserMigrationService {
 
 	protected IUserManager $userManager;
 
+	protected ContainerInterface $container;
+
+	protected Coordinator $coordinator;
+
 	public function __construct(
 		IRootFolder $rootFolder,
 		IConfig $config,
 		IAccountManager $accountManager,
 		ITempManager $tempManager,
-		IUserManager $userManager
+		IUserManager $userManager,
+		ContainerInterface $container,
+		Coordinator $coordinator
 	) {
 		$this->root = $rootFolder;
 		$this->config = $config;
 		$this->accountManager = $accountManager;
 		$this->tempManager = $tempManager;
 		$this->userManager = $userManager;
+		$this->container = $container;
+		$this->coordinator = $coordinator;
 	}
 
 	/**
@@ -113,6 +125,17 @@ class UserMigrationService {
 			$output
 		);
 
+		// Run exports of registered migrators
+		$context = $this->coordinator->getRegistrationContext();
+
+		if ($context !== null) {
+			foreach ($context->getUserMigrators() as $migratorRegistration) {
+				/** @var IMigrator $migrator */
+				$migrator = $this->container->get($migratorRegistration->getService());
+				$migrator->export($user, $exportDestination, $output);
+			}
+		}
+
 		$exportDestination->close();
 		$output->writeln("Export saved in ".$exportDestination->getPath());
 		return $exportDestination->getPath();
@@ -131,6 +154,18 @@ class UserMigrationService {
 			$this->importAccountInformation($user, $importSource, $output);
 			$this->importAppsSettings($user, $importSource, $output);
 			$this->importFiles($user, $importSource, $output);
+
+			// Run imports of registered migrators
+			$context = $this->coordinator->getRegistrationContext();
+
+			if ($context !== null) {
+				foreach ($context->getUserMigrators() as $migratorRegistration) {
+					/** @var IMigrator $migrator */
+					$migrator = $this->container->get($migratorRegistration->getService());
+					$migrator->import($user, $importSource, $output);
+				}
+			}
+
 			$uid = $user->getUID();
 			$output->writeln("Successfully imported $uid from $path");
 		} finally {

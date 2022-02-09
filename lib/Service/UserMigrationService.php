@@ -219,7 +219,7 @@ class UserMigrationService {
 			'enabled' => $user->isEnabled(),
 		];
 
-		if ($exportDestination->addFile("user.json", json_encode($userinfo)) === false) {
+		if ($exportDestination->addFileContents("user.json", json_encode($userinfo)) === false) {
 			throw new UserMigrationException("Could not export user information.");
 		}
 	}
@@ -253,7 +253,7 @@ class UserMigrationService {
 									 OutputInterface $output): void {
 		$output->writeln("Exporting account information in account.json…");
 
-		if ($exportDestination->addFile("account.json", json_encode($this->accountManager->getAccount($user))) === false) {
+		if ($exportDestination->addFileContents("account.json", json_encode($this->accountManager->getAccount($user))) === false) {
 			throw new UserMigrationException("Could not export account information.");
 		}
 	}
@@ -282,7 +282,7 @@ class UserMigrationService {
 			\OC_App::getAppVersions()
 		);
 
-		if ($exportDestination->addFile("versions.json", json_encode($versions)) === false) {
+		if ($exportDestination->addFileContents("versions.json", json_encode($versions)) === false) {
 			throw new UserMigrationException("Could not export versions.");
 		}
 	}
@@ -297,7 +297,7 @@ class UserMigrationService {
 
 		$data = $this->config->getAllUserValues($uid);
 
-		if ($exportDestination->addFile("settings.json", json_encode($data)) === false) {
+		if ($exportDestination->addFileContents("settings.json", json_encode($data)) === false) {
 			throw new UserMigrationException("Could not export settings.");
 		}
 	}

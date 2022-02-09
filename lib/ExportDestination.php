@@ -54,10 +54,18 @@ class ExportDestination implements IExportDestination {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function addFile(string $path, string $content): bool {
+	public function addFileContents(string $path, string $content): bool {
 		$stream = fopen('php://temp', 'r+');
 		fwrite($stream, $content);
 		rewind($stream);
+		$this->streamer->addFileFromStream($stream, $path);
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function addFileAsStream(string $path, $stream): bool {
 		$this->streamer->addFileFromStream($stream, $path);
 		return true;
 	}

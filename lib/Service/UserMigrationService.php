@@ -27,11 +27,10 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration\Service;
 
-use OC\AppFramework\Bootstrap\Coordinator;
-use OC\Files\Filesystem;
 use OCA\UserMigration\Exception\UserMigrationException;
 use OCA\UserMigration\ExportDestination;
 use OCA\UserMigration\ImportSource;
+use OCA\UserMigration\Migrator\TMigratorBasicVersionHandling;
 use OCP\Accounts\IAccountManager;
 use OCP\Files\IRootFolder;
 use OCP\IConfig;
@@ -42,11 +41,15 @@ use OCP\Security\ISecureRandom;
 use OCP\UserMigration\IExportDestination;
 use OCP\UserMigration\IImportSource;
 use OCP\UserMigration\IMigrator;
+use OC\AppFramework\Bootstrap\Coordinator;
+use OC\Files\Filesystem;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class UserMigrationService {
+	use TMigratorBasicVersionHandling;
+
 	protected IRootFolder $root;
 
 	protected IConfig $config;
@@ -93,6 +96,12 @@ class UserMigrationService {
 		\OC::$server->getUserFolder($uid);
 		Filesystem::initMountPoints($uid);
 
+		$context = $this->coordinator->getRegistrationContext();
+
+		if ($context === null) {
+			throw new UserMigrationException("Failed to get context");
+		}
+
 		$exportDestination = new ExportDestination($this->tempManager, $uid);
 
 		// copy the files
@@ -127,14 +136,17 @@ class UserMigrationService {
 		);
 
 		// Run exports of registered migrators
-		$context = $this->coordinator->getRegistrationContext();
-
-		if ($context !== null) {
-			foreach ($context->getUserMigrators() as $migratorRegistration) {
-				/** @var IMigrator $migrator */
-				$migrator = $this->container->get($migratorRegistration->getService());
-				$migrator->export($user, $exportDestination, $output);
-			}
+		$migratorVersions = [
+			static::class => $this->getVersion(),
+		];
+		foreach ($context->getUserMigrators() as $migratorRegistration) {
+			/** @var IMigrator $migrator */
+			$migrator = $this->container->get($migratorRegistration->getService());
+			$migrator->export($user, $exportDestination, $output);
+			$migratorVersions[$migrator::class] = $migrator->getVersion();
+		}
+		if ($exportDestination->addFileContents("migrator_versions.json", json_encode($migratorVersions)) === false) {
+			throw new UserMigrationException("Could not export user information.");
 		}
 
 		$exportDestination->close();
@@ -148,8 +160,33 @@ class UserMigrationService {
 		$output->writeln("Importing from ${path}…");
 		$importSource = new ImportSource($path);
 
+		$context = $this->coordinator->getRegistrationContext();
+
 		try {
-			// TODO check versions
+			if ($context === null) {
+				throw new UserMigrationException("Failed to get context");
+			}
+			// TODO move this to ImportSource so that migrators can query the versions as well
+			$migrationVersions = json_decode($importSource->getFileContents("migrator_versions.json"), true, 512, JSON_THROW_ON_ERROR);
+
+			if (!isset($migrationVersions[static::class])) {
+				throw new UserMigrationException("Cannot find version for main class ".static::class);
+			} elseif (!$this->canImport($migrationVersions[static::class])) {
+				throw new UserMigrationException("Version ${migrationVersions[static::class]} for main class ".static::class." is not compatible");
+			}
+
+			// Check versions
+			foreach ($context->getUserMigrators() as $migratorRegistration) {
+				/** @var IMigrator $migrator */
+				$migrator = $this->container->get($migratorRegistration->getService());
+				if (isset($migrationVersions[$migrator::class])) {
+					if (!$migrator->canImport($migrationVersions[$migrator::class])) {
+						throw new UserMigrationException("Version ${migrationVersions[$migrator::class]} for migrator ".$migrator::class." is not compatible");
+					}
+				} else {
+					$output->writeln("No input data for migrator ".$migrator::class.", ignoring");
+				}
+			}
 
 			$user = $this->importUser($importSource, $output);
 			$this->importAccountInformation($user, $importSource, $output);
@@ -157,12 +194,10 @@ class UserMigrationService {
 			$this->importFiles($user, $importSource, $output);
 
 			// Run imports of registered migrators
-			$context = $this->coordinator->getRegistrationContext();
-
-			if ($context !== null) {
-				foreach ($context->getUserMigrators() as $migratorRegistration) {
-					/** @var IMigrator $migrator */
-					$migrator = $this->container->get($migratorRegistration->getService());
+			foreach ($context->getUserMigrators() as $migratorRegistration) {
+				/** @var IMigrator $migrator */
+				$migrator = $this->container->get($migratorRegistration->getService());
+				if (isset($migrationVersions[$migrator::class])) {
 					$migrator->import($user, $importSource, $output);
 				}
 			}

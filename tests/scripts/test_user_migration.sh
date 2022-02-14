@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# This script exports a user, deletes it and imports it again, and searches for missing data
+# It is designed to work with docker setup from https://github.com/juliushaertl/nextcloud-docker-dev
+
 # Stop at first error
 set -e
 

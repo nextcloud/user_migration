@@ -33,9 +33,12 @@ use OCP\IUser;
 use OCP\UserMigration\IExportDestination;
 use OCP\UserMigration\IImportSource;
 use OCP\UserMigration\IMigrator;
+use OCP\UserMigration\TMigratorBasicVersionHandling;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class FilesMigrator implements IMigrator {
+	use TMigratorBasicVersionHandling;
+
 	protected IRootFolder $root;
 
 	public function __construct(

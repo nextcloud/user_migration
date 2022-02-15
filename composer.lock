@@ -179,16 +179,16 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ChristophWurst/nextcloud_composer.git",
-                "reference": "b664d5ed366d7dc1e9d7f81e62f09ec6c923430b"
+                "reference": "b21887763357434748b7793a67fdced7c35f88b5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ChristophWurst/nextcloud_composer/zipball/b664d5ed366d7dc1e9d7f81e62f09ec6c923430b",
-                "reference": "b664d5ed366d7dc1e9d7f81e62f09ec6c923430b",
+                "url": "https://api.github.com/repos/ChristophWurst/nextcloud_composer/zipball/b21887763357434748b7793a67fdced7c35f88b5",
+                "reference": "b21887763357434748b7793a67fdced7c35f88b5",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.3 || ~8.0.0",
+                "php": "^7.4 || ~8.0 || ~8.1",
                 "psr/container": "^1.0",
                 "psr/event-dispatcher": "^1.0",
                 "psr/log": "^1.1"
@@ -215,7 +215,7 @@
                 "issues": "https://github.com/ChristophWurst/nextcloud_composer/issues",
                 "source": "https://github.com/ChristophWurst/nextcloud_composer/tree/master"
             },
-            "time": "2022-02-03T01:08:28+00:00"
+            "time": "2022-02-15T01:22:02+00:00"
         },
         {
             "name": "composer/package-versions-deprecated",
@@ -4920,5 +4920,5 @@
     "platform-overrides": {
         "php": "7.4"
     },
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.1.0"
 }

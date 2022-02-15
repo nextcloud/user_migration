@@ -17,6 +17,9 @@
 	<extraFiles>
 		<directory name="vendor" />
 	</extraFiles>
+	<stubs>
+		<file name="tests/stubs/stub.phpstub" preloadClasses="true"/>
+	</stubs>
 	<issueHandlers>
 		<UndefinedClass>
 			<errorLevel type="suppress">

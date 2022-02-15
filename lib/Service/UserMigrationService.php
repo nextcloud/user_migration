@@ -60,9 +60,6 @@ class UserMigrationService {
 	protected ContainerInterface $container;
 
 	// Allow use of the private Coordinator class here to get and run registered migrators
-	/**
-	 * @psalm-suppress UndefinedClass
-	 */
 	protected Coordinator $coordinator;
 
 	public function __construct(
@@ -72,9 +69,6 @@ class UserMigrationService {
 		ITempManager $tempManager,
 		IUserManager $userManager,
 		ContainerInterface $container,
-		/**
-		 * @psalm-suppress UndefinedClass
-		 */
 		Coordinator $coordinator
 	) {
 		$this->root = $rootFolder;
@@ -83,9 +77,6 @@ class UserMigrationService {
 		$this->tempManager = $tempManager;
 		$this->userManager = $userManager;
 		$this->container = $container;
-		/**
-		 * @psalm-suppress UndefinedClass
-		 */
 		$this->coordinator = $coordinator;
 	}
 
@@ -136,9 +127,6 @@ class UserMigrationService {
 		);
 
 		// Run exports of registered migrators
-		/**
-		 * @psalm-suppress UndefinedClass
-		 */
 		$context = $this->coordinator->getRegistrationContext();
 
 		if ($context !== null) {
@@ -169,9 +157,6 @@ class UserMigrationService {
 			$this->importFiles($user, $importSource, $output);
 
 			// Run imports of registered migrators
-			/**
-			 * @psalm-suppress UndefinedClass
-			 */
 			$context = $this->coordinator->getRegistrationContext();
 
 			if ($context !== null) {

@@ -50,8 +50,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 class UserMigrationService {
 	use TMigratorBasicVersionHandling;
 
-	protected bool $mandatory = true;
-
 	protected IRootFolder $root;
 
 	protected IConfig $config;
@@ -83,6 +81,8 @@ class UserMigrationService {
 		$this->userManager = $userManager;
 		$this->container = $container;
 		$this->coordinator = $coordinator;
+
+		$this->mandatory = true;
 	}
 
 	/**

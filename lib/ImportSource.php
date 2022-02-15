@@ -36,6 +36,11 @@ class ImportSource implements IImportSource {
 
 	private string $path;
 
+	/**
+	 * @var ?array<string, int>
+	 */
+	private ?array $migratorVersions = null;
+
 	public function __construct(string $path) {
 		$this->path = $path;
 		$this->archive = new ZIP($this->path);
@@ -82,6 +87,16 @@ class ImportSource implements IImportSource {
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getMigratorVersions(): array {
+		if ($this->migratorVersions === null) {
+			$this->migratorVersions = json_decode($this->getFileContents("migrator_versions.json"), true, 512, JSON_THROW_ON_ERROR);
+		}
+		return $this->migratorVersions;
 	}
 
 	/**

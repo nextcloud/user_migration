@@ -95,6 +95,13 @@ class ExportDestination implements IExportDestination {
 	/**
 	 * {@inheritDoc}
 	 */
+	public function setMigratorVersions(array $versions): bool {
+		return $this->addFileContents("migrator_versions.json", json_encode($versions));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function close(): void {
 		$this->streamer->finalize();
 	}

@@ -27,6 +27,10 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration\Service;
 
+use InvalidArgumentException;
+use OC\Accounts\AccountProperty;
+use OC\Accounts\AccountPropertyCollection;
+use OC\Accounts\TAccountsHelper;
 use OCA\UserMigration\Exception\UserMigrationException;
 use OCA\UserMigration\ExportDestination;
 use OCA\UserMigration\ImportSource;
@@ -49,6 +53,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class UserMigrationService {
 	use TMigratorBasicVersionHandling;
+
+	use TAccountsHelper;
 
 	protected IRootFolder $root;
 
@@ -293,9 +299,34 @@ class UserMigrationService {
 	protected function importAccountInformation(IUser $user,
 									 IImportSource $importSource,
 									 OutputInterface $output): void {
-		$output->writeln("Importing account information from account.json…?");
+		$output->writeln("Importing account information from account.json…");
 
-		// TODO Import account information
+		$account = $this->accountManager->getAccount($user);
+
+		/** @var array<string, array> $data */
+		$data = json_decode($importSource->getFileContents("account.json"), true, 512, JSON_THROW_ON_ERROR);
+
+		foreach ($data as $propertyName => $propertyData) {
+			if ($this->isCollection($propertyName)) {
+				$collection = new AccountPropertyCollection($propertyName);
+				/** @var array<int, array{name: string, value: string, scope: string, verified: string, verificationData: string}> $collectionData */
+				$collectionData = $propertyData[$propertyName];
+				foreach ($collectionData as ['value' => $value, 'scope' => $scope, 'verified' => $verified, 'verificationData' => $verificationData]) {
+					$collection->addProperty(new AccountProperty($collection->getName(), $value, $scope, $verified, $verificationData));
+				}
+				$account->setPropertyCollection($collection);
+			} else {
+				/** @var array{name: string, value: string, scope: string, verified: string, verificationData: string} $propertyData */
+				['value' => $value, 'scope' => $scope, 'verified' => $verified, 'verificationData' => $verificationData] = $propertyData;
+				$account->setProperty($propertyName, $value, $scope, $verified, $verificationData);
+			}
+		}
+
+		try {
+			$this->accountManager->updateAccount($account);
+		} catch (InvalidArgumentException $e) {
+			throw new UserMigrationException("Failed to import account information");
+		}
 	}
 
 	/**

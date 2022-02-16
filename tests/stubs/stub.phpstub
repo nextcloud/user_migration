@@ -53,3 +53,19 @@ namespace OC\AppFramework\Bootstrap {
 		public function getAppId(): string {}
 	}
 }
+
+namespace OC\Accounts {
+
+    use OCP\Accounts\IAccountProperty;
+    use OCP\Accounts\IAccountPropertyCollection;
+
+	class AccountProperty {}
+
+	class AccountPropertyCollection {
+		public function addProperty(IAccountProperty $property): IAccountPropertyCollection {}
+	}
+
+	trait TAccountsHelper {
+		protected function isCollection(string $propertyName): bool {}
+	}
+}

@@ -71,10 +71,9 @@ class FilesMigrator implements IMigrator {
 	public function import(
 		IUser $user,
 		IImportSource $importSource,
-		OutputInterface $output,
-		?int $version
+		OutputInterface $output
 	): void {
-		if ($version === null) {
+		if ($importSource->getMigratorVersion(static::class) === null) {
 			$output->writeln("No version for ".static::class.", skipping import…");
 			return;
 		}

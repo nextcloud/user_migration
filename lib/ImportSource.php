@@ -102,6 +102,14 @@ class ImportSource implements IImportSource {
 	/**
 	 * {@inheritDoc}
 	 */
+	public function getMigratorVersion(string $migrator): ?int {
+		$versions = $this->getMigratorVersions();
+		return $versions[$migrator] ?? null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function close(): void {
 	}
 

@@ -178,8 +178,8 @@ class UserMigrationService {
 			foreach ($context->getUserMigrators() as $migratorRegistration) {
 				/** @var IMigrator $migrator */
 				$migrator = $this->container->get($migratorRegistration->getService());
-				if (!$migrator->canImport($importSource, $migratorVersions[get_class($migrator)] ?? null)) {
-					throw new UserMigrationException("Version ".($migratorVersions[get_class($migrator)] ?? 'null')." for migrator ".get_class($migrator)." is not compatible");
+				if (!$migrator->canImport($importSource)) {
+					throw new UserMigrationException("Version ".($importSource->getMigratorVersion(get_class($migrator)) ?? 'null')." for migrator ".get_class($migrator)." is not supported");
 				}
 			}
 
@@ -192,7 +192,7 @@ class UserMigrationService {
 			foreach ($context->getUserMigrators() as $migratorRegistration) {
 				/** @var IMigrator $migrator */
 				$migrator = $this->container->get($migratorRegistration->getService());
-				$migrator->import($user, $importSource, $output, $migratorVersions[get_class($migrator)] ?? null);
+				$migrator->import($user, $importSource, $output);
 			}
 
 			$uid = $user->getUID();

@@ -27,9 +27,16 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration\Migrator;
 
+use OCA\Files\AppInfo\Application;
 use OCA\UserMigration\Exception\UserMigrationException;
+use OCP\Files\File;
+use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
+use OCP\ITagManager;
+use OCP\ITags;
 use OCP\IUser;
+use OCP\SystemTag\ISystemTagManager;
+use OCP\SystemTag\ISystemTagObjectMapper;
 use OCP\UserMigration\IExportDestination;
 use OCP\UserMigration\IImportSource;
 use OCP\UserMigration\IMigrator;
@@ -41,10 +48,22 @@ class FilesMigrator implements IMigrator {
 
 	protected IRootFolder $root;
 
+	protected ITagManager $tagManager;
+
+	protected ISystemTagManager $systemTagManager;
+
+	protected ISystemTagObjectMapper $systemTagMapper;
+
 	public function __construct(
-		IRootFolder $rootFolder
+		IRootFolder $rootFolder,
+		ITagManager $tagManager,
+		ISystemTagManager $systemTagManager,
+		ISystemTagObjectMapper $systemTagMapper
 	) {
 		$this->root = $rootFolder;
+		$this->tagManager = $tagManager;
+		$this->systemTagManager = $systemTagManager;
+		$this->systemTagMapper = $systemTagMapper;
 	}
 
 	/**
@@ -59,10 +78,55 @@ class FilesMigrator implements IMigrator {
 
 		$uid = $user->getUID();
 
-		if ($exportDestination->copyFolder($this->root->getUserFolder($uid), "files") === false) {
+		if ($exportDestination->copyFolder($this->root->getUserFolder($uid), Application::APP_ID."/files") === false) {
 			throw new UserMigrationException("Could not copy files.");
 		}
-		// TODO files metadata should be exported as well if relevant.
+
+		$objectIds = $this->collectIds($this->root->getUserFolder($uid));
+
+		$output->writeln("Exporting file tags…");
+
+		$tagger = $this->tagManager->load(Application::APP_ID, [], false, $uid);
+		$tags = $tagger->getTagsForObjects(array_values($objectIds));
+		$taggedFiles = array_filter(array_map(fn($id) => $tags[$id] ?? [], $objectIds));
+		$output->writeln(print_r($taggedFiles, TRUE));
+		if ($exportDestination->addFileContents(Application::APP_ID."/tags.json", json_encode($taggedFiles)) === false) {
+			throw new UserMigrationException("Could not export tagged files information.");
+		}
+
+		$output->writeln("Exporting file systemtags…");
+
+		$systemTags = $this->systemTagMapper->getTagIdsForObjects(array_values($objectIds), 'files');
+		$systemTags = array_map(
+			fn($tagIds) => array_map(
+				fn($tag) => $tag->getName(),
+				$this->systemTagManager->getTagsByIds($tagIds)
+			),
+			$systemTags
+		);
+		$systemTaggedFiles = array_filter(array_map(fn($id) => $systemTags[$id] ?? [], $objectIds));
+		$output->writeln(print_r($systemTaggedFiles, TRUE));
+		if ($exportDestination->addFileContents(Application::APP_ID."/systemtags.json", json_encode($systemTaggedFiles)) === false) {
+			throw new UserMigrationException("Could not export systemtagged files information.");
+		}
+
+		// TODO other files metadata should be exported as well if relevant.
+	}
+
+	private function collectIds(Folder $folder, array &$objectIds = []): array
+	{
+		$nodes = $folder->getDirectoryListing();
+		foreach ($nodes as $node) {
+			$objectIds[$node->getPath()] = $node->getId();
+			if ($node instanceof File) {
+			} elseif ($node instanceof Folder) {
+				$this->collectIds($node, $objectIds);
+			} else {
+				throw new UserMigrationException("Unsupported node type: ".get_class($node));
+			}
+		}
+
+		return $objectIds;
 	}
 
 	/**
@@ -81,8 +145,10 @@ class FilesMigrator implements IMigrator {
 
 		$uid = $user->getUID();
 
-		if ($importSource->copyToFolder($this->root->getUserFolder($uid), "files") === false) {
+		if ($importSource->copyToFolder($this->root->getUserFolder($uid), Application::APP_ID."/files") === false) {
 			throw new UserMigrationException("Could not import files.");
 		}
+
+		//TODO import tags
 	}
 }

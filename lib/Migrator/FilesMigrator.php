@@ -37,6 +37,7 @@ use OCP\ITags;
 use OCP\IUser;
 use OCP\SystemTag\ISystemTagManager;
 use OCP\SystemTag\ISystemTagObjectMapper;
+use OCP\SystemTag\TagNotFoundException;
 use OCP\UserMigration\IExportDestination;
 use OCP\UserMigration\IImportSource;
 use OCP\UserMigration\IMigrator;
@@ -77,19 +78,19 @@ class FilesMigrator implements IMigrator {
 		$output->writeln("Copying files…");
 
 		$uid = $user->getUID();
+		$userFolder = $this->root->getUserFolder($uid);
 
-		if ($exportDestination->copyFolder($this->root->getUserFolder($uid), Application::APP_ID."/files") === false) {
+		if ($exportDestination->copyFolder($userFolder, Application::APP_ID."/files") === false) {
 			throw new UserMigrationException("Could not copy files.");
 		}
 
-		$objectIds = $this->collectIds($this->root->getUserFolder($uid));
+		$objectIds = $this->collectIds($userFolder, $userFolder->getPath());
 
 		$output->writeln("Exporting file tags…");
 
 		$tagger = $this->tagManager->load(Application::APP_ID, [], false, $uid);
 		$tags = $tagger->getTagsForObjects(array_values($objectIds));
 		$taggedFiles = array_filter(array_map(fn($id) => $tags[$id] ?? [], $objectIds));
-		$output->writeln(print_r($taggedFiles, TRUE));
 		if ($exportDestination->addFileContents(Application::APP_ID."/tags.json", json_encode($taggedFiles)) === false) {
 			throw new UserMigrationException("Could not export tagged files information.");
 		}
@@ -105,7 +106,6 @@ class FilesMigrator implements IMigrator {
 			$systemTags
 		);
 		$systemTaggedFiles = array_filter(array_map(fn($id) => $systemTags[$id] ?? [], $objectIds));
-		$output->writeln(print_r($systemTaggedFiles, TRUE));
 		if ($exportDestination->addFileContents(Application::APP_ID."/systemtags.json", json_encode($systemTaggedFiles)) === false) {
 			throw new UserMigrationException("Could not export systemtagged files information.");
 		}
@@ -113,14 +113,14 @@ class FilesMigrator implements IMigrator {
 		// TODO other files metadata should be exported as well if relevant.
 	}
 
-	private function collectIds(Folder $folder, array &$objectIds = []): array
+	private function collectIds(Folder $folder, string $rootPath, array &$objectIds = []): array
 	{
 		$nodes = $folder->getDirectoryListing();
 		foreach ($nodes as $node) {
-			$objectIds[$node->getPath()] = $node->getId();
+			$objectIds[preg_replace('/^'.preg_quote($rootPath, '/').'/', '', $node->getPath())] = $node->getId();
 			if ($node instanceof File) {
 			} elseif ($node instanceof Folder) {
-				$this->collectIds($node, $objectIds);
+				$this->collectIds($node, $rootPath, $objectIds);
 			} else {
 				throw new UserMigrationException("Unsupported node type: ".get_class($node));
 			}
@@ -149,6 +149,36 @@ class FilesMigrator implements IMigrator {
 			throw new UserMigrationException("Could not import files.");
 		}
 
-		//TODO import tags
+		$userFolder = $this->root->getUserFolder($uid);
+
+		$output->writeln("Importing file tags…");
+
+		$taggedFiles = json_decode($importSource->getFileContents(Application::APP_ID."/tags.json"), true, 512, JSON_THROW_ON_ERROR);
+		$tagger = $this->tagManager->load(Application::APP_ID, [], false, $uid);
+		foreach ($taggedFiles as $path => $tags) {
+			foreach ($tags as $tag) {
+				if ($tagger->tagAs($userFolder->get($path)->getId(), $tag) === false) {
+					throw new UserMigrationException("Failed to import tag $tag for path $path");
+				}
+			}
+		}
+
+		$output->writeln("Importing file systemtags…");
+
+		$systemTaggedFiles = json_decode($importSource->getFileContents(Application::APP_ID."/systemtags.json"), true, 512, JSON_THROW_ON_ERROR);
+		foreach ($systemTaggedFiles as $path => $systemTags) {
+			$systemTagIds = [];
+			foreach ($systemTags as $systemTag) {
+				try {
+					$systemTagObject = $this->systemTagManager->getTag($systemTag, true, true);
+				} catch (TagNotFoundException $e) {
+					$systemTagObject = $this->systemTagManager->createTag($systemTag, true, true);
+				}
+				$systemTagIds[] = $systemTagObject->getId();
+			}
+			if ($this->systemTagMapper->assignTags((string)$userFolder->get($path)->getId(), 'files', $systemTagIds) === false) {
+				throw new UserMigrationException("Failed to import tag $tag for path $path");
+			}
+		}
 	}
 }

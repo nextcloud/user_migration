@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<files psalm-version="4.19.0@a2ad69ae4f5ab1f7d225a8dc4e2ec2d9415ed599">
+<files psalm-version="4.21.0@d8bec4c7aaee111a532daec32fb09de5687053d1">
   <file src="lib/ExportDestination.php">
-    <InvalidArgument occurrences="2">
+    <InvalidArgument occurrences="3">
       <code>$read</code>
       <code>$stream</code>
+      <code>$stream</code>
     </InvalidArgument>
+    <MethodSignatureMismatch occurrences="1">
+      <code>$versions</code>
+    </MethodSignatureMismatch>
   </file>
   <file src="lib/ImportSource.php">
     <InvalidPropertyAssignmentValue occurrences="1">

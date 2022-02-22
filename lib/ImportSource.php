@@ -29,11 +29,17 @@ namespace OCA\UserMigration;
 use OC\Archive\Archive;
 use OC\Archive\ZIP;
 use OCP\Files\Folder;
+use OCP\UserMigration\IImportSource;
 
 class ImportSource implements IImportSource {
 	private Archive $archive;
 
 	private string $path;
+
+	/**
+	 * @var ?array<string, int>
+	 */
+	private ?array $migratorVersions = null;
 
 	public function __construct(string $path) {
 		$this->path = $path;
@@ -81,6 +87,24 @@ class ImportSource implements IImportSource {
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getMigratorVersions(): array {
+		if ($this->migratorVersions === null) {
+			$this->migratorVersions = json_decode($this->getFileContents("migrator_versions.json"), true, 512, JSON_THROW_ON_ERROR);
+		}
+		return $this->migratorVersions;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getMigratorVersion(string $migrator): ?int {
+		$versions = $this->getMigratorVersions();
+		return $versions[$migrator] ?? null;
 	}
 
 	/**

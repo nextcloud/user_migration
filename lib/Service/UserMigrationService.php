@@ -5,6 +5,7 @@ declare(strict_types=1);
 /**
  * @copyright Copyright (c) 2022 Côme Chilliet <come.chilliet@nextcloud.com>
  *
+ * @author Christopher Ng <chrng8@gmail.com>
  * @author Côme Chilliet <come.chilliet@nextcloud.com>
  *
  * @license GNU AGPL version 3 or any later version
@@ -28,10 +29,7 @@ namespace OCA\UserMigration\Service;
 
 use OCA\UserMigration\Exception\UserMigrationException;
 use OCA\UserMigration\ExportDestination;
-use OCA\UserMigration\IExportDestination;
-use OCA\UserMigration\IImportSource;
 use OCA\UserMigration\ImportSource;
-use OC\Files\Filesystem;
 use OCP\Accounts\IAccountManager;
 use OCP\Files\IRootFolder;
 use OCP\IConfig;
@@ -39,10 +37,19 @@ use OCP\ITempManager;
 use OCP\IUser;
 use OCP\IUserManager;
 use OCP\Security\ISecureRandom;
+use OCP\UserMigration\IExportDestination;
+use OCP\UserMigration\IImportSource;
+use OCP\UserMigration\IMigrator;
+use OCP\UserMigration\TMigratorBasicVersionHandling;
+use OC\AppFramework\Bootstrap\Coordinator;
+use OC\Files\Filesystem;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class UserMigrationService {
+	use TMigratorBasicVersionHandling;
+
 	protected IRootFolder $root;
 
 	protected IConfig $config;
@@ -53,18 +60,29 @@ class UserMigrationService {
 
 	protected IUserManager $userManager;
 
+	protected ContainerInterface $container;
+
+	// Allow use of the private Coordinator class here to get and run registered migrators
+	protected Coordinator $coordinator;
+
 	public function __construct(
 		IRootFolder $rootFolder,
 		IConfig $config,
 		IAccountManager $accountManager,
 		ITempManager $tempManager,
-		IUserManager $userManager
+		IUserManager $userManager,
+		ContainerInterface $container,
+		Coordinator $coordinator
 	) {
 		$this->root = $rootFolder;
 		$this->config = $config;
 		$this->accountManager = $accountManager;
 		$this->tempManager = $tempManager;
 		$this->userManager = $userManager;
+		$this->container = $container;
+		$this->coordinator = $coordinator;
+
+		$this->mandatory = true;
 	}
 
 	/**
@@ -79,6 +97,12 @@ class UserMigrationService {
 		// Requesting the user folder will set it up if the user hasn't logged in before
 		\OC::$server->getUserFolder($uid);
 		Filesystem::initMountPoints($uid);
+
+		$context = $this->coordinator->getRegistrationContext();
+
+		if ($context === null) {
+			throw new UserMigrationException("Failed to get context");
+		}
 
 		$exportDestination = new ExportDestination($this->tempManager, $uid);
 
@@ -113,6 +137,20 @@ class UserMigrationService {
 			$output
 		);
 
+		// Run exports of registered migrators
+		$migratorVersions = [
+			static::class => $this->getVersion(),
+		];
+		foreach ($context->getUserMigrators() as $migratorRegistration) {
+			/** @var IMigrator $migrator */
+			$migrator = $this->container->get($migratorRegistration->getService());
+			$migrator->export($user, $exportDestination, $output);
+			$migratorVersions[get_class($migrator)] = $migrator->getVersion();
+		}
+		if ($exportDestination->setMigratorVersions($migratorVersions) === false) {
+			throw new UserMigrationException("Could not export user information.");
+		}
+
 		$exportDestination->close();
 		$output->writeln("Export saved in ".$exportDestination->getPath());
 		return $exportDestination->getPath();
@@ -124,13 +162,39 @@ class UserMigrationService {
 		$output->writeln("Importing from ${path}…");
 		$importSource = new ImportSource($path);
 
+		$context = $this->coordinator->getRegistrationContext();
+
 		try {
-			// TODO check versions
+			if ($context === null) {
+				throw new UserMigrationException("Failed to get context");
+			}
+			$migratorVersions = $importSource->getMigratorVersions();
+
+			if (!$this->canImport($importSource, $migratorVersions[static::class] ?? null)) {
+				throw new UserMigrationException("Version ${$migratorVersions[static::class]} for main class ".static::class." is not compatible");
+			}
+
+			// Check versions
+			foreach ($context->getUserMigrators() as $migratorRegistration) {
+				/** @var IMigrator $migrator */
+				$migrator = $this->container->get($migratorRegistration->getService());
+				if (!$migrator->canImport($importSource)) {
+					throw new UserMigrationException("Version ".($importSource->getMigratorVersion(get_class($migrator)) ?? 'null')." for migrator ".get_class($migrator)." is not supported");
+				}
+			}
 
 			$user = $this->importUser($importSource, $output);
 			$this->importAccountInformation($user, $importSource, $output);
 			$this->importAppsSettings($user, $importSource, $output);
 			$this->importFiles($user, $importSource, $output);
+
+			// Run imports of registered migrators
+			foreach ($context->getUserMigrators() as $migratorRegistration) {
+				/** @var IMigrator $migrator */
+				$migrator = $this->container->get($migratorRegistration->getService());
+				$migrator->import($user, $importSource, $output);
+			}
+
 			$uid = $user->getUID();
 			$output->writeln("Successfully imported $uid from $path");
 		} finally {
@@ -184,7 +248,7 @@ class UserMigrationService {
 			'enabled' => $user->isEnabled(),
 		];
 
-		if ($exportDestination->addFile("user.json", json_encode($userinfo)) === false) {
+		if ($exportDestination->addFileContents("user.json", json_encode($userinfo)) === false) {
 			throw new UserMigrationException("Could not export user information.");
 		}
 	}
@@ -218,7 +282,7 @@ class UserMigrationService {
 									 OutputInterface $output): void {
 		$output->writeln("Exporting account information in account.json…");
 
-		if ($exportDestination->addFile("account.json", json_encode($this->accountManager->getAccount($user))) === false) {
+		if ($exportDestination->addFileContents("account.json", json_encode($this->accountManager->getAccount($user))) === false) {
 			throw new UserMigrationException("Could not export account information.");
 		}
 	}
@@ -247,7 +311,7 @@ class UserMigrationService {
 			\OC_App::getAppVersions()
 		);
 
-		if ($exportDestination->addFile("versions.json", json_encode($versions)) === false) {
+		if ($exportDestination->addFileContents("versions.json", json_encode($versions)) === false) {
 			throw new UserMigrationException("Could not export versions.");
 		}
 	}
@@ -262,7 +326,7 @@ class UserMigrationService {
 
 		$data = $this->config->getAllUserValues($uid);
 
-		if ($exportDestination->addFile("settings.json", json_encode($data)) === false) {
+		if ($exportDestination->addFileContents("settings.json", json_encode($data)) === false) {
 			throw new UserMigrationException("Could not export settings.");
 		}
 	}

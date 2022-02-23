@@ -64,6 +64,13 @@ class ImportSource implements IImportSource {
 	/**
 	 * {@inheritDoc}
 	 */
+	public function getFolderListing(string $path): array {
+		return $this->archive->getFolder($path);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function copyToFolder(Folder $destination, string $sourcePath): bool {
 		// TODO at the very least log errors
 		$sourcePath = rtrim($sourcePath, '/').'/';

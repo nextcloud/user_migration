@@ -23,6 +23,52 @@ declare(strict_types=1);
 
 use OCP\UserMigration\IMigrator as IUserMigrator;
 
+class OC {
+	/**
+	 * @var \OCP\IServerContainer
+	 */
+	public static $server;
+}
+
+class OC_App {
+	public static function getAppVersions();
+}
+
+namespace OC\Archive {
+	abstract class Archive {
+		abstract public function __construct(string $source);
+		abstract public function addFolder(string $path): bool;
+		abstract public function addFile(string $path, string $source = ''): bool;
+		abstract public function rename(string $source, string $dest): bool;
+		/**
+		* @return int|false
+		*/
+		abstract public function filesize(string $path);
+		/**
+		* @return int|false
+		*/
+		abstract public function mtime(string $path);
+		abstract public function getFolder(string $path): array;
+		abstract public function getFiles(): array;
+		/**
+		* @return string|false
+		*/
+		abstract public function getFile(string $path);
+		abstract public function extractFile(string $path, string $dest): bool;
+		abstract public function extract(string $dest): bool;
+		abstract public function fileExists(string $path): bool;
+		abstract public function remove(string $path): bool;
+		/**
+		* @return false|resource
+		*/
+		abstract public function getStream(string $path, string $mode);
+	}
+	class ZIP extends Archive
+	{
+		public function __construct(string $source);
+	}
+}
+
 namespace OC\AppFramework\Bootstrap {
 	class Coordinator {
 		public function getRegistrationContext(): ?RegistrationContext {}
@@ -51,5 +97,16 @@ namespace OC\AppFramework\Bootstrap {
 	*/
 	abstract class ARegistration {
 		public function getAppId(): string {}
+	}
+}
+
+namespace OCA\Files\AppInfo {
+	class Application {
+		public const APP_ID = 'files';
+	}
+}
+
+namespace OC\Hooks {
+	interface Emitter {
 	}
 }

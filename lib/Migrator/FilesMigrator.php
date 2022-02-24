@@ -177,7 +177,7 @@ class FilesMigrator implements IMigrator {
 				$systemTagIds[] = $systemTagObject->getId();
 			}
 			if ($this->systemTagMapper->assignTags((string)$userFolder->get($path)->getId(), 'files', $systemTagIds) === false) {
-				throw new UserMigrationException("Failed to import tag $tag for path $path");
+				throw new UserMigrationException("Failed to import system tags for path $path");
 			}
 		}
 	}

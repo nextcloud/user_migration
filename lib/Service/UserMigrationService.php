@@ -93,11 +93,6 @@ class UserMigrationService {
 		$output = $output ?? new NullOutput();
 		$uid = $user->getUID();
 
-		// setup filesystem
-		// Requesting the user folder will set it up if the user hasn't logged in before
-		\OC::$server->getUserFolder($uid);
-		Filesystem::initMountPoints($uid);
-
 		$context = $this->coordinator->getRegistrationContext();
 
 		if ($context === null) {
@@ -163,7 +158,7 @@ class UserMigrationService {
 			}
 			$migratorVersions = $importSource->getMigratorVersions();
 
-			if (!$this->canImport($importSource, $migratorVersions[static::class] ?? null)) {
+			if (!$this->canImport($importSource)) {
 				throw new UserMigrationException("Version ${$migratorVersions[static::class]} for main class ".static::class." is not compatible");
 			}
 
@@ -227,7 +222,7 @@ class UserMigrationService {
 
 		$user = $this->userManager->createUser($data['uid'], \OC::$server->getSecureRandom()->generate(10, ISecureRandom::CHAR_ALPHANUMERIC));
 
-		if ($user === false) {
+		if (!$user instanceof IUser) {
 			throw new UserMigrationException("Failed to create user.");
 		}
 

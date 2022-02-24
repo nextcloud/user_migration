@@ -26,10 +26,11 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration;
 
-use OC\Archive\Archive;
-use OC\Archive\ZIP;
+use OCA\UserMigration\Exception\UserMigrationException;
 use OCP\Files\Folder;
 use OCP\UserMigration\IImportSource;
+use OC\Archive\Archive;
+use OC\Archive\ZIP;
 
 class ImportSource implements IImportSource {
 	private Archive $archive;

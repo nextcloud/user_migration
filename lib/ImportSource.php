@@ -50,15 +50,24 @@ class ImportSource implements IImportSource {
 	 * {@inheritDoc}
 	 */
 	public function getFileContents(string $path): string {
-		return $this->archive->getFile($path);
+		$string = $this->archive->getFile($path);
+		if (is_string($string)) {
+			return $string;
+		} else {
+			throw new UserMigrationException('Failed to get '.$path.' from archive');
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public function getFileAsStream(string $path) {
-		// TODO error handling
-		return $this->archive->getStream($path, 'r');
+		$stream = $this->archive->getStream($path, 'r');
+		if ($stream !== false) {
+			return $stream;
+		} else {
+			throw new UserMigrationException('Failed to get '.$path.' from archive');
+		}
 	}
 
 	/**
@@ -72,7 +81,7 @@ class ImportSource implements IImportSource {
 	 * {@inheritDoc}
 	 */
 	public function copyToFolder(Folder $destination, string $sourcePath): bool {
-		// TODO at the very least log errors
+		// TODO log errors to ease debugging
 		$sourcePath = rtrim($sourcePath, '/').'/';
 		$files = $this->archive->getFolder($sourcePath);
 

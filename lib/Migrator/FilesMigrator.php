@@ -33,7 +33,6 @@ use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
 use OCP\ITagManager;
-use OCP\ITags;
 use OCP\IUser;
 use OCP\SystemTag\ISystemTagManager;
 use OCP\SystemTag\ISystemTagObjectMapper;
@@ -90,7 +89,7 @@ class FilesMigrator implements IMigrator {
 
 		$tagger = $this->tagManager->load(Application::APP_ID, [], false, $uid);
 		$tags = $tagger->getTagsForObjects(array_values($objectIds));
-		$taggedFiles = array_filter(array_map(fn($id) => $tags[$id] ?? [], $objectIds));
+		$taggedFiles = array_filter(array_map(fn ($id) => $tags[$id] ?? [], $objectIds));
 		if ($exportDestination->addFileContents(Application::APP_ID."/tags.json", json_encode($taggedFiles)) === false) {
 			throw new UserMigrationException("Could not export tagged files information.");
 		}
@@ -99,13 +98,13 @@ class FilesMigrator implements IMigrator {
 
 		$systemTags = $this->systemTagMapper->getTagIdsForObjects(array_values($objectIds), 'files');
 		$systemTags = array_map(
-			fn($tagIds) => array_map(
-				fn($tag) => $tag->getName(),
+			fn ($tagIds) => array_map(
+				fn ($tag) => $tag->getName(),
 				$this->systemTagManager->getTagsByIds($tagIds)
 			),
 			$systemTags
 		);
-		$systemTaggedFiles = array_filter(array_map(fn($id) => $systemTags[$id] ?? [], $objectIds));
+		$systemTaggedFiles = array_filter(array_map(fn ($id) => $systemTags[$id] ?? [], $objectIds));
 		if ($exportDestination->addFileContents(Application::APP_ID."/systemtags.json", json_encode($systemTaggedFiles)) === false) {
 			throw new UserMigrationException("Could not export systemtagged files information.");
 		}
@@ -113,8 +112,7 @@ class FilesMigrator implements IMigrator {
 		// TODO other files metadata should be exported as well if relevant.
 	}
 
-	private function collectIds(Folder $folder, string $rootPath, array &$objectIds = []): array
-	{
+	private function collectIds(Folder $folder, string $rootPath, array &$objectIds = []): array {
 		$nodes = $folder->getDirectoryListing();
 		foreach ($nodes as $node) {
 			$objectIds[preg_replace('/^'.preg_quote($rootPath, '/').'/', '', $node->getPath())] = $node->getId();

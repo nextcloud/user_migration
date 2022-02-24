@@ -42,7 +42,6 @@ use OCP\UserMigration\IImportSource;
 use OCP\UserMigration\IMigrator;
 use OCP\UserMigration\TMigratorBasicVersionHandling;
 use OC\AppFramework\Bootstrap\Coordinator;
-use OC\Files\Filesystem;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -93,11 +92,6 @@ class UserMigrationService {
 		$output = $output ?? new NullOutput();
 		$uid = $user->getUID();
 
-		// setup filesystem
-		// Requesting the user folder will set it up if the user hasn't logged in before
-		\OC::$server->getUserFolder($uid);
-		Filesystem::initMountPoints($uid);
-
 		$context = $this->coordinator->getRegistrationContext();
 
 		if ($context === null) {
@@ -105,13 +99,6 @@ class UserMigrationService {
 		}
 
 		$exportDestination = new ExportDestination($this->tempManager, $uid);
-
-		// copy the files
-		$this->exportFiles(
-			$uid,
-			$exportDestination,
-			$output
-		);
 
 		$this->exportUserInformation(
 			$user,
@@ -170,7 +157,7 @@ class UserMigrationService {
 			}
 			$migratorVersions = $importSource->getMigratorVersions();
 
-			if (!$this->canImport($importSource, $migratorVersions[static::class] ?? null)) {
+			if (!$this->canImport($importSource)) {
 				throw new UserMigrationException("Version ${$migratorVersions[static::class]} for main class ".static::class." is not compatible");
 			}
 
@@ -186,7 +173,6 @@ class UserMigrationService {
 			$user = $this->importUser($importSource, $output);
 			$this->importAccountInformation($user, $importSource, $output);
 			$this->importAppsSettings($user, $importSource, $output);
-			$this->importFiles($user, $importSource, $output);
 
 			// Run imports of registered migrators
 			foreach ($context->getUserMigrators() as $migratorRegistration) {
@@ -199,35 +185,6 @@ class UserMigrationService {
 			$output->writeln("Successfully imported $uid from $path");
 		} finally {
 			$importSource->close();
-		}
-	}
-
-	/**
-	 * @throws UserMigrationException
-	 */
-	protected function exportFiles(string $uid,
-									 IExportDestination $exportDestination,
-									 OutputInterface $output): void {
-		$output->writeln("Copying files…");
-
-		if ($exportDestination->copyFolder($this->root->getUserFolder($uid), "files") === false) {
-			throw new UserMigrationException("Could not copy files.");
-		}
-		// TODO files metadata should be exported as well if relevant. Maybe move this to an export operation
-	}
-
-	/**
-	 * @throws UserMigrationException
-	 */
-	protected function importFiles(IUser $user,
-									 IImportSource $importSource,
-									 OutputInterface $output): void {
-		$output->writeln("Importing files…");
-
-		$uid = $user->getUID();
-
-		if ($importSource->copyToFolder($this->root->getUserFolder($uid), "files") === false) {
-			throw new UserMigrationException("Could not import files.");
 		}
 	}
 
@@ -264,7 +221,7 @@ class UserMigrationService {
 
 		$user = $this->userManager->createUser($data['uid'], \OC::$server->getSecureRandom()->generate(10, ISecureRandom::CHAR_ALPHANUMERIC));
 
-		if ($user === false) {
+		if (!$user instanceof IUser) {
 			throw new UserMigrationException("Failed to create user.");
 		}
 

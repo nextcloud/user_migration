@@ -221,7 +221,7 @@ class UserMigrationService {
 
 		$user = $this->userManager->createUser($data['uid'], \OC::$server->getSecureRandom()->generate(10, ISecureRandom::CHAR_ALPHANUMERIC));
 
-		if (!$user instanceof IUser) {
+		if (!($user instanceof IUser)) {
 			throw new UserMigrationException("Failed to create user.");
 		}
 

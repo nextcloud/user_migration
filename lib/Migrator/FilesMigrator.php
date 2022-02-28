@@ -116,10 +116,9 @@ class FilesMigrator implements IMigrator {
 		$nodes = $folder->getDirectoryListing();
 		foreach ($nodes as $node) {
 			$objectIds[preg_replace('/^'.preg_quote($rootPath, '/').'/', '', $node->getPath())] = $node->getId();
-			if ($node instanceof File) {
-			} elseif ($node instanceof Folder) {
+			if ($node instanceof Folder) {
 				$this->collectIds($node, $rootPath, $objectIds);
-			} else {
+			} elseif (!($node instanceof File)) {
 				throw new UserMigrationException("Unsupported node type: ".get_class($node));
 			}
 		}

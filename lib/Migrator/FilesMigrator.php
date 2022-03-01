@@ -28,10 +28,12 @@ declare(strict_types=1);
 namespace OCA\UserMigration\Migrator;
 
 use OCA\Files\AppInfo\Application;
+use OCA\Files_Versions\Storage as FilesVersionsStorage;
 use OCA\UserMigration\Exception\UserMigrationException;
 use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
+use OCP\Files\NotFoundException;
 use OCP\ITagManager;
 use OCP\IUser;
 use OCP\SystemTag\ISystemTagManager;
@@ -81,6 +83,16 @@ class FilesMigrator implements IMigrator {
 
 		if ($exportDestination->copyFolder($userFolder, Application::APP_ID."/files") === false) {
 			throw new UserMigrationException("Could not copy files.");
+		}
+
+		try {
+			$versionsFolder = $this->root->get('/'.$uid.'/'.FilesVersionsStorage::VERSIONS_ROOT);
+			$output->writeln("Copying file versions…");
+			if ($exportDestination->copyFolder($versionsFolder, Application::APP_ID."/".FilesVersionsStorage::VERSIONS_ROOT) === false) {
+				throw new UserMigrationException("Could not copy files versions.");
+			}
+		} catch (NotFoundException $e) {
+			$output->writeln("No file versions to export…");
 		}
 
 		$objectIds = $this->collectIds($userFolder, $userFolder->getPath());
@@ -147,6 +159,20 @@ class FilesMigrator implements IMigrator {
 		}
 
 		$userFolder = $this->root->getUserFolder($uid);
+
+		if (in_array('/'.FilesVersionsStorage::VERSIONS_ROOT, $importSource->getFolderListing(Application::APP_ID))) {
+			try {
+				$versionsFolder = $this->root->get('/'.$uid.'/'.FilesVersionsStorage::VERSIONS_ROOT);
+			} catch (NotFoundException $e) {
+				$versionsFolder = $this->root->newFolder('/'.$uid.'/'.FilesVersionsStorage::VERSIONS_ROOT);
+			}
+			$output->writeln("Importing file versions…");
+			if ($importSource->copyToFolder($versionsFolder, Application::APP_ID."/".FilesVersionsStorage::VERSIONS_ROOT) === false) {
+				throw new UserMigrationException("Could not copy files versions.");
+			}
+		} else {
+			$output->writeln("No file versions to import…");
+		}
 
 		$output->writeln("Importing file tags…");
 

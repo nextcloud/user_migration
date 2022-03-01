@@ -30,7 +30,6 @@ namespace OCA\UserMigration\Service;
 use OCA\UserMigration\Exception\UserMigrationException;
 use OCA\UserMigration\ExportDestination;
 use OCA\UserMigration\ImportSource;
-use OCP\Accounts\IAccountManager;
 use OCP\Files\IRootFolder;
 use OCP\IConfig;
 use OCP\ITempManager;
@@ -53,8 +52,6 @@ class UserMigrationService {
 
 	protected IConfig $config;
 
-	protected IAccountManager $accountManager;
-
 	protected ITempManager $tempManager;
 
 	protected IUserManager $userManager;
@@ -67,7 +64,6 @@ class UserMigrationService {
 	public function __construct(
 		IRootFolder $rootFolder,
 		IConfig $config,
-		IAccountManager $accountManager,
 		ITempManager $tempManager,
 		IUserManager $userManager,
 		ContainerInterface $container,
@@ -75,7 +71,6 @@ class UserMigrationService {
 	) {
 		$this->root = $rootFolder;
 		$this->config = $config;
-		$this->accountManager = $accountManager;
 		$this->tempManager = $tempManager;
 		$this->userManager = $userManager;
 		$this->container = $container;
@@ -101,12 +96,6 @@ class UserMigrationService {
 		$exportDestination = new ExportDestination($this->tempManager, $uid);
 
 		$this->exportUserInformation(
-			$user,
-			$exportDestination,
-			$output
-		);
-
-		$this->exportAccountInformation(
 			$user,
 			$exportDestination,
 			$output
@@ -171,7 +160,6 @@ class UserMigrationService {
 			}
 
 			$user = $this->importUser($importSource, $output);
-			$this->importAccountInformation($user, $importSource, $output);
 			$this->importAppsSettings($user, $importSource, $output);
 
 			// Run imports of registered migrators
@@ -228,30 +216,6 @@ class UserMigrationService {
 		$user->setDisplayName($data['displayName']);
 
 		return $user;
-	}
-
-	/**
-	 * @throws UserMigrationException
-	 */
-	protected function exportAccountInformation(IUser $user,
-									 IExportDestination $exportDestination,
-									 OutputInterface $output): void {
-		$output->writeln("Exporting account information in account.json…");
-
-		if ($exportDestination->addFileContents("account.json", json_encode($this->accountManager->getAccount($user))) === false) {
-			throw new UserMigrationException("Could not export account information.");
-		}
-	}
-
-	/**
-	 * @throws UserMigrationException
-	 */
-	protected function importAccountInformation(IUser $user,
-									 IImportSource $importSource,
-									 OutputInterface $output): void {
-		$output->writeln("Importing account information from account.json…?");
-
-		// TODO Import account information
 	}
 
 	/**

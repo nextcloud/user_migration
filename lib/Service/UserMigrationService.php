@@ -196,12 +196,11 @@ class UserMigrationService {
 									 OutputInterface $output): void {
 		$output->writeln("Exporting user information in user.json…");
 
-		// TODO store backend? email? avatar? cloud id? quota?
+		// TODO store backend? email? cloud id? quota?
 		$userinfo = [
 			'uid' => $user->getUID(),
 			'displayName' => $user->getDisplayName(),
 			'lastLogin' => $user->getLastLogin(),
-			'home' => $user->getHome(),
 			'enabled' => $user->isEnabled(),
 		];
 

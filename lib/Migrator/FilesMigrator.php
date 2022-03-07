@@ -48,6 +48,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 class FilesMigrator implements IMigrator {
 	use TMigratorBasicVersionHandling;
 
+	protected const PATH_FILES = Application::APP_ID.'/files';
+	protected const PATH_VERSIONS = Application::APP_ID.'/files_versions';
+	protected const PATH_TAGS = Application::APP_ID.'/tags.json';
+	protected const PATH_SYSTEMTAGS = Application::APP_ID.'/systemtags.json';
+
 	protected IRootFolder $root;
 
 	protected ITagManager $tagManager;
@@ -81,14 +86,14 @@ class FilesMigrator implements IMigrator {
 		$uid = $user->getUID();
 		$userFolder = $this->root->getUserFolder($uid);
 
-		if ($exportDestination->copyFolder($userFolder, Application::APP_ID."/files") === false) {
+		if ($exportDestination->copyFolder($userFolder, static::PATH_FILES) === false) {
 			throw new UserMigrationException("Could not export files.");
 		}
 
 		try {
 			$versionsFolder = $this->root->get('/'.$uid.'/'.FilesVersionsStorage::VERSIONS_ROOT);
 			$output->writeln("Exporting file versions…");
-			if ($exportDestination->copyFolder($versionsFolder, Application::APP_ID.'/'.FilesVersionsStorage::VERSIONS_ROOT) === false) {
+			if ($exportDestination->copyFolder($versionsFolder, static::PATH_VERSIONS) === false) {
 				throw new UserMigrationException("Could not export files versions.");
 			}
 		} catch (NotFoundException $e) {
@@ -102,7 +107,7 @@ class FilesMigrator implements IMigrator {
 		$tagger = $this->tagManager->load(Application::APP_ID, [], false, $uid);
 		$tags = $tagger->getTagsForObjects(array_values($objectIds));
 		$taggedFiles = array_filter(array_map(fn ($id) => $tags[$id] ?? [], $objectIds));
-		if ($exportDestination->addFileContents(Application::APP_ID."/tags.json", json_encode($taggedFiles)) === false) {
+		if ($exportDestination->addFileContents(static::PATH_TAGS, json_encode($taggedFiles)) === false) {
 			throw new UserMigrationException("Could not export tagged files information.");
 		}
 
@@ -117,7 +122,7 @@ class FilesMigrator implements IMigrator {
 			$systemTags
 		);
 		$systemTaggedFiles = array_filter(array_map(fn ($id) => $systemTags[$id] ?? [], $objectIds));
-		if ($exportDestination->addFileContents(Application::APP_ID."/systemtags.json", json_encode($systemTaggedFiles)) === false) {
+		if ($exportDestination->addFileContents(static::PATH_SYSTEMTAGS, json_encode($systemTaggedFiles)) === false) {
 			throw new UserMigrationException("Could not export systemtagged files information.");
 		}
 
@@ -154,20 +159,20 @@ class FilesMigrator implements IMigrator {
 
 		$uid = $user->getUID();
 
-		if ($importSource->copyToFolder($this->root->getUserFolder($uid), Application::APP_ID."/files") === false) {
+		if ($importSource->copyToFolder($this->root->getUserFolder($uid), static::PATH_FILES) === false) {
 			throw new UserMigrationException("Could not import files.");
 		}
 
 		$userFolder = $this->root->getUserFolder($uid);
 
-		if (in_array('/'.FilesVersionsStorage::VERSIONS_ROOT, $importSource->getFolderListing(Application::APP_ID))) {
+		if (in_array('/files_versions', $importSource->getFolderListing(Application::APP_ID))) {
 			try {
 				$versionsFolder = $this->root->get('/'.$uid.'/'.FilesVersionsStorage::VERSIONS_ROOT);
 			} catch (NotFoundException $e) {
 				$versionsFolder = $this->root->newFolder('/'.$uid.'/'.FilesVersionsStorage::VERSIONS_ROOT);
 			}
 			$output->writeln("Importing file versions…");
-			if ($importSource->copyToFolder($versionsFolder, Application::APP_ID.'/'.FilesVersionsStorage::VERSIONS_ROOT) === false) {
+			if ($importSource->copyToFolder($versionsFolder, static::PATH_VERSIONS) === false) {
 				throw new UserMigrationException("Could not import files versions.");
 			}
 		} else {
@@ -176,7 +181,7 @@ class FilesMigrator implements IMigrator {
 
 		$output->writeln("Importing file tags…");
 
-		$taggedFiles = json_decode($importSource->getFileContents(Application::APP_ID."/tags.json"), true, 512, JSON_THROW_ON_ERROR);
+		$taggedFiles = json_decode($importSource->getFileContents(static::PATH_TAGS), true, 512, JSON_THROW_ON_ERROR);
 		$tagger = $this->tagManager->load(Application::APP_ID, [], false, $uid);
 		foreach ($taggedFiles as $path => $tags) {
 			foreach ($tags as $tag) {
@@ -188,7 +193,7 @@ class FilesMigrator implements IMigrator {
 
 		$output->writeln("Importing file systemtags…");
 
-		$systemTaggedFiles = json_decode($importSource->getFileContents(Application::APP_ID."/systemtags.json"), true, 512, JSON_THROW_ON_ERROR);
+		$systemTaggedFiles = json_decode($importSource->getFileContents(static::PATH_SYSTEMTAGS), true, 512, JSON_THROW_ON_ERROR);
 		foreach ($systemTaggedFiles as $path => $systemTags) {
 			$systemTagIds = [];
 			foreach ($systemTags as $systemTag) {

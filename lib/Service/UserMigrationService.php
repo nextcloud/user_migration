@@ -132,7 +132,7 @@ class UserMigrationService {
 		return $exportDestination->getPath();
 	}
 
-	public function import(string $path, ?OutputInterface $output = null): void {
+	public function import(string $path, ?OutputInterface $output = null, ?IUser $user = null): void {
 		$output = $output ?? new NullOutput();
 
 		$output->writeln("Importing from ${path}…");
@@ -159,7 +159,7 @@ class UserMigrationService {
 				}
 			}
 
-			$user = $this->importUser($importSource, $output);
+			$user = $this->importUser($user, $importSource, $output);
 			$this->importAppsSettings($user, $importSource, $output);
 
 			// Run imports of registered migrators
@@ -200,13 +200,19 @@ class UserMigrationService {
 	/**
 	 * @throws UserMigrationException
 	 */
-	protected function importUser(IImportSource $importSource,
+	protected function importUser(?IUser $user,
+								  IImportSource $importSource,
 									OutputInterface $output): IUser {
 		$output->writeln("Importing user information from user.json…");
 
 		$data = json_decode($importSource->getFileContents("user.json"), true, 512, JSON_THROW_ON_ERROR);
 
-		$user = $this->userManager->createUser($data['uid'], \OC::$server->getSecureRandom()->generate(10, ISecureRandom::CHAR_ALPHANUMERIC));
+		if ($user === null) {
+			$user = $this->userManager->createUser(
+				$data['uid'],
+				\OC::$server->getSecureRandom()->generate(10, ISecureRandom::CHAR_ALPHANUMERIC)
+			);
+		}
 
 		if (!($user instanceof IUser)) {
 			throw new UserMigrationException("Failed to create user.");

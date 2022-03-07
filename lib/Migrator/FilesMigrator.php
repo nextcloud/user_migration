@@ -54,6 +54,7 @@ class FilesMigrator implements IMigrator {
 	protected const PATH_VERSIONS = Application::APP_ID.'/files_versions';
 	protected const PATH_TAGS = Application::APP_ID.'/tags.json';
 	protected const PATH_SYSTEMTAGS = Application::APP_ID.'/systemtags.json';
+	protected const PATH_COMMENTS = Application::APP_ID.'/comments.json';
 
 	protected IRootFolder $root;
 
@@ -152,7 +153,7 @@ class FilesMigrator implements IMigrator {
 				);
 			}
 		}
-		if ($exportDestination->addFileContents(Application::APP_ID."/comments.json", json_encode($comments)) === false) {
+		if ($exportDestination->addFileContents(static::PATH_COMMENTS, json_encode($comments)) === false) {
 			throw new UserMigrationException("Could not export file comments.");
 		}
 
@@ -241,7 +242,7 @@ class FilesMigrator implements IMigrator {
 
 		$output->writeln("Importing file comments…");
 
-		$comments = json_decode($importSource->getFileContents(Application::APP_ID."/comments.json"), true, 512, JSON_THROW_ON_ERROR);
+		$comments = json_decode($importSource->getFileContents(static::PATH_COMMENTS), true, 512, JSON_THROW_ON_ERROR);
 		foreach ($comments as $path => $fileComments) {
 			foreach ($fileComments as $fileComment) {
 				if ($fileComment['actorType'] === 'users') {

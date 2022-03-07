@@ -106,6 +106,12 @@ namespace OCA\Files\AppInfo {
 	}
 }
 
+namespace OCA\Files_Versions {
+	class Storage {
+		public const VERSIONS_ROOT = 'files_versions/';
+	}
+}
+
 namespace OC\Hooks {
 	interface Emitter {
 	}

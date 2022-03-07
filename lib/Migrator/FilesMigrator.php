@@ -76,20 +76,20 @@ class FilesMigrator implements IMigrator {
 		IExportDestination $exportDestination,
 		OutputInterface $output
 	): void {
-		$output->writeln("Copying files…");
+		$output->writeln("Exporting files…");
 
 		$uid = $user->getUID();
 		$userFolder = $this->root->getUserFolder($uid);
 
 		if ($exportDestination->copyFolder($userFolder, Application::APP_ID."/files") === false) {
-			throw new UserMigrationException("Could not copy files.");
+			throw new UserMigrationException("Could not export files.");
 		}
 
 		try {
 			$versionsFolder = $this->root->get('/'.$uid.'/'.FilesVersionsStorage::VERSIONS_ROOT);
-			$output->writeln("Copying file versions…");
-			if ($exportDestination->copyFolder($versionsFolder, Application::APP_ID."/".FilesVersionsStorage::VERSIONS_ROOT) === false) {
-				throw new UserMigrationException("Could not copy files versions.");
+			$output->writeln("Exporting file versions…");
+			if ($exportDestination->copyFolder($versionsFolder, Application::APP_ID.'/'.FilesVersionsStorage::VERSIONS_ROOT) === false) {
+				throw new UserMigrationException("Could not export files versions.");
 			}
 		} catch (NotFoundException $e) {
 			$output->writeln("No file versions to export…");
@@ -167,8 +167,8 @@ class FilesMigrator implements IMigrator {
 				$versionsFolder = $this->root->newFolder('/'.$uid.'/'.FilesVersionsStorage::VERSIONS_ROOT);
 			}
 			$output->writeln("Importing file versions…");
-			if ($importSource->copyToFolder($versionsFolder, Application::APP_ID."/".FilesVersionsStorage::VERSIONS_ROOT) === false) {
-				throw new UserMigrationException("Could not copy files versions.");
+			if ($importSource->copyToFolder($versionsFolder, Application::APP_ID.'/'.FilesVersionsStorage::VERSIONS_ROOT) === false) {
+				throw new UserMigrationException("Could not import files versions.");
 			}
 		} else {
 			$output->writeln("No file versions to import…");

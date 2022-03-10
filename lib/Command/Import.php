@@ -30,8 +30,8 @@ use OCP\IUserManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
@@ -61,7 +61,7 @@ class Import extends Command {
 				'user',
 				null,
 				InputOption::VALUE_REQUIRED,
-				'uid of a user to override with the imported data'
+				'uid of user to overwrite with the imported data'
 			)
 			->addArgument(
 				'archive',
@@ -79,8 +79,8 @@ class Import extends Command {
 					throw new \Exception("User $uid does not exists");
 				} else {
 					$question = new ConfirmationQuestion(
-						'Warning: A user already exists with this uid!'."\n"
-						. 'Do you really want to override this user with imported data? (y/n) ', false);
+						'Warning: A user with this uid already exists!'."\n"
+						. 'Do you really want to overwrite this user with the imported data? (y/n) ', false);
 					if (!$this->questionHelper->ask($input, $output, $question)) {
 						$output->writeln('aborted.');
 						return 1;

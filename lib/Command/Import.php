@@ -76,7 +76,8 @@ class Import extends Command {
 			if (!empty($uid)) {
 				$user = $this->userManager->get($uid);
 				if ($user === null) {
-					throw new \Exception("User $uid does not exists");
+					$output->writeln("<error>User <$uid> does not exist</error>");
+					return 1;
 				} else {
 					$question = new ConfirmationQuestion(
 						'Warning: A user with this uid already exists!'."\n"

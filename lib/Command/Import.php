@@ -90,7 +90,7 @@ class Import extends Command {
 			} else {
 				$user = null;
 			}
-			$this->migrationService->import($input->getArgument('archive'), $output, $user);
+			$this->migrationService->import($input->getArgument('archive'), $user, $output);
 		} catch (\Exception $e) {
 			$output->writeln("$e");
 			$output->writeln("<error>" . $e->getMessage() . "</error>");

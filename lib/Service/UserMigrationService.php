@@ -132,7 +132,7 @@ class UserMigrationService {
 		return $exportDestination->getPath();
 	}
 
-	public function import(string $path, ?OutputInterface $output = null, ?IUser $user = null): void {
+	public function import(string $path, ?IUser $user = null, ?OutputInterface $output = null): void {
 		$output = $output ?? new NullOutput();
 
 		$output->writeln("Importing from ${path}…");

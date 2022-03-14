@@ -29,7 +29,6 @@ namespace OCA\UserMigration\Migrator;
 
 use OCA\Files\AppInfo\Application;
 use OCA\Files_Versions\Storage as FilesVersionsStorage;
-use OCA\UserMigration\Exception\UserMigrationException;
 use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
@@ -43,6 +42,7 @@ use OCP\UserMigration\IExportDestination;
 use OCP\UserMigration\IImportSource;
 use OCP\UserMigration\IMigrator;
 use OCP\UserMigration\TMigratorBasicVersionHandling;
+use OCP\UserMigration\UserMigrationException;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class FilesMigrator implements IMigrator {
@@ -165,7 +165,7 @@ class FilesMigrator implements IMigrator {
 
 		$userFolder = $this->root->getUserFolder($uid);
 
-		if (in_array('/files_versions', $importSource->getFolderListing(Application::APP_ID))) {
+		if ($importSource->pathExists(static::PATH_VERSIONS)) {
 			try {
 				$versionsFolder = $this->root->get('/'.$uid.'/'.FilesVersionsStorage::VERSIONS_ROOT);
 			} catch (NotFoundException $e) {

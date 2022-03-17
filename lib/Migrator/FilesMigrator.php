@@ -248,8 +248,10 @@ class FilesMigrator implements IMigrator {
 				if ($fileComment['actorType'] === 'users') {
 					$actorId = $fileComment['actorId'];
 					$actorType = $fileComment['actorType'];
-					if ($actorId !== $uid) {
-						/* TODO check against original uid if we import under another one */
+					if ($actorId === $importSource->getOriginalUid()) {
+						/* Only import comments from imported user, and update the uid */
+						$actorId = $uid;
+					} else {
 						$actorId = ICommentsManager::DELETED_USER;
 						$actorType = ICommentsManager::DELETED_USER;
 					}

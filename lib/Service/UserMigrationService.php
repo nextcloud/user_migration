@@ -27,7 +27,6 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration\Service;
 
-use OCA\UserMigration\Exception\UserMigrationException;
 use OCA\UserMigration\ExportDestination;
 use OCA\UserMigration\ImportSource;
 use OCP\Files\IRootFolder;
@@ -40,6 +39,7 @@ use OCP\UserMigration\IExportDestination;
 use OCP\UserMigration\IImportSource;
 use OCP\UserMigration\IMigrator;
 use OCP\UserMigration\TMigratorBasicVersionHandling;
+use OCP\UserMigration\UserMigrationException;
 use OC\AppFramework\Bootstrap\Coordinator;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Output\NullOutput;
@@ -182,7 +182,7 @@ class UserMigrationService {
 	protected function exportUserInformation(IUser $user,
 									 IExportDestination $exportDestination,
 									 OutputInterface $output): void {
-		$output->writeln("Exporting user information in user.json…");
+		$output->writeln("Exporting user information in ".IImportSource::PATH_USER."…");
 
 		// TODO store backend? email? cloud id? quota?
 		$userinfo = [
@@ -192,7 +192,7 @@ class UserMigrationService {
 			'enabled' => $user->isEnabled(),
 		];
 
-		if ($exportDestination->addFileContents("user.json", json_encode($userinfo)) === false) {
+		if ($exportDestination->addFileContents(IImportSource::PATH_USER, json_encode($userinfo)) === false) {
 			throw new UserMigrationException("Could not export user information.");
 		}
 	}
@@ -203,9 +203,9 @@ class UserMigrationService {
 	protected function importUser(?IUser $user,
 								  IImportSource $importSource,
 									OutputInterface $output): IUser {
-		$output->writeln("Importing user information from user.json…");
+		$output->writeln("Importing user information from ".IImportSource::PATH_USER."…");
 
-		$data = json_decode($importSource->getFileContents("user.json"), true, 512, JSON_THROW_ON_ERROR);
+		$data = json_decode($importSource->getFileContents(IImportSource::PATH_USER), true, 512, JSON_THROW_ON_ERROR);
 
 		if ($user === null) {
 			$user = $this->userManager->createUser(

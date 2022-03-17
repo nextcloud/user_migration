@@ -26,9 +26,9 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration;
 
-use OCA\UserMigration\Exception\UserMigrationException;
 use OCP\Files\Folder;
 use OCP\UserMigration\IImportSource;
+use OCP\UserMigration\UserMigrationException;
 use OC\Archive\Archive;
 use OC\Archive\ZIP;
 
@@ -81,6 +81,13 @@ class ImportSource implements IImportSource {
 	/**
 	 * {@inheritDoc}
 	 */
+	public function pathExists(string $path): bool {
+		return $this->archive->fileExists($path);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function copyToFolder(Folder $destination, string $sourcePath): bool {
 		// TODO log errors to ease debugging
 		$sourcePath = rtrim($sourcePath, '/').'/';
@@ -122,6 +129,19 @@ class ImportSource implements IImportSource {
 	public function getMigratorVersion(string $migrator): ?int {
 		$versions = $this->getMigratorVersions();
 		return $versions[$migrator] ?? null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getOriginalUid(): string {
+		$data = json_decode($this->getFileContents(static::PATH_USER), true, 512, JSON_THROW_ON_ERROR);
+
+		if (isset($data['uid'])) {
+			return $data['uid'];
+		} else {
+			throw new UserMigrationException('No uid found in '.static::PATH_USER);
+		}
 	}
 
 	/**

@@ -57,6 +57,11 @@ $mysqldump nextcloud > /tmp/afterMigration.sql
 
 # Show the differences (hopefully not much)
 
-diff --side-by-side /tmp/beforeMigration /tmp/afterMigration
+diff --side-by-side /tmp/beforeMigration /tmp/afterMigration || true
+
+# Summary of sql differences ignoring ids
+
+awk 'NR==FNR{a[$0]=1;next}!a[$0]' /tmp/afterMigration.sql /tmp/beforeMigration.sql | sed -e "s/VALUES ([0-9]*,/VALUES (/"|sort|sed -e 's/,/,\n\t/g' > /tmp/before.sql
+awk 'NR==FNR{a[$0]=1;next}!a[$0]' /tmp/beforeMigration.sql /tmp/afterMigration.sql | sed -e "s/VALUES ([0-9]*,/VALUES (/"|sort|sed -e 's/,/,\n\t/g' > /tmp/after.sql
 
 echo "You can compare /tmp/beforeMigration.sql and /tmp/afterMigration.sql to see raw database changes"

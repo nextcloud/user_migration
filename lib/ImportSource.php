@@ -27,6 +27,9 @@ declare(strict_types=1);
 namespace OCA\UserMigration;
 
 use OCP\Files\Folder;
+use OCP\Files\File;
+use OCP\Files\NotFoundException;
+use OCP\Files\NotPermittedException;
 use OCP\UserMigration\IImportSource;
 use OCP\UserMigration\UserMigrationException;
 use OC\Archive\Archive;
@@ -96,7 +99,17 @@ class ImportSource implements IImportSource {
 		try {
 			foreach ($files as $path) {
 				if (str_ends_with($path, '/')) {
-					if ($this->copyToFolder($destination->newFolder($path), $sourcePath.$path) === false) {
+					try {
+						$folder = $destination->get($path);
+						if (!($folder instanceof Folder)) {
+							$folder->delete();
+							$folder = $destination->newFolder($path);
+						}
+					} catch (NotFoundException $e) {
+						$folder = $destination->newFolder($path);
+					}
+					if ($this->copyToFolder($folder, $sourcePath.$path) === false) {
+						echo "copy to $sourcePath.$path failed\n";
 						return false;
 					}
 				} else {
@@ -104,10 +117,20 @@ class ImportSource implements IImportSource {
 					if ($stream === false) {
 						return false;
 					}
-					$destination->newFile($path, $stream);
+					try {
+						$file = $destination->get($path);
+						if ($file instanceof File) {
+							$file->putContent($stream);
+						} else {
+							$file->delete();
+							$destination->newFile($path, $stream);
+						}
+					} catch (NotFoundException $e) {
+						$destination->newFile($path, $stream);
+					}
 				}
 			}
-		} catch (\OCP\Files\NotPermittedException $e) {
+		} catch (NotPermittedException $e) {
 			return false;
 		}
 		return true;

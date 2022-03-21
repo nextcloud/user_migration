@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace OCA\UserMigration;
 
 use OCP\Files\Folder;
+use OCP\Files\File;
 use OCP\Files\NotFoundException;
 use OCP\Files\NotPermittedException;
 use OCP\UserMigration\IImportSource;
@@ -118,7 +119,12 @@ class ImportSource implements IImportSource {
 					}
 					try {
 						$file = $destination->get($path);
-						$file->putContent($stream);
+						if ($file instanceof File) {
+							$file->putContent($stream);
+						} else {
+							$file->delete();
+							$destination->newFile($path, $stream);
+						}
 					} catch (NotFoundException $e) {
 						$destination->newFile($path, $stream);
 					}

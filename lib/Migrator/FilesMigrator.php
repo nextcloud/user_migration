@@ -245,10 +245,10 @@ class FilesMigrator implements IMigrator {
 		$comments = json_decode($importSource->getFileContents(static::PATH_COMMENTS), true, 512, JSON_THROW_ON_ERROR);
 		foreach ($comments as $path => $fileComments) {
 			foreach ($fileComments as $fileComment) {
-				if ($fileComment['actorType'] === 'users') {
+				if (($fileComment['actorType'] === 'users') || ($fileComment['actorType'] === ICommentsManager::DELETED_USER)) {
 					$actorId = $fileComment['actorId'];
 					$actorType = $fileComment['actorType'];
-					if ($actorId === $importSource->getOriginalUid()) {
+					if (($fileComment['actorType'] === 'users') && ($actorId === $importSource->getOriginalUid())) {
 						/* Only import comments from imported user, and update the uid */
 						$actorId = $uid;
 					} else {

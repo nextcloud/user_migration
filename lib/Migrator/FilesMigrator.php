@@ -29,6 +29,8 @@ namespace OCA\UserMigration\Migrator;
 
 use OCA\Files\AppInfo\Application;
 use OCA\Files_Versions\Storage as FilesVersionsStorage;
+use OCP\Comments\IComment;
+use OCP\Comments\ICommentsManager;
 use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
@@ -52,6 +54,7 @@ class FilesMigrator implements IMigrator {
 	protected const PATH_VERSIONS = Application::APP_ID.'/files_versions';
 	protected const PATH_TAGS = Application::APP_ID.'/tags.json';
 	protected const PATH_SYSTEMTAGS = Application::APP_ID.'/systemtags.json';
+	protected const PATH_COMMENTS = Application::APP_ID.'/comments.json';
 
 	protected IRootFolder $root;
 
@@ -61,16 +64,20 @@ class FilesMigrator implements IMigrator {
 
 	protected ISystemTagObjectMapper $systemTagMapper;
 
+	protected ICommentsManager $commentsManager;
+
 	public function __construct(
 		IRootFolder $rootFolder,
 		ITagManager $tagManager,
 		ISystemTagManager $systemTagManager,
-		ISystemTagObjectMapper $systemTagMapper
+		ISystemTagObjectMapper $systemTagMapper,
+		ICommentsManager $commentsManager
 	) {
 		$this->root = $rootFolder;
 		$this->tagManager = $tagManager;
 		$this->systemTagManager = $systemTagManager;
 		$this->systemTagMapper = $systemTagMapper;
+		$this->commentsManager = $commentsManager;
 	}
 
 	/**
@@ -124,6 +131,30 @@ class FilesMigrator implements IMigrator {
 		$systemTaggedFiles = array_filter(array_map(fn ($id) => $systemTags[$id] ?? [], $objectIds));
 		if ($exportDestination->addFileContents(static::PATH_SYSTEMTAGS, json_encode($systemTaggedFiles)) === false) {
 			throw new UserMigrationException("Could not export systemtagged files information.");
+		}
+
+		$output->writeln("Exporting file comments…");
+
+		$comments = [];
+		foreach ($objectIds as $path => $objectId) {
+			$fileComments = $this->commentsManager->getForObject('files', $objectId);
+			if (!empty($fileComments)) {
+				$comments[$path] = array_map(
+					function (IComment $comment): array {
+						return [
+							'message' => $comment->getMessage(),
+							'verb' => $comment->getVerb(),
+							'actorType' => $comment->getActorType(),
+							'actorId' => $comment->getActorId(),
+							'creationDateTime' => $comment->getCreationDateTime()->format(\DateTime::ISO8601),
+						];
+					},
+					$fileComments
+				);
+			}
+		}
+		if ($exportDestination->addFileContents(static::PATH_COMMENTS, json_encode($comments)) === false) {
+			throw new UserMigrationException("Could not export file comments.");
 		}
 
 		// TODO other files metadata should be exported as well if relevant.
@@ -206,6 +237,32 @@ class FilesMigrator implements IMigrator {
 			}
 			if ($this->systemTagMapper->assignTags((string)$userFolder->get($path)->getId(), 'files', $systemTagIds) === false) {
 				throw new UserMigrationException("Failed to import system tags for path $path");
+			}
+		}
+
+		$output->writeln("Importing file comments…");
+
+		$comments = json_decode($importSource->getFileContents(static::PATH_COMMENTS), true, 512, JSON_THROW_ON_ERROR);
+		foreach ($comments as $path => $fileComments) {
+			foreach ($fileComments as $fileComment) {
+				if (($fileComment['actorType'] === 'users') || ($fileComment['actorType'] === ICommentsManager::DELETED_USER)) {
+					$actorId = $fileComment['actorId'];
+					$actorType = $fileComment['actorType'];
+					if (($fileComment['actorType'] === 'users') && ($actorId === $importSource->getOriginalUid())) {
+						/* Only import comments from imported user, and update the uid */
+						$actorId = $uid;
+					} else {
+						$actorId = ICommentsManager::DELETED_USER;
+						$actorType = ICommentsManager::DELETED_USER;
+					}
+					$commentObject = $this->commentsManager->create($actorType, $actorId, 'files', (string)$userFolder->get($path)->getId());
+					$commentObject->setMessage($fileComment['message']);
+					$commentObject->setVerb($fileComment['verb']);
+					$commentObject->setCreationDateTime(new \DateTime($fileComment['creationDateTime']));
+					if ($this->commentsManager->save($commentObject) === false) {
+						throw new UserMigrationException("Failed to import comment on path $path");
+					}
+				}
 			}
 		}
 	}

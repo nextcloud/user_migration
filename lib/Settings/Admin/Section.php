@@ -47,7 +47,7 @@ class Section implements IIconSection {
 	}
 
 	public function getIcon(): string {
-		return $this->url->imagePath(Application::APP_ID, 'app-light.svg');
+		return $this->url->imagePath(Application::APP_ID, 'app-dark.svg');
 	}
 
 	public function getID(): string {
@@ -55,10 +55,10 @@ class Section implements IIconSection {
 	}
 
 	public function getName(): string {
-		return $this->l->t(Application::APP_NAME);
+		return $this->l->t(Application::SETTINGS_SECTION_NAME);
 	}
 
 	public function getPriority(): int {
-		return 80;
+		return 100;
 	}
 }

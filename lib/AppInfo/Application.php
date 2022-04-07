@@ -34,7 +34,8 @@ use OCP\AppFramework\Bootstrap\IRegistrationContext;
 
 class Application extends App implements IBootstrap {
 	public const APP_ID = 'user_migration';
-	public const APP_NAME = 'User Migration';
+	public const APP_NAME = 'User migration';
+	public const SETTINGS_SECTION_NAME = 'Data migration';
 
 	public function __construct() {
 		parent::__construct(self::APP_ID);

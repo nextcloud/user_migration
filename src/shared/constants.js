@@ -21,4 +21,5 @@
  */
 
 export const APP_ID = 'user_migration'
-export const APP_NAME = t(APP_ID, 'User Migration')
+export const APP_NAME = t(APP_ID, 'User migration')
+export const SETTINGS_SECTION_NAME = t(APP_ID, 'Data migration')

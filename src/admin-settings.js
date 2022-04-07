@@ -21,15 +21,12 @@
  */
 
 import Vue from 'vue'
+import { translate as t, translatePlural as n } from '@nextcloud/l10n'
 import '@nextcloud/dialogs/styles/toast.scss'
 
 import AdminSettings from './views/Admin/Settings'
 
-Vue.prototype.t = t
-Vue.prototype.n = n
-Vue.prototype.OC = OC
-Vue.prototype.OCA = OCA
-Vue.prototype.OCP = OCP
+Vue.mixin({ methods: { t, n } })
 
 export default new Vue({
 	el: '#admin-settings',

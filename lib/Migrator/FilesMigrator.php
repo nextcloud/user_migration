@@ -35,6 +35,7 @@ use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
 use OCP\Files\NotFoundException;
+use OCP\IL10N;
 use OCP\ITagManager;
 use OCP\IUser;
 use OCP\SystemTag\ISystemTagManager;
@@ -66,18 +67,22 @@ class FilesMigrator implements IMigrator {
 
 	protected ICommentsManager $commentsManager;
 
+	protected IL10N $l10n;
+
 	public function __construct(
 		IRootFolder $rootFolder,
 		ITagManager $tagManager,
 		ISystemTagManager $systemTagManager,
 		ISystemTagObjectMapper $systemTagMapper,
-		ICommentsManager $commentsManager
+		ICommentsManager $commentsManager,
+		IL10N $l10n
 	) {
 		$this->root = $rootFolder;
 		$this->tagManager = $tagManager;
 		$this->systemTagManager = $systemTagManager;
 		$this->systemTagMapper = $systemTagMapper;
 		$this->commentsManager = $commentsManager;
+		$this->l10n = $l10n;
 	}
 
 	/**
@@ -265,5 +270,27 @@ class FilesMigrator implements IMigrator {
 				}
 			}
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getId(): string {
+		return 'files';
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getDisplayName(): string {
+		return $this->l10n->t('Files');
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getDescription(): string {
+		// TODO handle migrator dependency resoluton as TrashbinMigrator is dependent on FilesMigrator
+		return $this->l10n->t('Files including deleted files, versions, comments, collaborative tags, and favorites');
 	}
 }

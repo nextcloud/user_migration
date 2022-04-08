@@ -22,19 +22,25 @@
 
 <template>
 	<div>
-		<h2>{{ t(APP_ID, 'Settings') }}</h2>
+		<ExportSection />
+		<ImportSection />
 	</div>
 </template>
 
 <script>
-import { APP_ID } from '../../shared/constants'
+import ExportSection from '../../components/ExportSection'
+import ImportSection from '../../components/ImportSection'
 
 export default {
 	name: 'Settings',
+
+	components: {
+		ExportSection,
+		ImportSection,
+	},
+
 	data() {
-		return {
-			APP_ID,
-		}
+		return {}
 	},
 }
 </script>

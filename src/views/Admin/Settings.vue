@@ -21,7 +21,7 @@
 -->
 
 <template>
-	<div>
+	<div class="section">
 		<h2>{{ t(APP_ID, 'Settings') }}</h2>
 	</div>
 </template>

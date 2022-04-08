@@ -20,16 +20,10 @@
  *
  */
 
-import Vue from 'vue'
-import { translate as t, translatePlural as n } from '@nextcloud/l10n'
-import '@nextcloud/dialogs/styles/toast.scss'
+import { APP_ID } from './shared/constants'
+import { getLoggerBuilder } from '@nextcloud/logger'
 
-import logger from './logger'
-import AdminSettings from './views/Admin/Settings'
-
-Vue.mixin({ props: { logger }, methods: { t, n } })
-
-export default new Vue({
-	el: '#admin-settings',
-	render: h => h(AdminSettings),
-})
+export default getLoggerBuilder()
+	.setApp(APP_ID)
+	.detectUser()
+	.build()

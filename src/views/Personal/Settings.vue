@@ -22,14 +22,23 @@
 
 <template>
 	<div>
-		<ExportSection />
-		<ImportSection />
+		<ExportSection :job="job" />
+		<ImportSection :job="job" />
 	</div>
 </template>
 
 <script>
+// TODO remove ignore
+/* eslint-disable */
+import axios from '@nextcloud/axios'
+import { generateOcsUrl } from '@nextcloud/router'
+
 import ExportSection from '../../components/ExportSection'
 import ImportSection from '../../components/ImportSection'
+import { APP_ID } from '../../shared/constants'
+
+// Polling interval in seconds
+const JOB_POLLING_INTERVAL = 30
 
 export default {
 	name: 'Settings',
@@ -40,7 +49,31 @@ export default {
 	},
 
 	data() {
-		return {}
+		return {
+			job: {
+				// possible values: null, 'export', 'import'
+				current: null,
+				statusText: null,
+			},
+		}
 	},
+
+	beforeMount() {
+		this.fetchJob()
+		setInterval(this.fetchJob, JOB_POLLING_INTERVAL * 1000)
+	},
+
+	methods: {
+		async fetchJob() {
+			try {
+				// TODO poll job status from server API
+				// const response = await axios.get(generateOcsUrl(`apps/${APP_ID}/api/v1/job`))
+				const response = {}
+				// this.job = response?.data?.ocs?.data
+			} catch (error) {
+				this.logger.error(`Error polling server for user migration job: ${error.message || 'Unknown error'}`, { error })
+			}
+		},
+	}
 }
 </script>

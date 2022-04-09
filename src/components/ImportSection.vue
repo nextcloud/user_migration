@@ -26,24 +26,42 @@
 
 		<!-- TODO use server API -->
 
-		<Button aria-label="Import your data"
+		<Button v-if="job.current !== 'import'"
 			type="secondary"
-			:wide="true"
+			:aria-label="t(APP_ID, 'Import your data')"
+			:disabled="job.current === 'export'"
 			@click.stop.prevent="pickImportFile">
 			<template #icon>
-				<PackageUp title=""
-					:size="20" />
+				<PackageUp title="" :size="20" />
 			</template>
 			{{ t(APP_ID, 'Import') }}
 		</Button>
+		<Button v-else
+			type="secondary"
+			:aria-label="t(APP_ID, 'Show import status')"
+			:disabled="job.current === 'export'"
+			@click.stop.prevent="openModal">
+			{{ t(APP_ID, 'Show status') }}
+		</Button>
+
 		<span class="error">{{ filePickerError }}</span>
 
-		<!-- TODO display import in progress modal -->
+		<Modal v-if="modalOpened"
+			@close="closeModal">
+			<div class="section__modal">
+				<h2>{{ t(APP_ID, 'Importing…') }}</h2>
+				<ProgressBar size="medium"
+					:value="60"
+					:error="error" />
+			</div>
+			<!-- TODO should we show progress text like in the CLI output? -->
+		</Modal>
 	</div>
 </template>
 
 <script>
 import Button from '@nextcloud/vue/dist/Components/Button'
+import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageUp from 'vue-material-design-icons/PackageUp'
 import { getFilePickerBuilder } from '@nextcloud/dialogs'
 
@@ -63,33 +81,67 @@ const picker = getFilePickerBuilder(t('files', 'Choose a file to import'))
 export default {
 	name: 'ImportSection',
 
+	props: {
+		job: {
+			type: Object,
+			default: () => ({}),
+		},
+	},
+
 	components: {
 		Button,
+		Modal,
 		PackageUp,
 	},
 
 	data() {
 		return {
 			filePickerError: null,
+			modalOpened: false,
+			error: false,
 			APP_ID,
 		}
 	},
 
 	methods: {
-		pickImportFile() {
+		openModal() {
+			this.modalOpened = true
+		},
+
+		closeModal() {
+			this.modalOpened = false
+		},
+
+		async pickImportFile() {
 			this.filePickerError = null
 
-			picker.pick()
-				.then(filePath => {
-					this.logger.debug(`path ${filePath} selected for import`)
-					if (!filePath.startsWith('/')) {
-						throw new Error(t(APP_ID, 'Invalid import file selected'))
-					}
-				}).catch(error => {
-					this.logger.error(`Selecting file for import aborted: ${error.message || 'Unknown error'}`, { error })
-					this.filePickerError = error.message || t(APP_ID, 'Unknown error')
-				})
+			try {
+				const filePath = await picker.pick()
+				this.logger.debug(`path ${filePath} selected for import`)
+				if (!filePath.startsWith('/')) {
+					throw new Error(t(APP_ID, 'Invalid import file selected'))
+				}
+				this.openModal()
+				// TODO start background job
+			} catch (error) {
+				this.importError = true
+				this.logger.error(`Selecting file for import aborted: ${error.message || 'Unknown error'}`, { error })
+				this.filePickerError = error.message || t(APP_ID, 'Unknown error')
+			}
 		},
 	},
 }
 </script>
+
+<style lang="scss" scoped>
+.section__modal {
+	align-self: center;
+	margin: 20px auto;
+	width: 80%;
+	height: 80%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+</style>

@@ -31,17 +31,16 @@
 		<div class="section__grid">
 			<!-- Base user data is permanently enabled -->
 			<div class="section__checkbox">
-				<CheckboxRadioSwitch type="checkbox"
-					name="migrators"
+				<CheckboxRadioSwitch name="migrators"
 					value="settings"
-					:checked="true">
+					:checked.sync="tempChecked"
+					:disabled="true">
 					User information and settings
 				</CheckboxRadioSwitch>
 				<em class="section__description">Some descriptive text about the data to be exported. Aliquam eu sem at lacus consequat malesuada sit amet et nulla.</em>
 			</div>
 			<div class="section__checkbox">
-				<CheckboxRadioSwitch type="checkbox"
-					name="migrators"
+				<CheckboxRadioSwitch name="migrators"
 					value="profile"
 					:checked.sync="tempChecked">
 					Profile information
@@ -50,8 +49,7 @@
 			</div>
 			<!-- TODO since TrashbinMigrator depends on FilesMigrator server should have some sort of migrator dependency API -->
 			<div class="section__checkbox">
-				<CheckboxRadioSwitch type="checkbox"
-					name="migrators"
+				<CheckboxRadioSwitch name="migrators"
 					value="files"
 					:checked.sync="tempChecked">
 					Files
@@ -59,8 +57,7 @@
 				<em class="section__description">Includes trashbin, versions, comments, Collaborative tags (systemtags), and favorite state (tags)</em>
 			</div>
 			<div class="section__checkbox">
-				<CheckboxRadioSwitch type="checkbox"
-					name="migrators"
+				<CheckboxRadioSwitch name="migrators"
 					value="calendar"
 					:checked.sync="tempChecked">
 					Calendar
@@ -68,8 +65,7 @@
 				<em class="section__description">Some descriptive text about the data to be exported. Aliquam eu sem at lacus consequat malesuada sit amet et nulla.</em>
 			</div>
 			<div class="section__checkbox">
-				<CheckboxRadioSwitch type="checkbox"
-					name="migrators"
+				<CheckboxRadioSwitch name="migrators"
 					value="contacts"
 					:checked.sync="tempChecked">
 					Contacts
@@ -80,24 +76,31 @@
 
 		<!-- <span>Migrators: {{ tempChecked }}</span> -->
 
-		<Button aria-label="Export your data"
+		<Button v-if="job.current !== 'export'"
 			type="secondary"
-			:wide="true"
-			@click.stop.prevent="openModal">
+			:aria-label="t(APP_ID, 'Export your data')"
+			:disabled="job.current === 'import'"
+			@click.stop.prevent="startExport">
 			<template #icon>
-				<PackageDown title=""
-					:size="20" />
+				<PackageDown title="" :size="20" />
 			</template>
 			{{ t(APP_ID, 'Export') }}
 		</Button>
+		<Button v-else
+			type="secondary"
+			:aria-label="t(APP_ID, 'Show export status')"
+			:disabled="job.current === 'import'"
+			@click.stop.prevent="openModal">
+			{{ t(APP_ID, 'Show status')}}
+		</Button>
 
-		<Modal v-if="modalOpen"
+		<Modal v-if="modalOpened"
 			@close="closeModal">
 			<div class="section__modal">
 				<h2>{{ t(APP_ID, 'Exporting…') }}</h2>
 				<ProgressBar size="medium"
 					:value="60"
-					:error="false" />
+					:error="error" />
 			</div>
 			<!-- TODO should we show progress text like in the CLI output? -->
 		</Modal>
@@ -116,29 +119,46 @@ import { APP_ID } from '../shared/constants'
 export default {
 	name: 'ExportSection',
 
+	props: {
+		job: {
+			type: Object,
+			default: () => ({}),
+		},
+	},
+
 	components: {
 		Button,
 		PackageDown,
 		Modal,
 		ProgressBar,
-		CheckboxRadioSwitch
+		CheckboxRadioSwitch,
 	},
 
 	data() {
 		return {
-			modalOpen: false,
-			tempChecked: [],
+			modalOpened: false,
+			tempChecked: ['settings'],
+			error: false,
 			APP_ID,
 		}
 	},
 
 	methods: {
+		startExport() {
+			try {
+				// TODO call export API endpoint
+				this.openModal()
+			} catch (e) {
+
+			}
+		},
+
 		openModal() {
-			this.modalOpen = true
+			this.modalOpened = true
 		},
 
 		closeModal() {
-			this.modalOpen = false
+			this.modalOpened = false
 		},
 	},
 }

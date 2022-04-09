@@ -24,4 +24,14 @@ declare(strict_types=1);
  *
  */
 
-return [];
+$requirements = [
+	'apiVersion' => 'v(1)',
+];
+
+return [
+	'ocs' => [
+		['name' => 'UserMigrationApi#status', 'url' => '/api/{apiVersion}/status', 'verb' => 'GET'],
+		['name' => 'UserMigrationApi#export', 'url' => '/api/{apiVersion}/export', 'verb' => 'POST'],
+		['name' => 'UserMigrationApi#import', 'url' => '/api/{apiVersion}/import', 'verb' => 'POST'],
+	],
+];

@@ -28,8 +28,6 @@
 	</commands>
 
 	<settings>
-		<admin>OCA\UserMigration\Settings\Admin\Settings</admin>
-		<admin-section>OCA\UserMigration\Settings\Admin\Section</admin-section>
 		<personal>OCA\UserMigration\Settings\Personal\Settings</personal>
 		<personal-section>OCA\UserMigration\Settings\Personal\Section</personal-section>
 	</settings>

@@ -80,8 +80,12 @@ class UserExportJob extends QueuedJob {
 		if (!$userObject instanceof IUser) {
 			$this->logger->alert('Could not export: Unknown user ' . $user);
 			$this->failedNotication($export);
+			$this->mapper->delete($export);
 			return;
 		}
+
+		$export->setStatus(UserExport::STATUS_STARTED);
+		$this->mapper->update($export);
 
 		try {
 			$this->migrationService->export($userObject, $migrators);

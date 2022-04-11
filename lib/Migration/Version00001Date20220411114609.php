@@ -58,6 +58,10 @@ class Version00001Date20220411114609 extends SimpleMigrationStep {
 			'notnull' => false,
 			'length' => 4000,
 		]);
+		$table->addColumn('status', 'string', [
+			'notnull' => true,
+			'length' => 64,
+		]);
 		$table->setPrimaryKey(['id']);
 
 		return $schema;

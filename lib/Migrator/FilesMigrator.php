@@ -29,6 +29,7 @@ namespace OCA\UserMigration\Migrator;
 
 use OCA\Files\AppInfo\Application;
 use OCA\Files_Versions\Storage as FilesVersionsStorage;
+use OCA\UserMigration\ExportDestination;
 use OCP\Comments\IComment;
 use OCP\Comments\ICommentsManager;
 use OCP\Files\File;
@@ -113,6 +114,7 @@ class FilesMigrator implements IMigrator {
 		}
 
 		$objectIds = $this->collectIds($userFolder, $userFolder->getPath());
+		unset($objectIds[ExportDestination::EXPORT_FILENAME]);
 
 		$output->writeln("Exporting file tags…");
 

@@ -86,9 +86,11 @@ class UserExportJob extends QueuedJob {
 
 		$export->setStatus(UserExport::STATUS_STARTED);
 		$this->mapper->update($export);
+		$userFolder = $this->root->getUserFolder($user);
+		$exportDestination = new UserFolderExportDestination($userFolder);
 
 		try {
-			$this->migrationService->export($userObject, $migrators);
+			$this->migrationService->export($exportDestination, $userObject, $migrators);
 			$this->successNotification($export);
 		} catch (\Exception $e) {
 			$this->logger->logException($e);

@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace OCA\UserMigration\Command;
 
 use OCA\UserMigration\Service\UserMigrationService;
+use OCA\UserMigration\TempExportDestination;
 use OCP\IUser;
 use OCP\IUserManager;
 use Symfony\Component\Console\Command\Command;
@@ -80,7 +81,8 @@ class Export extends Command {
 				return 2;
 			}
 			$folder = realpath($folder);
-			$path = $this->migrationService->export($userObject, null, $output);
+			$exportDestination = new TempExportDestination($this->tempManager);
+			$path = $this->migrationService->export($exportDestination, $userObject, null, $output);
 			$exportName = $userObject->getUID().'_'.date('Y-m-d_H-i-s');
 			if (rename($path, $folder.'/'.$exportName.'.zip') === false) {
 				throw new \Exception("Failed to move $path to $folder/$exportName.zip");

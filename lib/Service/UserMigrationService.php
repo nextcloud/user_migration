@@ -27,7 +27,6 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration\Service;
 
-use OCA\UserMigration\ExportDestination;
 use OCA\UserMigration\ImportSource;
 use OCP\Files\IRootFolder;
 use OCP\IConfig;
@@ -84,7 +83,7 @@ class UserMigrationService {
 	 * @throws UserMigrationException
 	 * @return string path of the export
 	 */
-	public function export(IUser $user, ?array $filteredMigratorList = null, ?OutputInterface $output = null): string {
+	public function export(IExportDestination $exportDestination, IUser $user, ?array $filteredMigratorList = null, ?OutputInterface $output = null): string {
 		$output = $output ?? new NullOutput();
 		$uid = $user->getUID();
 
@@ -93,8 +92,6 @@ class UserMigrationService {
 		if ($context === null) {
 			throw new UserMigrationException("Failed to get context");
 		}
-
-		$exportDestination = new ExportDestination($this->tempManager, $uid);
 
 		$this->exportUserInformation(
 			$user,

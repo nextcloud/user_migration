@@ -34,7 +34,7 @@ use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\IUserSession;
 
-class UserMigrationApiController extends OCSController {
+class ApiController extends OCSController {
 
 	/** @var IUserManager */
 	private $userManager;

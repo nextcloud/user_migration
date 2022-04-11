@@ -66,7 +66,7 @@ class Import extends Command {
 			->addArgument(
 				'archive',
 				InputArgument::REQUIRED,
-				'path of the export archive to import'
+				'local path of the export archive to import'
 			);
 	}
 

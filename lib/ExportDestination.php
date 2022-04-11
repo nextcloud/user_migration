@@ -82,7 +82,8 @@ class ExportDestination implements IExportDestination {
 			if ($node instanceof File) {
 				$read = $node->fopen('rb');
 				if ($node->getName() === static::EXPORT_FILENAME) {
-					/* Skip previous user export files */
+					/* Skip previous user export file */
+					// FIXME only ignore root one using getPath()
 					continue;
 				}
 				$this->streamer->addFileFromStream($read, $destinationPath.'/'.$node->getName());

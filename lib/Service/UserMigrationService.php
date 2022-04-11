@@ -30,7 +30,6 @@ namespace OCA\UserMigration\Service;
 use OCA\UserMigration\ImportSource;
 use OCP\Files\IRootFolder;
 use OCP\IConfig;
-use OCP\ITempManager;
 use OCP\IUser;
 use OCP\IUserManager;
 use OCP\Security\ISecureRandom;
@@ -51,8 +50,6 @@ class UserMigrationService {
 
 	protected IConfig $config;
 
-	protected ITempManager $tempManager;
-
 	protected IUserManager $userManager;
 
 	protected ContainerInterface $container;
@@ -63,14 +60,12 @@ class UserMigrationService {
 	public function __construct(
 		IRootFolder $rootFolder,
 		IConfig $config,
-		ITempManager $tempManager,
 		IUserManager $userManager,
 		ContainerInterface $container,
 		Coordinator $coordinator
 	) {
 		$this->root = $rootFolder;
 		$this->config = $config;
-		$this->tempManager = $tempManager;
 		$this->userManager = $userManager;
 		$this->container = $container;
 		$this->coordinator = $coordinator;

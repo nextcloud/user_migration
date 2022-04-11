@@ -36,18 +36,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Export extends Command {
 
-	/** @var IUserManager */
-	private $userManager;
-
-	/** @var UserMigrationService */
-	private $migrationService;
+	private IUserManager $userManager;
+	private UserMigrationService $migrationService;
+	private ITempManager $tempManager;
 
 	public function __construct(IUserManager $userManager,
-								UserMigrationService $migrationService
+								UserMigrationService $migrationService,
+								ITempManager $tempManager
 								) {
 		parent::__construct();
 		$this->userManager = $userManager;
 		$this->migrationService = $migrationService;
+		$this->tempManager = $tempManager;
 	}
 
 	protected function configure(): void {

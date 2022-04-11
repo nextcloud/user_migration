@@ -61,7 +61,7 @@ class Export extends Command {
 			->addArgument(
 				'folder',
 				InputArgument::REQUIRED,
-				'folder to export into'
+				'local folder to export into'
 			);
 	}
 
@@ -74,9 +74,14 @@ class Export extends Command {
 		}
 
 		try {
+			$folder = $input->getArgument('folder');
+			if (!is_writable($folder)) {
+				$output->writeln("<error>The target folder must exist and be writable by the web server user</error>");
+				return 2;
+			}
+			$folder = realpath($folder);
 			$path = $this->migrationService->export($userObject, $output);
 			$exportName = $userObject->getUID().'_'.date('Y-m-d_H-i-s');
-			$folder = realpath($input->getArgument('folder'));
 			if (rename($path, $folder.'/'.$exportName.'.zip') === false) {
 				throw new \Exception("Failed to move $path to $folder/$exportName.zip");
 			}

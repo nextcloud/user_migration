@@ -26,11 +26,13 @@ declare(strict_types=1);
 namespace OCA\UserMigration\BackgroundJob;
 
 use OCA\UserMigration\AppInfo\Application;
-use OCA\UserMigration\Db\UserExportMapper;
 use OCA\UserMigration\Db\UserExport;
+use OCA\UserMigration\Db\UserExportMapper;
 use OCA\UserMigration\Service\UserMigrationService;
+use OCA\UserMigration\UserFolderExportDestination;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\QueuedJob;
+use OCP\Files\IRootFolder;
 use OCP\IUser;
 use OCP\IUserManager;
 use OCP\Notification\IManager as NotificationManager;

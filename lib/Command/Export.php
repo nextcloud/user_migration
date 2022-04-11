@@ -27,6 +27,7 @@ namespace OCA\UserMigration\Command;
 
 use OCA\UserMigration\Service\UserMigrationService;
 use OCA\UserMigration\TempExportDestination;
+use OCP\ITempManager;
 use OCP\IUser;
 use OCP\IUserManager;
 use Symfony\Component\Console\Command\Command;

@@ -81,12 +81,6 @@ class UserMigrationService {
 		$output = $output ?? new NullOutput();
 		$uid = $user->getUID();
 
-		$context = $this->coordinator->getRegistrationContext();
-
-		if ($context === null) {
-			throw new UserMigrationException("Failed to get context");
-		}
-
 		$this->exportUserInformation(
 			$user,
 			$exportDestination,
@@ -109,9 +103,7 @@ class UserMigrationService {
 		$migratorVersions = [
 			$this->getId() => $this->getVersion(),
 		];
-		foreach ($context->getUserMigrators() as $migratorRegistration) {
-			/** @var IMigrator $migrator */
-			$migrator = $this->container->get($migratorRegistration->getService());
+		foreach ($this->getMigrators() as $migrator) {
 			if ($filteredMigratorList !== null && !in_array($migrator->getId(), $filteredMigratorList)) {
 				$output->writeln("Skip non-selected migrator: ".$migrator->getId(), OutputInterface::VERBOSITY_VERBOSE);
 				continue;
@@ -132,12 +124,7 @@ class UserMigrationService {
 		$output->writeln("Importing from ${path}…");
 		$importSource = new ImportSource($path);
 
-		$context = $this->coordinator->getRegistrationContext();
-
 		try {
-			if ($context === null) {
-				throw new UserMigrationException("Failed to get context");
-			}
 			$migratorVersions = $importSource->getMigratorVersions();
 
 			if (!$this->canImport($importSource)) {
@@ -145,9 +132,7 @@ class UserMigrationService {
 			}
 
 			// Check versions
-			foreach ($context->getUserMigrators() as $migratorRegistration) {
-				/** @var IMigrator $migrator */
-				$migrator = $this->container->get($migratorRegistration->getService());
+			foreach ($this->getMigrators() as $migrator) {
 				if (!$migrator->canImport($importSource)) {
 					throw new UserMigrationException("Version ".($importSource->getMigratorVersion($migrator->getId()) ?? 'null')." for migrator ".get_class($migrator)." is not supported");
 				}
@@ -157,9 +142,7 @@ class UserMigrationService {
 			$this->importAppsSettings($user, $importSource, $output);
 
 			// Run imports of registered migrators
-			foreach ($context->getUserMigrators() as $migratorRegistration) {
-				/** @var IMigrator $migrator */
-				$migrator = $this->container->get($migratorRegistration->getService());
+			foreach ($this->getMigrators() as $migrator) {
 				$migrator->import($user, $importSource, $output);
 			}
 
@@ -267,6 +250,27 @@ class UserMigrationService {
 		}
 	}
 
+	/**
+	 * @return IMigrator[]
+	 *
+	 * @throws UserMigrationException
+	 */
+	public function getMigrators(): array {
+		$context = $this->coordinator->getRegistrationContext();
+		if ($context === null) {
+			throw new UserMigrationException('Failed to get context');
+		}
+
+		/** @var IMigrator[] $migrators */
+		$migrators = [];
+		foreach ($context->getUserMigrators() as $migratorRegistration) {
+			/** @var IMigrator $migrator */
+			$migrator = $this->container->get($migratorRegistration->getService());
+			$migrators[] = $migrator;
+		}
+
+		return $migrators;
+	}
 
 	/**
 	 * Returns the unique ID

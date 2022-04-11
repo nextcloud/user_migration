@@ -97,7 +97,15 @@
 		<Modal v-if="modalOpened"
 			@close="closeModal">
 			<div class="section__modal">
-				<h2>{{ t(APP_ID, 'Exporting…') }}</h2>
+				<EmptyContent>
+					{{ t(APP_ID, 'Export in progress…') }}
+					<template #icon>
+						<PackageDown />
+					</template>
+					<template #desc>
+						{{ t(APP_ID, 'Please do not use your account while exporting.') }}
+					</template>
+				</EmptyContent>
 				<ProgressBar size="medium"
 					:value="60"
 					:error="error" />
@@ -109,6 +117,7 @@
 
 <script>
 import Button from '@nextcloud/vue/dist/Components/Button'
+import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
 import CheckboxRadioSwitch from '@nextcloud/vue/dist/Components/CheckboxRadioSwitch'
 import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageDown from 'vue-material-design-icons/PackageDown'
@@ -128,6 +137,7 @@ export default {
 
 	components: {
 		Button,
+		EmptyContent,
 		PackageDown,
 		Modal,
 		ProgressBar,

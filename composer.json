@@ -25,6 +25,7 @@
         "phpunit/phpunit": "^9.5",
 		"christophwurst/nextcloud": "dev-master",
 		"vimeo/psalm": "^4.19",
+		"doctrine/dbal": "^3",
 		"deepdiver/zipstreamer": "^2.0"
     }
 }

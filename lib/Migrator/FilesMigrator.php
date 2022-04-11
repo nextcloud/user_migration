@@ -187,8 +187,8 @@ class FilesMigrator implements IMigrator {
 		IImportSource $importSource,
 		OutputInterface $output
 	): void {
-		if ($importSource->getMigratorVersion(static::class) === null) {
-			$output->writeln("No version for ".static::class.", skipping import…");
+		if ($importSource->getMigratorVersion($this->getId()) === null) {
+			$output->writeln("No version for ".$this->getId().", skipping import…");
 			return;
 		}
 		$output->writeln("Importing files…");

@@ -115,13 +115,13 @@ class UserMigrationService {
 
 		// Run exports of registered migrators
 		$migratorVersions = [
-			static::class => $this->getVersion(),
+			$this->getId() => $this->getVersion(),
 		];
 		foreach ($context->getUserMigrators() as $migratorRegistration) {
 			/** @var IMigrator $migrator */
 			$migrator = $this->container->get($migratorRegistration->getService());
 			$migrator->export($user, $exportDestination, $output);
-			$migratorVersions[get_class($migrator)] = $migrator->getVersion();
+			$migratorVersions[$migrator->getId()] = $migrator->getVersion();
 		}
 		if ($exportDestination->setMigratorVersions($migratorVersions) === false) {
 			throw new UserMigrationException("Could not export user information.");
@@ -147,7 +147,7 @@ class UserMigrationService {
 			$migratorVersions = $importSource->getMigratorVersions();
 
 			if (!$this->canImport($importSource)) {
-				throw new UserMigrationException("Version ${$migratorVersions[static::class]} for main class ".static::class." is not compatible");
+				throw new UserMigrationException("Version ${$migratorVersions[$this->getId()]} for main class ".static::class." is not compatible");
 			}
 
 			// Check versions
@@ -155,7 +155,7 @@ class UserMigrationService {
 				/** @var IMigrator $migrator */
 				$migrator = $this->container->get($migratorRegistration->getService());
 				if (!$migrator->canImport($importSource)) {
-					throw new UserMigrationException("Version ".($importSource->getMigratorVersion(get_class($migrator)) ?? 'null')." for migrator ".get_class($migrator)." is not supported");
+					throw new UserMigrationException("Version ".($importSource->getMigratorVersion($migrator->getId()) ?? 'null')." for migrator ".get_class($migrator)." is not supported");
 				}
 			}
 
@@ -271,5 +271,13 @@ class UserMigrationService {
 				$this->config->setUserValue($user->getUID(), $app, $key, $value);
 			}
 		}
+	}
+
+
+	/**
+	 * Returns the unique ID
+	 */
+	public function getId(): string {
+		return 'usermigrationservice';
 	}
 }

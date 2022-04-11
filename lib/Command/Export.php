@@ -80,7 +80,7 @@ class Export extends Command {
 				return 2;
 			}
 			$folder = realpath($folder);
-			$path = $this->migrationService->export($userObject, $output);
+			$path = $this->migrationService->export($userObject, null, $output);
 			$exportName = $userObject->getUID().'_'.date('Y-m-d_H-i-s');
 			if (rename($path, $folder.'/'.$exportName.'.zip') === false) {
 				throw new \Exception("Failed to move $path to $folder/$exportName.zip");

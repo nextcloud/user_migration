@@ -80,10 +80,11 @@ class UserMigrationService {
 	}
 
 	/**
+	 * @param ?string[] $filteredMigratorList If not null, only these migrators will run. If empty only the main account data will be exported.
 	 * @throws UserMigrationException
 	 * @return string path of the export
 	 */
-	public function export(IUser $user, ?OutputInterface $output = null): string {
+	public function export(IUser $user, ?array $filteredMigratorList = null, ?OutputInterface $output = null): string {
 		$output = $output ?? new NullOutput();
 		$uid = $user->getUID();
 
@@ -120,6 +121,10 @@ class UserMigrationService {
 		foreach ($context->getUserMigrators() as $migratorRegistration) {
 			/** @var IMigrator $migrator */
 			$migrator = $this->container->get($migratorRegistration->getService());
+			if ($filteredMigratorList !== null && !in_array($migrator->getId(), $filteredMigratorList)) {
+				$output->writeln("Skip non-selected migrator: ".$migrator->getId(), OutputInterface::VERBOSITY_VERBOSE);
+				continue;
+			}
 			$migrator->export($user, $exportDestination, $output);
 			$migratorVersions[$migrator->getId()] = $migrator->getVersion();
 		}

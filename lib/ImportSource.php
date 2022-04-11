@@ -94,23 +94,26 @@ class ImportSource implements IImportSource {
 	public function copyToFolder(Folder $destination, string $sourcePath): bool {
 		// TODO log errors to ease debugging
 		$sourcePath = rtrim($sourcePath, '/').'/';
-		$files = $this->archive->getFolder($sourcePath);
+		$stats = $this->archive->getAllFilesStat($sourcePath);
 
 		try {
-			foreach ($files as $path) {
-				if (str_ends_with($path, '/')) {
+			foreach ($stats as $stat) {
+				$path = $stat['name'];
+				if (!str_starts_with($path, $sourcePath)) {
+					continue;
+				}
+				$path = rtrim(substr($path, strlen($sourcePath)), '/');
+				if (str_ends_with($stat['name'], '/')) {
 					try {
 						$folder = $destination->get($path);
 						if (!($folder instanceof Folder)) {
 							$folder->delete();
 							$folder = $destination->newFolder($path);
+							$folder->touch($stat['mtime']);
 						}
 					} catch (NotFoundException $e) {
 						$folder = $destination->newFolder($path);
-					}
-					if ($this->copyToFolder($folder, $sourcePath.$path) === false) {
-						echo "copy to $sourcePath.$path failed\n";
-						return false;
+						$folder->touch($stat['mtime']);
 					}
 				} else {
 					$stream = $this->archive->getStream($sourcePath.$path, 'r');
@@ -121,12 +124,15 @@ class ImportSource implements IImportSource {
 						$file = $destination->get($path);
 						if ($file instanceof File) {
 							$file->putContent($stream);
+							$file->touch($stat['mtime']);
 						} else {
 							$file->delete();
-							$destination->newFile($path, $stream);
+							$file = $destination->newFile($path, $stream);
+							$file->touch($stat['mtime']);
 						}
 					} catch (NotFoundException $e) {
-						$destination->newFile($path, $stream);
+						$file = $destination->newFile($path, $stream);
+						$file->touch($stat['mtime']);
 					}
 				}
 			}

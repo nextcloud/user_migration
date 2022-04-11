@@ -27,29 +27,42 @@ declare(strict_types=1);
 namespace OC\Core\Controller;
 
 use OCA\UserMigration\AppInfo\Application;
+use OCA\UserMigration\BackgroundJob\UserExportJob;
+use OCA\UserMigration\Db\UserExport;
+use OCA\UserMigration\Db\UserExportMapper;
+use OCA\UserMigration\Service\UserMigrationService;
+use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\DataResponse;
-use OCP\AppFramework\OCS\OCSNotFoundException;
+use OCP\AppFramework\OCS\OCSException;
 use OCP\AppFramework\OCSController;
+use OCP\BackgroundJob\IJobList;
 use OCP\IRequest;
-use OCP\IUserManager;
 use OCP\IUserSession;
+use OCP\UserMigration\IMigrator;
 
 class ApiController extends OCSController {
 
-	/** @var IUserManager */
-	private $userManager;
+	private IUserSession $userSession;
 
-	/** @var IUserSession */
-	private $userSession;
+	private UserMigrationService $migrationService;
+
+	private UserExportMapper $exportMapper;
+
+	private IJobList $jobList;
 
 	public function __construct(
 		IRequest $request,
-		IUserManager $userManager,
-		IUserSession $userSession
+		IUserSession $userSession,
+		UserMigrationService $migrationService,
+		UserExportMapper $exportMapper,
+		IJobList $jobList
 	) {
 		parent::__construct(Application::APP_ID, $request);
-		$this->userManager = $userManager;
 		$this->userSession = $userSession;
+		$this->migrationService = $migrationService;
+		$this->exportMapper = $exportMapper;
+		$this->jobList = $jobList;
 	}
 
 	/**
@@ -61,12 +74,26 @@ class ApiController extends OCSController {
 		$user = $this->userSession->getUser();
 
 		if (empty($user)) {
-			throw new OCSNotFoundException('User does not exist');
+			throw new OCSException('No user currently logged in');
 		}
 
-		// TODO get status of user's background job
+		try {
+			$userExport = $this->exportMapper->getBySourceUser($user->getUID());
+		} catch (DoesNotExistException $e) {
+			// Allow this exception as this just means the user has no export jobs queued currently
+		}
 
-		return new DataResponse();
+		// TODO handle import job status
+
+		if (!empty($userExport)) {
+			return new DataResponse([
+				'current' => 'export',
+				'migrators' => $userExport->getMigratorsArray(),
+				'status' => $userExport->getStatus(),
+			], Http::STATUS_OK);
+		}
+
+		return new DataResponse(['current' => null], Http::STATUS_OK);
 	}
 
 	/**
@@ -74,16 +101,44 @@ class ApiController extends OCSController {
 	 * @NoSubAdminRequired
 	 * @PasswordConfirmationRequired
 	 */
-	public function export(string $migrators): DataResponse {
+	public function export(array $migrators): DataResponse {
 		$user = $this->userSession->getUser();
 
 		if (empty($user)) {
-			throw new OCSNotFoundException('User does not exist');
+			throw new OCSException('No user currently logged in');
 		}
 
-		// TODO queue export job
+		/** @var string[] $availableMigrators */
+		$availableMigrators = array_map(
+			fn (IMigrator $migrator) => $migrator->getId(),
+			$this->migrationService->getMigrators(),
+		);
 
-		return new DataResponse();
+		foreach ($migrators as $migrator) {
+			if (!in_array($migrator, $availableMigrators, true)) {
+				throw new OCSException("Requested migrator \"$migrator\" not available");
+			}
+		}
+
+		try {
+			$userExport = $this->exportMapper->getBySourceUser($user->getUID());
+			throw new OCSException('User export already queued');
+		} catch (DoesNotExistException $e) {
+			// Allow this exception to proceed with adding user export job
+		}
+
+		$userExport = new UserExport();
+		$userExport->setSourceUser($user->getUID());
+		$userExport->setMigratorsArray($migrators);
+		$userExport->setStatus(UserExport::STATUS_WAITING);
+		/** @var UserExport $userExport */
+		$userExport = $this->exportMapper->insert($userExport);
+
+		$this->jobList->add(UserExportJob::class, [
+			'id' => $userExport->getId(),
+		]);
+
+		return new DataResponse([], Http::STATUS_OK);
 	}
 
 	/**
@@ -95,7 +150,7 @@ class ApiController extends OCSController {
 		$user = $this->userSession->getUser();
 
 		if (empty($user)) {
-			throw new OCSNotFoundException('User does not exist');
+			throw new OCSException('No user currently logged in');
 		}
 
 		// TODO queue import job

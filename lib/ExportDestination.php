@@ -28,7 +28,6 @@ namespace OCA\UserMigration;
 
 use OCP\Files\File;
 use OCP\Files\Folder;
-use OCP\ITempManager;
 use OCP\UserMigration\IExportDestination;
 use ZipStreamer\COMPR;
 use ZipStreamer\ZipStreamer;

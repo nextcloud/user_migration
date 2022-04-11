@@ -35,7 +35,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Export extends Command {
-
 	private IUserManager $userManager;
 	private UserMigrationService $migrationService;
 	private ITempManager $tempManager;

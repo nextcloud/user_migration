@@ -31,34 +31,28 @@ use OCA\UserMigration\Db\UserExport;
 use OCA\UserMigration\Service\UserMigrationService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\QueuedJob;
-use OCP\ILogger;
 use OCP\IUser;
 use OCP\IUserManager;
 use OCP\Notification\IManager as NotificationManager;
+use Psr\Log\LoggerInterface;
 
 class UserExportJob extends QueuedJob {
+	private IUserManager $userManager;
+	private UserMigrationService $migrationService;
+	private LoggerInterface $logger;
+	private NotificationManager $notificationManager;
+	private UserExportMapper $mapper;
+	private IRootFolder $root;
 
-	/** @var IUserManager $userManager */
-	private $userManager;
-
-	/** @var UserMigrationService */
-	private $migrationService;
-
-	/** @var ILogger */
-	private $logger;
-
-	/** @var NotificationManager */
-	private $notificationManager;
-
-	/** @var UserExportMapper */
-	private $mapper;
-
-	public function __construct(ITimeFactory $timeFactory,
-								IUserManager $userManager,
-								UserMigrationService $migrationService,
-								ILogger $logger,
-								NotificationManager $notificationManager,
-								UserExportMapper $mapper) {
+	public function __construct(
+		ITimeFactory $timeFactory,
+		IUserManager $userManager,
+		UserMigrationService $migrationService,
+		LoggerInterface $logger,
+		NotificationManager $notificationManager,
+		UserExportMapper $mapper,
+		IRootFolder $root
+	) {
 		parent::__construct($timeFactory);
 
 		$this->userManager = $userManager;
@@ -66,27 +60,35 @@ class UserExportJob extends QueuedJob {
 		$this->logger = $logger;
 		$this->notificationManager = $notificationManager;
 		$this->mapper = $mapper;
+		$this->root = $root;
 	}
 
 	public function run($argument): void {
 		$id = $argument['id'];
 
 		$export = $this->mapper->getById($id);
-		$user = $export->getUser();
+		$user = $export->getSourceUser();
+		$migrators = $export->getMigratorArray();
 
 		$userObject = $this->userManager->get($user);
 
 		if (!$userObject instanceof IUser) {
-			$this->logger->alert('Could not export: Unknown user ' . $user);
+			$this->logger->error('Could not export: Unknown user ' . $user);
 			$this->failedNotication($export);
+			$this->mapper->delete($export);
 			return;
 		}
 
+		$export->setStatus(UserExport::STATUS_STARTED);
+		$this->mapper->update($export);
+		$userFolder = $this->root->getUserFolder($user);
+		$exportDestination = new UserFolderExportDestination($userFolder);
+
 		try {
-			$this->migrationService->export($userObject);
+			$this->migrationService->export($exportDestination, $userObject, $migrators);
 			$this->successNotification($export);
 		} catch (\Exception $e) {
-			$this->logger->logException($e);
+			$this->logger->error($e->getMessage(), ['exception' => $e]);
 			$this->failedNotication($export);
 		}
 
@@ -96,11 +98,11 @@ class UserExportJob extends QueuedJob {
 	private function failedNotication(UserExport $export): void {
 		// Send notification to user
 		$notification = $this->notificationManager->createNotification();
-		$notification->setUser($export->getUser())
+		$notification->setUser($export->getSourceUser())
 			->setApp(Application::APP_ID)
 			->setDateTime($this->time->getDateTime())
 			->setSubject('exportFailed', [
-				'user' => $export->getUser(),
+				'user' => $export->getSourceUser(),
 			])
 			->setObject('export', (string)$export->getId());
 		$this->notificationManager->notify($notification);
@@ -109,11 +111,11 @@ class UserExportJob extends QueuedJob {
 	private function successNotification(UserExport $export): void {
 		// Send notification to user
 		$notification = $this->notificationManager->createNotification();
-		$notification->setUser($export->getUser())
+		$notification->setUser($export->getSourceUser())
 			->setApp(Application::APP_ID)
 			->setDateTime($this->time->getDateTime())
 			->setSubject('exportDone', [
-				'user' => $export->getUser(),
+				'user' => $export->getSourceUser(),
 			])
 			->setObject('export', (string)$export->getId());
 		$this->notificationManager->notify($notification);

@@ -29,14 +29,41 @@ namespace OCA\UserMigration\Db;
 use OCP\AppFramework\Db\Entity;
 
 /**
- * @method void setUser(string $uid)
- * @method string getUser()
+ * @method void setSourceUser(string $uid)
+ * @method string getSourceUser()
+ * @method void setMigrators(string $uid)
+ * @method string getMigrators()
+ * @method void setStatus(int $status)
+ * @method int getStatus()
  */
 class UserExport extends Entity {
+	public const STATUS_WAITING = 0;
+	public const STATUS_STARTED = 1;
+
 	/** @var string */
-	protected $user;
+	protected $source_user;
+	/** @var string JSON encoded array */
+	protected $migrators;
+	/** @var int */
+	protected $status;
 
 	public function __construct() {
-		$this->addType('user', 'string');
+		$this->addType('source_user', 'string');
+		$this->addType('migrators', 'string');
+		$this->addType('status', 'int');
+	}
+
+	/**
+	 * Returns the migrators in an associative array
+	 */
+	public function getMigratorsArray(): ?array {
+		return json_decode($this->migrators, true);
+	}
+
+	/**
+	 * Set the migrators
+	 */
+	public function setMigratorsArray(?array $migrators): void {
+		$this->setMigrators(json_encode($migrators));
 	}
 }

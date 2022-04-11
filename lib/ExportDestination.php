@@ -28,19 +28,21 @@ namespace OCA\UserMigration;
 
 use OCP\Files\File;
 use OCP\Files\Folder;
-use OCP\ITempManager;
 use OCP\UserMigration\IExportDestination;
 use ZipStreamer\COMPR;
 use ZipStreamer\ZipStreamer;
 
 class ExportDestination implements IExportDestination {
-	private ZipStreamer $streamer;
+	public const EXPORT_FILENAME = 'user.nextcloud_export';
 
-	private string $path;
+	protected ZipStreamer $streamer;
 
-	public function __construct(ITempManager $tempManager, string $uid) {
-		$this->path = $tempManager->getTemporaryFile('.zip');
-		$r = fopen($this->path, 'w');
+	protected string $path;
+
+	/**
+	 * @param resource $r resource to write the export into
+	 */
+	public function __construct($r) {
 		$this->streamer = new ZipStreamer(
 			[
 				'outstream' => $r,
@@ -79,6 +81,11 @@ class ExportDestination implements IExportDestination {
 		foreach ($nodes as $node) {
 			if ($node instanceof File) {
 				$read = $node->fopen('rb');
+				if ($node->getName() === static::EXPORT_FILENAME) {
+					/* Skip previous user export file */
+					// FIXME only ignore root one using getPath()
+					continue;
+				}
 				$this->streamer->addFileFromStream($read, $destinationPath.'/'.$node->getName());
 			} elseif ($node instanceof Folder) {
 				$success = $this->copyFolder($node, $destinationPath.'/'.$node->getName());

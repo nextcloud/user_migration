@@ -6,8 +6,6 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2022 Côme Chilliet <come.chilliet@nextcloud.com>
  *
  * @author Côme Chilliet <come.chilliet@nextcloud.com>
- * @author Joas Schilling <coding@schilljs.com>
- * @author Roeland Jago Douma <roeland@famdouma.nl>
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -25,27 +23,15 @@ declare(strict_types=1);
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  */
-namespace OCA\UserMigration\Db;
 
-use OCP\AppFramework\Db\QBMapper;
-use OCP\IDBConnection;
+namespace OCA\UserMigration;
 
-class UserExportMapper extends QBMapper {
-	public const TABLE_NAME = 'user_export_jobs';
+use OCP\ITempManager;
 
-	public function __construct(IDBConnection $db) {
-		parent::__construct($db, static::TABLE_NAME, UserExport::class);
-	}
-
-	public function getById(int $id): UserExport {
-		$qb = $this->db->getQueryBuilder();
-
-		$qb->select('*')
-			->from($this->getTableName())
-			->where(
-				$qb->expr()->eq('id', $qb->createNamedParameter($id))
-			);
-
-		return $this->findEntity($qb);
+class TempExportDestination extends ExportDestination {
+	public function __construct(ITempManager $tempManager) {
+		$this->path = $tempManager->getTemporaryFile('.zip');
+		$r = fopen($this->path, 'w');
+		parent::__construct($r);
 	}
 }

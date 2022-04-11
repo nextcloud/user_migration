@@ -29,6 +29,7 @@ namespace OCA\UserMigration\Migrator;
 
 use OCA\Files\AppInfo\Application;
 use OCA\Files_Versions\Storage as FilesVersionsStorage;
+use OCA\UserMigration\ExportDestination;
 use OCP\Comments\IComment;
 use OCP\Comments\ICommentsManager;
 use OCP\Files\File;
@@ -113,6 +114,7 @@ class FilesMigrator implements IMigrator {
 		}
 
 		$objectIds = $this->collectIds($userFolder, $userFolder->getPath());
+		unset($objectIds[ExportDestination::EXPORT_FILENAME]);
 
 		$output->writeln("Exporting file tags…");
 
@@ -188,7 +190,7 @@ class FilesMigrator implements IMigrator {
 		OutputInterface $output
 	): void {
 		if ($importSource->getMigratorVersion($this->getId()) === null) {
-			$output->writeln("No version for ".$this->getId().", skipping import…");
+			$output->writeln("No version for migrator ".$this->getId()." (".static::class."), skipping import…");
 			return;
 		}
 		$output->writeln("Importing files…");

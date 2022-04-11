@@ -27,11 +27,9 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration\Service;
 
-use OCA\UserMigration\ExportDestination;
 use OCA\UserMigration\ImportSource;
 use OCP\Files\IRootFolder;
 use OCP\IConfig;
-use OCP\ITempManager;
 use OCP\IUser;
 use OCP\IUserManager;
 use OCP\Security\ISecureRandom;
@@ -52,8 +50,6 @@ class UserMigrationService {
 
 	protected IConfig $config;
 
-	protected ITempManager $tempManager;
-
 	protected IUserManager $userManager;
 
 	protected ContainerInterface $container;
@@ -64,14 +60,12 @@ class UserMigrationService {
 	public function __construct(
 		IRootFolder $rootFolder,
 		IConfig $config,
-		ITempManager $tempManager,
 		IUserManager $userManager,
 		ContainerInterface $container,
 		Coordinator $coordinator
 	) {
 		$this->root = $rootFolder;
 		$this->config = $config;
-		$this->tempManager = $tempManager;
 		$this->userManager = $userManager;
 		$this->container = $container;
 		$this->coordinator = $coordinator;
@@ -80,10 +74,11 @@ class UserMigrationService {
 	}
 
 	/**
+	 * @param ?string[] $filteredMigratorList If not null, only these migrators will run. If empty only the main account data will be exported.
 	 * @throws UserMigrationException
 	 * @return string path of the export
 	 */
-	public function export(IUser $user, ?OutputInterface $output = null): string {
+	public function export(IExportDestination $exportDestination, IUser $user, ?array $filteredMigratorList = null, ?OutputInterface $output = null): string {
 		$output = $output ?? new NullOutput();
 		$uid = $user->getUID();
 
@@ -92,8 +87,6 @@ class UserMigrationService {
 		if ($context === null) {
 			throw new UserMigrationException("Failed to get context");
 		}
-
-		$exportDestination = new ExportDestination($this->tempManager, $uid);
 
 		$this->exportUserInformation(
 			$user,
@@ -120,6 +113,10 @@ class UserMigrationService {
 		foreach ($context->getUserMigrators() as $migratorRegistration) {
 			/** @var IMigrator $migrator */
 			$migrator = $this->container->get($migratorRegistration->getService());
+			if ($filteredMigratorList !== null && !in_array($migrator->getId(), $filteredMigratorList)) {
+				$output->writeln("Skip non-selected migrator: ".$migrator->getId(), OutputInterface::VERBOSITY_VERBOSE);
+				continue;
+			}
 			$migrator->export($user, $exportDestination, $output);
 			$migratorVersions[$migrator->getId()] = $migrator->getVersion();
 		}

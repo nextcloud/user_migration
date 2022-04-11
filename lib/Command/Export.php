@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace OCA\UserMigration\Command;
 
 use OCA\UserMigration\Service\UserMigrationService;
+use OCA\UserMigration\TempExportDestination;
 use OCP\IUser;
 use OCP\IUserManager;
 use Symfony\Component\Console\Command\Command;
@@ -34,19 +35,18 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Export extends Command {
-
-	/** @var IUserManager */
-	private $userManager;
-
-	/** @var UserMigrationService */
-	private $migrationService;
+	private IUserManager $userManager;
+	private UserMigrationService $migrationService;
+	private ITempManager $tempManager;
 
 	public function __construct(IUserManager $userManager,
-								UserMigrationService $migrationService
+								UserMigrationService $migrationService,
+								ITempManager $tempManager
 								) {
 		parent::__construct();
 		$this->userManager = $userManager;
 		$this->migrationService = $migrationService;
+		$this->tempManager = $tempManager;
 	}
 
 	protected function configure(): void {
@@ -80,7 +80,8 @@ class Export extends Command {
 				return 2;
 			}
 			$folder = realpath($folder);
-			$path = $this->migrationService->export($userObject, $output);
+			$exportDestination = new TempExportDestination($this->tempManager);
+			$path = $this->migrationService->export($exportDestination, $userObject, null, $output);
 			$exportName = $userObject->getUID().'_'.date('Y-m-d_H-i-s');
 			if (rename($path, $folder.'/'.$exportName.'.zip') === false) {
 				throw new \Exception("Failed to move $path to $folder/$exportName.zip");

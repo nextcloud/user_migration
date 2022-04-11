@@ -24,6 +24,7 @@ declare(strict_types=1);
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 namespace OCA\UserMigration\Db;
 
 use OCP\AppFramework\Db\Entity;
@@ -31,7 +32,7 @@ use OCP\AppFramework\Db\Entity;
 /**
  * @method void setSourceUser(string $uid)
  * @method string getSourceUser()
- * @method void setMigrators(string $uid)
+ * @method void setMigrators(string $migrators)
  * @method string getMigrators()
  * @method void setStatus(int $status)
  * @method int getStatus()

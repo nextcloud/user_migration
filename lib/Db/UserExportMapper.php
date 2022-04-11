@@ -25,6 +25,7 @@ declare(strict_types=1);
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 namespace OCA\UserMigration\Db;
 
 use OCP\AppFramework\Db\QBMapper;
@@ -44,6 +45,18 @@ class UserExportMapper extends QBMapper {
 			->from($this->getTableName())
 			->where(
 				$qb->expr()->eq('id', $qb->createNamedParameter($id))
+			);
+
+		return $this->findEntity($qb);
+	}
+
+	public function getBySourceUser(string $userId): UserExport {
+		$qb = $this->db->getQueryBuilder();
+
+		$qb->select('*')
+			->from($this->getTableName())
+			->where(
+				$qb->expr()->eq('source_user', $qb->createNamedParameter($userId))
 			);
 
 		return $this->findEntity($qb);

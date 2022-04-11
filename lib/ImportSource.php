@@ -94,27 +94,32 @@ class ImportSource implements IImportSource {
 	public function copyToFolder(Folder $destination, string $sourcePath): bool {
 		// TODO log errors to ease debugging
 		$sourcePath = rtrim($sourcePath, '/').'/';
-		$stats = $this->archive->getAllFilesStat($sourcePath);
+		$files = $this->archive->getFolder($sourcePath);
 
 		try {
-			foreach ($stats as $stat) {
-				$path = $stat['name'];
-				if (!str_starts_with($path, $sourcePath)) {
-					continue;
+			foreach ($files as $path) {
+				$stat = $this->archive->getStat($sourcePath . $path);
+				if ($stat === null) {
+					// TODO: use exception
+					echo "Stat information not found for " . $sourcePath . $path . "\n";
+					return false;
 				}
-				$path = rtrim(substr($path, strlen($sourcePath)), '/');
-				if (str_ends_with($stat['name'], '/')) {
+				if (str_ends_with($path, '/')) {
 					try {
 						$folder = $destination->get($path);
 						if (!($folder instanceof Folder)) {
 							$folder->delete();
 							$folder = $destination->newFolder($path);
-							$folder->touch($stat['mtime']);
 						}
 					} catch (NotFoundException $e) {
 						$folder = $destination->newFolder($path);
-						$folder->touch($stat['mtime']);
 					}
+					if ($this->copyToFolder($folder, $sourcePath.$path) === false) {
+						// TODO: use exception
+						echo "copy to $sourcePath.$path failed\n";
+						return false;
+					}
+					$folder->touch($stat['mtime']);
 				} else {
 					$stream = $this->archive->getStream($sourcePath.$path, 'r');
 					if ($stream === false) {
@@ -124,16 +129,14 @@ class ImportSource implements IImportSource {
 						$file = $destination->get($path);
 						if ($file instanceof File) {
 							$file->putContent($stream);
-							$file->touch($stat['mtime']);
 						} else {
 							$file->delete();
 							$file = $destination->newFile($path, $stream);
-							$file->touch($stat['mtime']);
 						}
 					} catch (NotFoundException $e) {
 						$file = $destination->newFile($path, $stream);
-						$file->touch($stat['mtime']);
 					}
+					$file->touch($stat['mtime']);
 				}
 			}
 		} catch (NotPermittedException $e) {

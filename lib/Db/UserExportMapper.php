@@ -31,8 +31,10 @@ use OCP\AppFramework\Db\QBMapper;
 use OCP\IDBConnection;
 
 class UserExportMapper extends QBMapper {
+	public const TABLE_NAME = 'user_export_jobs';
+
 	public function __construct(IDBConnection $db) {
-		parent::__construct($db, 'user_export', UserExport::class);
+		parent::__construct($db, static::TABLE_NAME, UserExport::class);
 	}
 
 	public function getById(int $id): UserExport {

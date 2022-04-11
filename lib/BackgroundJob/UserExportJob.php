@@ -72,7 +72,8 @@ class UserExportJob extends QueuedJob {
 		$id = $argument['id'];
 
 		$export = $this->mapper->getById($id);
-		$user = $export->getUser();
+		$user = $export->getSourceUser();
+		$migrators = $export->getMigratorArray();
 
 		$userObject = $this->userManager->get($user);
 
@@ -83,7 +84,7 @@ class UserExportJob extends QueuedJob {
 		}
 
 		try {
-			$this->migrationService->export($userObject);
+			$this->migrationService->export($userObject, $migrators);
 			$this->successNotification($export);
 		} catch (\Exception $e) {
 			$this->logger->logException($e);
@@ -96,11 +97,11 @@ class UserExportJob extends QueuedJob {
 	private function failedNotication(UserExport $export): void {
 		// Send notification to user
 		$notification = $this->notificationManager->createNotification();
-		$notification->setUser($export->getUser())
+		$notification->setUser($export->getSourceUser())
 			->setApp(Application::APP_ID)
 			->setDateTime($this->time->getDateTime())
 			->setSubject('exportFailed', [
-				'user' => $export->getUser(),
+				'user' => $export->getSourceUser(),
 			])
 			->setObject('export', (string)$export->getId());
 		$this->notificationManager->notify($notification);
@@ -109,11 +110,11 @@ class UserExportJob extends QueuedJob {
 	private function successNotification(UserExport $export): void {
 		// Send notification to user
 		$notification = $this->notificationManager->createNotification();
-		$notification->setUser($export->getUser())
+		$notification->setUser($export->getSourceUser())
 			->setApp(Application::APP_ID)
 			->setDateTime($this->time->getDateTime())
 			->setSubject('exportDone', [
-				'user' => $export->getUser(),
+				'user' => $export->getSourceUser(),
 			])
 			->setObject('export', (string)$export->getId());
 		$this->notificationManager->notify($notification);

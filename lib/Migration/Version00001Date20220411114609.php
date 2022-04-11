@@ -26,10 +26,11 @@ declare(strict_types=1);
 namespace OCA\UserMigration\Migration;
 
 use Closure;
+use OCA\UserMigration\Db\UserExportMapper;
 use OCP\DB\ISchemaWrapper;
+use OCP\DB\Types;
 use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
-use OCA\UserMigration\Db\UserExportMapper;
 
 class Version00001Date20220411114609 extends SimpleMigrationStep {
 
@@ -44,21 +45,21 @@ class Version00001Date20220411114609 extends SimpleMigrationStep {
 		$schema = $schemaClosure();
 
 		$table = $schema->createTable(UserExportMapper::TABLE_NAME);
-		$table->addColumn('id', 'bigint', [
+		$table->addColumn('id', Types::BIGINT, [
 			'autoincrement' => true,
 			'notnull' => true,
 			'length' => 20,
 			'unsigned' => true,
 		]);
-		$table->addColumn('source_user', 'string', [
+		$table->addColumn('source_user', Types::STRING, [
 			'notnull' => true,
 			'length' => 64,
 		]);
-		$table->addColumn('migrators', 'string', [
+		$table->addColumn('migrators', Types::STRING, [
 			'notnull' => false,
 			'length' => 4000,
 		]);
-		$table->addColumn('status', 'integer', [
+		$table->addColumn('status', Types::SMALLINT, [
 			'notnull' => true,
 		]);
 		$table->setPrimaryKey(['id']);

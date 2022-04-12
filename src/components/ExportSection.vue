@@ -92,8 +92,9 @@
 
 <script>
 import axios from '@nextcloud/axios'
-import { generateOcsUrl } from '@nextcloud/router'
 import confirmPassword from '@nextcloud/password-confirmation'
+import { generateOcsUrl } from '@nextcloud/router'
+import { showError } from '@nextcloud/dialogs'
 
 import Button from '@nextcloud/vue/dist/Components/Button'
 import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
@@ -152,8 +153,9 @@ export default {
 				this.$emit('refresh-status')
 				this.openModal()
 			} catch (error) {
-				this.logger.error(`Error starting user export: ${error.message || 'Unknown error'}`, { error })
-				// TODO show error message in a dialog
+				const errorMessage = error.message || 'Unknown error'
+				this.logger.error(`Error starting user export: ${errorMessage}`, { error })
+				showError(errorMessage)
 			}
 		},
 

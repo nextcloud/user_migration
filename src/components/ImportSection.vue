@@ -24,7 +24,7 @@
 	<div class="section">
 		<h2>{{ t('user_migration', 'Import') }}</h2>
 
-		<h3 class="settings-hint">{{ t('user_migration', 'Please note that existing data may be overwritten.') }}</h3>
+		<h3 class="settings-hint">{{ t('user_migration', 'Please note that existing data may be overwritten') }}</h3>
 
 		<!-- TODO use server API -->
 

@@ -24,16 +24,16 @@
 	<div class="section">
 		<h2>{{ t('user_migration', 'Export') }}</h2>
 
-		<h3 class="settings-hint">{{ t('user_migration', 'Select the data you want to export') }}</h3>
+		<h3 class="settings-hint">{{ t('user_migration', 'Please select the data you want to export') }}</h3>
 
 		<div class="section__grid">
 			<!-- Base user data is permanently enabled -->
 			<div class="section__checkbox">
 				<CheckboxRadioSwitch :checked="true"
 					:disabled="true">
-					User information and settings
+					{{ t('user_migration', 'User information and settings') }}
 				</CheckboxRadioSwitch>
-				<em class="section__description">Some descriptive text about the data to be exported. Aliquam eu sem at lacus consequat malesuada sit amet et nulla.</em>
+				<em class="section__description">{{ t('user_migration', 'Basic user information including user ID and display name as well as your settings') }}</em>
 			</div>
 			<div v-for="({id, displayName, description}) in sortedMigrators"
 				class="section__checkbox"

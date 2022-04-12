@@ -42,14 +42,14 @@ class UserExport extends Entity {
 	public const STATUS_STARTED = 1;
 
 	/** @var string */
-	protected $source_user;
+	protected $sourceUser;
 	/** @var string JSON encoded array */
 	protected $migrators;
 	/** @var int */
 	protected $status;
 
 	public function __construct() {
-		$this->addType('source_user', 'string');
+		$this->addType('sourceUser', 'string');
 		$this->addType('migrators', 'string');
 		$this->addType('status', 'int');
 	}

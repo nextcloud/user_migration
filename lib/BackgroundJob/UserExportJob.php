@@ -70,7 +70,7 @@ class UserExportJob extends QueuedJob {
 
 		$export = $this->mapper->getById($id);
 		$user = $export->getSourceUser();
-		$migrators = $export->getMigratorArray();
+		$migrators = $export->getMigratorsArray();
 
 		$userObject = $this->userManager->get($user);
 
@@ -81,20 +81,20 @@ class UserExportJob extends QueuedJob {
 			return;
 		}
 
-		$export->setStatus(UserExport::STATUS_STARTED);
-		$this->mapper->update($export);
-		$userFolder = $this->root->getUserFolder($user);
-		$exportDestination = new UserFolderExportDestination($userFolder);
-
 		try {
+			$export->setStatus(UserExport::STATUS_STARTED);
+			$this->mapper->update($export);
+			$userFolder = $this->root->getUserFolder($user);
+			$exportDestination = new UserFolderExportDestination($userFolder);
+
 			$this->migrationService->export($exportDestination, $userObject, $migrators);
 			$this->successNotification($export);
 		} catch (\Exception $e) {
 			$this->logger->error($e->getMessage(), ['exception' => $e]);
 			$this->failedNotication($export);
+		} finally {
+			$this->mapper->delete($export);
 		}
-
-		$this->mapper->delete($export);
 	}
 
 	private function failedNotication(UserExport $export): void {

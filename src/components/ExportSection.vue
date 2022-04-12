@@ -95,6 +95,7 @@
 <script>
 import axios from '@nextcloud/axios'
 import { generateOcsUrl } from '@nextcloud/router'
+import confirmPassword from '@nextcloud/password-confirmation'
 
 import Button from '@nextcloud/vue/dist/Components/Button'
 import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
@@ -147,6 +148,7 @@ export default {
 	methods: {
 		async startExport() {
 			try {
+				await confirmPassword()
 				await axios.post(
 					generateOcsUrl('/apps/{appId}/api/v1/export', { appId: APP_ID }),
 					{ migrators: this.selectedMigrators },

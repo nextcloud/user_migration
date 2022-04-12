@@ -29,9 +29,7 @@
 		<div class="section__grid">
 			<!-- Base user data is permanently enabled -->
 			<div class="section__checkbox">
-				<CheckboxRadioSwitch name="migrators"
-					value="settings"
-					:checked.sync="selectedMigrators"
+				<CheckboxRadioSwitch :checked="true"
 					:disabled="true">
 					User information and settings
 				</CheckboxRadioSwitch>

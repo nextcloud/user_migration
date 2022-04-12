@@ -38,10 +38,10 @@ class UserFolderExportDestination extends ExportDestination {
 			$file = $userFolder->get($this->path);
 			if (!$file instanceof File) {
 				$file->delete();
-				$file = $userFolder->newFile($path);
+				$file = $userFolder->newFile($this->path);
 			}
 		} catch (NotFoundException $e) {
-			$file = $userFolder->newFile($path);
+			$file = $userFolder->newFile($this->path);
 		}
 		$r = $file->fopen('w');
 		parent::__construct($r);

@@ -130,7 +130,7 @@ export default {
 	data() {
 		return {
 			modalOpened: false,
-			selectedMigrators: ['settings'],
+			selectedMigrators: [],
 			error: false,
 		}
 	},

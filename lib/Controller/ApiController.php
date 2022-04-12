@@ -101,11 +101,16 @@ class ApiController extends OCSController {
 
 		// TODO handle import job status
 
+		$statusMap = [
+			UserExport::STATUS_WAITING => 'waiting',
+			UserExport::STATUS_STARTED => 'started',
+		];
+
 		if (!empty($userExport)) {
 			return new DataResponse([
 				'current' => 'export',
 				'migrators' => $userExport->getMigratorsArray(),
-				'status' => $userExport->getStatus(),
+				'status' => $statusMap[$userExport->getStatus()],
 			], Http::STATUS_OK);
 		}
 

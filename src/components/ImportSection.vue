@@ -22,28 +22,28 @@
 
 <template>
 	<div class="section">
-		<h2>{{ t(APP_ID, 'Import') }}</h2>
+		<h2>{{ t('user_migration', 'Import') }}</h2>
 
-		<h3 class="settings-hint">{{ t(APP_ID, 'Please note that existing data may be overwritten.') }}</h3>
+		<h3 class="settings-hint">{{ t('user_migration', 'Please note that existing data may be overwritten.') }}</h3>
 
 		<!-- TODO use server API -->
 
 		<Button v-if="status.current !== 'import'"
 			type="secondary"
-			:aria-label="t(APP_ID, 'Import your data')"
+			:aria-label="t('user_migration', 'Import your data')"
 			:disabled="status.current === 'export'"
 			@click.stop.prevent="pickImportFile">
 			<template #icon>
 				<PackageUp title="" :size="20" />
 			</template>
-			{{ t(APP_ID, 'Import') }}
+			{{ t('user_migration', 'Import') }}
 		</Button>
 		<Button v-else
 			type="secondary"
-			:aria-label="t(APP_ID, 'Show import status')"
+			:aria-label="t('user_migration', 'Show import status')"
 			:disabled="status.current === 'export'"
 			@click.stop.prevent="openModal">
-			{{ t(APP_ID, 'Show status') }}
+			{{ t('user_migration', 'Show status') }}
 		</Button>
 
 		<span class="error">{{ filePickerError }}</span>
@@ -51,7 +51,7 @@
 		<Modal v-if="modalOpened"
 			@close="closeModal">
 			<div class="section__modal">
-				<h2>{{ t(APP_ID, 'Importing…') }}</h2>
+				<h2>{{ t('user_migration', 'Importing…') }}</h2>
 				<ProgressBar size="medium"
 					:value="60"
 					:error="error" />
@@ -65,8 +65,6 @@ import Button from '@nextcloud/vue/dist/Components/Button'
 import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageUp from 'vue-material-design-icons/PackageUp'
 import { getFilePickerBuilder } from '@nextcloud/dialogs'
-
-import { APP_ID } from '../shared/constants'
 
 const picker = getFilePickerBuilder(t('files', 'Choose a file to import'))
 	.setMultiSelect(false)
@@ -104,7 +102,6 @@ export default {
 			filePickerError: null,
 			modalOpened: false,
 			error: false,
-			APP_ID,
 		}
 	},
 
@@ -124,14 +121,14 @@ export default {
 				const filePath = await picker.pick()
 				this.logger.debug(`path ${filePath} selected for import`)
 				if (!filePath.startsWith('/')) {
-					throw new Error(t(APP_ID, 'Invalid import file selected'))
+					throw new Error(t('user_migration', 'Invalid import file selected'))
 				}
 				this.openModal()
 				// TODO start background job
 			} catch (error) {
 				this.importError = true
 				this.logger.error(`Selecting file for import aborted: ${error.message || 'Unknown error'}`, { error })
-				this.filePickerError = error.message || t(APP_ID, 'Unknown error')
+				this.filePickerError = error.message || t('user_migration', 'Unknown error')
 			}
 		},
 	},

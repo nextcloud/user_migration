@@ -22,9 +22,9 @@
 
 <template>
 	<div class="section">
-		<h2>{{ t(APP_ID, 'Export') }}</h2>
+		<h2>{{ t('user_migration', 'Export') }}</h2>
 
-		<h3 class="settings-hint">{{ t(APP_ID, 'Select the data you want to export') }}</h3>
+		<h3 class="settings-hint">{{ t('user_migration', 'Select the data you want to export') }}</h3>
 
 		<div class="section__grid">
 			<!-- Base user data is permanently enabled -->
@@ -52,32 +52,32 @@
 
 		<Button v-if="status.current !== 'export'"
 			type="secondary"
-			:aria-label="t(APP_ID, 'Export your data')"
+			:aria-label="t('user_migration', 'Export your data')"
 			:disabled="status.current === 'import'"
 			@click.stop.prevent="startExport">
 			<template #icon>
 				<PackageDown title="" :size="20" />
 			</template>
-			{{ t(APP_ID, 'Export') }}
+			{{ t('user_migration', 'Export') }}
 		</Button>
 		<Button v-else
 			type="secondary"
-			:aria-label="t(APP_ID, 'Show export status')"
+			:aria-label="t('user_migration', 'Show export status')"
 			:disabled="status.current === 'import'"
 			@click.stop.prevent="openModal">
-			{{ t(APP_ID, 'Show status')}}
+			{{ t('user_migration', 'Show status')}}
 		</Button>
 
 		<Modal v-if="modalOpened"
 			@close="closeModal">
 			<div class="section__modal">
 				<EmptyContent>
-					{{ t(APP_ID, 'Export in progress…') }}
+					{{ t('user_migration', 'Export in progress…') }}
 					<template #icon>
 						<PackageDown />
 					</template>
 					<template #desc>
-						{{ t(APP_ID, 'Please do not use your account while exporting.') }}
+						{{ t('user_migration', 'Please do not use your account while exporting.') }}
 					</template>
 				</EmptyContent>
 				<!-- TODO show list of data currently being exported  -->
@@ -132,7 +132,6 @@ export default {
 			modalOpened: false,
 			selectedMigrators: ['settings'],
 			error: false,
-			APP_ID,
 		}
 	},
 

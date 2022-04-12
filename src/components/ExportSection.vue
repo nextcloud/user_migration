@@ -146,10 +146,10 @@ export default {
 		async startExport() {
 			try {
 				await confirmPassword()
-				await axios.post(
-					generateOcsUrl('/apps/{appId}/api/v1/export', { appId: APP_ID }),
-					{ migrators: this.selectedMigrators },
-				)
+				await axios.post(generateOcsUrl('/apps/{appId}/api/v1/export', { appId: APP_ID }), {
+					migrators: this.selectedMigrators,
+				})
+				this.$emit('refresh-status')
 				this.openModal()
 			} catch (error) {
 				this.logger.error(`Error starting user export: ${error.message || 'Unknown error'}`, { error })

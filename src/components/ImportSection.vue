@@ -81,10 +81,6 @@ export default {
 	name: 'ImportSection',
 
 	props: {
-		migrators: {
-			type: Array,
-			default: () => [],
-		},
 		status: {
 			type: Object,
 			default: () => ({}),
@@ -123,6 +119,7 @@ export default {
 				if (!filePath.startsWith('/')) {
 					throw new Error(t('user_migration', 'Invalid import file selected'))
 				}
+				this.$emit('refresh-status')
 				this.openModal()
 				// TODO start background job
 			} catch (error) {

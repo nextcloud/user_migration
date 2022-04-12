@@ -22,8 +22,11 @@
 
 <template>
 	<div>
-		<ExportSection :migrators="migrators" :status="status" />
-		<ImportSection :migrators="migrators" :status="status" />
+		<ExportSection :status="status"
+			:migrators="migrators"
+			@refresh-status="onRefreshStatus" />
+		<ImportSection :status="status"
+			@refresh-status="onRefreshStatus" />
 	</div>
 </template>
 
@@ -76,6 +79,10 @@ export default {
 			} catch (error) {
 				this.logger.error(`Error polling server for migration status: ${error.message || 'Unknown error'}`, { error })
 			}
+		},
+
+		onRefreshStatus() {
+			this.fetchStatus()
 		},
 	}
 }

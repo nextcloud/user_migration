@@ -104,7 +104,7 @@ class UserExportJob extends QueuedJob {
 			->setApp(Application::APP_ID)
 			->setDateTime($this->time->getDateTime())
 			->setSubject('exportFailed', [
-				'user' => $export->getSourceUser(),
+				'sourceUser' => $export->getSourceUser(),
 			])
 			->setObject('export', (string)$export->getId());
 		$this->notificationManager->notify($notification);
@@ -117,7 +117,7 @@ class UserExportJob extends QueuedJob {
 			->setApp(Application::APP_ID)
 			->setDateTime($this->time->getDateTime())
 			->setSubject('exportDone', [
-				'user' => $export->getSourceUser(),
+				'sourceUser' => $export->getSourceUser(),
 			])
 			->setObject('export', (string)$export->getId());
 		$this->notificationManager->notify($notification);

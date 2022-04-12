@@ -24,6 +24,8 @@
 	<div class="section">
 		<h2>{{ t(APP_ID, 'Import') }}</h2>
 
+		<h3 class="settings-hint">{{ t(APP_ID, 'Please note that existing data may be overwritten.') }}</h3>
+
 		<!-- TODO use server API -->
 
 		<Button v-if="status.current !== 'import'"

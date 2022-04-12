@@ -85,7 +85,6 @@ class ApiController extends OCSController {
 	/**
 	 * @NoAdminRequired
 	 * @NoSubAdminRequired
-	 * @PasswordConfirmationRequired
 	 */
 	public function status(): DataResponse {
 		$user = $this->userSession->getUser();

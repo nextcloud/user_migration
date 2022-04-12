@@ -24,27 +24,41 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\UserMigration\AppInfo;
+namespace OCA\UserMigration\Settings\Admin;
 
-use OCA\UserMigration\Migrator\FilesMigrator;
-use OCP\AppFramework\App;
-use OCP\AppFramework\Bootstrap\IBootContext;
-use OCP\AppFramework\Bootstrap\IBootstrap;
-use OCP\AppFramework\Bootstrap\IRegistrationContext;
+use OCA\UserMigration\AppInfo\Application;
+use OCP\IL10N;
+use OCP\IURLGenerator;
+use OCP\Settings\IIconSection;
 
-class Application extends App implements IBootstrap {
-	public const APP_ID = 'user_migration';
-	public const APP_NAME = 'User migration';
-	public const SETTINGS_SECTION_NAME = 'Data migration';
+class Section implements IIconSection {
 
-	public function __construct() {
-		parent::__construct(self::APP_ID);
+	/** @var IURLGenerator */
+	private $url;
+	/** @var IL10N */
+	private $l;
+
+	public function __construct(
+		IURLGenerator $url,
+		IL10N $l
+	) {
+		$this->url = $url;
+		$this->l = $l;
 	}
 
-	public function boot(IBootContext $context): void {
+	public function getIcon(): string {
+		return $this->url->imagePath(Application::APP_ID, 'app-dark.svg');
 	}
 
-	public function register(IRegistrationContext $context): void {
-		$context->registerUserMigrator(FilesMigrator::class);
+	public function getID(): string {
+		return Application::APP_ID;
+	}
+
+	public function getName(): string {
+		return $this->l->t(Application::SETTINGS_SECTION_NAME);
+	}
+
+	public function getPriority(): int {
+		return 100;
 	}
 }

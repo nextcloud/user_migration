@@ -24,27 +24,25 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\UserMigration\AppInfo;
+namespace OCA\UserMigration\Controller;
 
-use OCA\UserMigration\Migrator\FilesMigrator;
-use OCP\AppFramework\App;
-use OCP\AppFramework\Bootstrap\IBootContext;
-use OCP\AppFramework\Bootstrap\IBootstrap;
-use OCP\AppFramework\Bootstrap\IRegistrationContext;
+use OCA\UserMigration\AppInfo\Application;
+use OCP\AppFramework\Controller;
+use OCP\AppFramework\Http\TemplateResponse;
+use OCP\IRequest;
+use OCP\Util;
 
-class Application extends App implements IBootstrap {
-	public const APP_ID = 'user_migration';
-	public const APP_NAME = 'User migration';
-	public const SETTINGS_SECTION_NAME = 'Data migration';
-
-	public function __construct() {
-		parent::__construct(self::APP_ID);
+class PageController extends Controller {
+	public function __construct(IRequest $request) {
+		parent::__construct(Application::APP_ID, $request);
 	}
 
-	public function boot(IBootContext $context): void {
-	}
-
-	public function register(IRegistrationContext $context): void {
-		$context->registerUserMigrator(FilesMigrator::class);
+	/**
+	 * @NoAdminRequired
+	 * @NoSubAdminRequired
+	 */
+	public function index() {
+		Util::addScript(Application::APP_ID, 'user_migration-main');
+		return new TemplateResponse(Application::APP_ID, 'main');
 	}
 }

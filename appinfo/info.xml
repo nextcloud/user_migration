@@ -26,4 +26,9 @@
 		<command>OCA\UserMigration\Command\Export</command>
 		<command>OCA\UserMigration\Command\Import</command>
 	</commands>
+
+	<settings>
+		<personal>OCA\UserMigration\Settings\Personal\Settings</personal>
+		<personal-section>OCA\UserMigration\Settings\Personal\Section</personal-section>
+	</settings>
  </info>

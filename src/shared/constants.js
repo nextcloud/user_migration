@@ -1,7 +1,3 @@
-<?php
-
-declare(strict_types=1);
-
 /**
  * @copyright 2022 Christopher Ng <chrng8@gmail.com>
  *
@@ -24,27 +20,6 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\UserMigration\AppInfo;
-
-use OCA\UserMigration\Migrator\FilesMigrator;
-use OCP\AppFramework\App;
-use OCP\AppFramework\Bootstrap\IBootContext;
-use OCP\AppFramework\Bootstrap\IBootstrap;
-use OCP\AppFramework\Bootstrap\IRegistrationContext;
-
-class Application extends App implements IBootstrap {
-	public const APP_ID = 'user_migration';
-	public const APP_NAME = 'User migration';
-	public const SETTINGS_SECTION_NAME = 'Data migration';
-
-	public function __construct() {
-		parent::__construct(self::APP_ID);
-	}
-
-	public function boot(IBootContext $context): void {
-	}
-
-	public function register(IRegistrationContext $context): void {
-		$context->registerUserMigrator(FilesMigrator::class);
-	}
-}
+export const APP_ID = 'user_migration'
+export const APP_NAME = t(APP_ID, 'User migration')
+export const SETTINGS_SECTION_NAME = t(APP_ID, 'Data migration')

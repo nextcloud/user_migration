@@ -33,6 +33,7 @@
 <script>
 import axios from '@nextcloud/axios'
 import { generateOcsUrl } from '@nextcloud/router'
+import { showError } from '@nextcloud/dialogs'
 
 import { APP_ID } from '../../shared/constants'
 import ExportSection from '../../components/ExportSection'
@@ -68,7 +69,9 @@ export default {
 				const response = await axios.get(generateOcsUrl('/apps/{appId}/api/v1/migrators', { appId: APP_ID }))
 				this.migrators = response?.data?.ocs?.data
 			} catch (error) {
-				this.logger.error(`Error getting migrators: ${error.message || 'Unknown error'}`, { error })
+				const errorMessage = error.message || 'Unknown error'
+				this.logger.error(`Error getting available migrators: ${errorMessage}`, { error })
+				showError(errorMessage)
 			}
 		},
 
@@ -77,7 +80,9 @@ export default {
 				const response = await axios.get(generateOcsUrl('/apps/{appId}/api/v1/status', { appId: APP_ID }))
 				this.status = response?.data?.ocs?.data
 			} catch (error) {
-				this.logger.error(`Error polling server for migration status: ${error.message || 'Unknown error'}`, { error })
+				const errorMessage = error.message || 'Unknown error'
+				this.logger.error(`Error polling server for export and import status: ${errorMessage}`, { error })
+				showError(errorMessage)
 			}
 		},
 

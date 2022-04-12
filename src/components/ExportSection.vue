@@ -171,9 +171,9 @@ export default {
 <style lang="scss" scoped>
 .section__grid {
 	display: grid;
-	gap: 10px 20px;
+	gap: 40px;
 	grid-auto-flow: row;
-	grid-template-columns: repeat(auto-fit, 400px);
+	grid-template-columns: repeat(auto-fit, 300px);
 	margin-bottom: 40px;
 
 	.section__description {

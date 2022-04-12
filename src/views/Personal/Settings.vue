@@ -21,13 +21,13 @@
 -->
 
 <template>
-	<div>
+	<section>
 		<ExportSection :status="status"
 			:migrators="migrators"
 			@refresh-status="onRefreshStatus" />
 		<ImportSection :status="status"
 			@refresh-status="onRefreshStatus" />
-	</div>
+	</section>
 </template>
 
 <script>

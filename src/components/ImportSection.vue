@@ -26,10 +26,10 @@
 
 		<!-- TODO use server API -->
 
-		<Button v-if="job.current !== 'import'"
+		<Button v-if="status.current !== 'import'"
 			type="secondary"
 			:aria-label="t(APP_ID, 'Import your data')"
-			:disabled="job.current === 'export'"
+			:disabled="status.current === 'export'"
 			@click.stop.prevent="pickImportFile">
 			<template #icon>
 				<PackageUp title="" :size="20" />
@@ -39,7 +39,7 @@
 		<Button v-else
 			type="secondary"
 			:aria-label="t(APP_ID, 'Show import status')"
-			:disabled="job.current === 'export'"
+			:disabled="status.current === 'export'"
 			@click.stop.prevent="openModal">
 			{{ t(APP_ID, 'Show status') }}
 		</Button>
@@ -54,7 +54,6 @@
 					:value="60"
 					:error="error" />
 			</div>
-			<!-- TODO should we show progress text like in the CLI output? -->
 		</Modal>
 	</div>
 </template>
@@ -82,7 +81,11 @@ export default {
 	name: 'ImportSection',
 
 	props: {
-		job: {
+		migrators: {
+			type: Array,
+			default: () => [],
+		},
+		status: {
 			type: Object,
 			default: () => ({}),
 		},

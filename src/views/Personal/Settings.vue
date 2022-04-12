@@ -22,23 +22,21 @@
 
 <template>
 	<div>
-		<ExportSection :job="job" />
-		<ImportSection :job="job" />
+		<ExportSection :migrators="migrators" :status="status" />
+		<ImportSection :migrators="migrators" :status="status" />
 	</div>
 </template>
 
 <script>
-// TODO remove ignore
-/* eslint-disable */
 import axios from '@nextcloud/axios'
 import { generateOcsUrl } from '@nextcloud/router'
 
+import { APP_ID } from '../../shared/constants'
 import ExportSection from '../../components/ExportSection'
 import ImportSection from '../../components/ImportSection'
-import { APP_ID } from '../../shared/constants'
 
 // Polling interval in seconds
-const JOB_POLLING_INTERVAL = 30
+const STATUS_POLLING_INTERVAL = 30
 
 export default {
 	name: 'Settings',
@@ -50,28 +48,33 @@ export default {
 
 	data() {
 		return {
-			job: {
-				// possible values: null, 'export', 'import'
-				current: null,
-				statusText: null,
-			},
+			migrators: [],
+			status: { current: null },
 		}
 	},
 
 	beforeMount() {
-		this.fetchJob()
-		setInterval(this.fetchJob, JOB_POLLING_INTERVAL * 1000)
+		this.fetchMigrators()
+		this.fetchStatus()
+		setInterval(this.fetchStatus, STATUS_POLLING_INTERVAL * 1000)
 	},
 
 	methods: {
-		async fetchJob() {
+		async fetchMigrators() {
 			try {
-				// TODO poll job status from server API
-				// const response = await axios.get(generateOcsUrl(`apps/${APP_ID}/api/v1/job`))
-				const response = {}
-				// this.job = response?.data?.ocs?.data
+				const response = await axios.get(generateOcsUrl('/apps/{appId}/api/v1/migrators', { appId: APP_ID }))
+				this.migrators = response?.data?.ocs?.data
 			} catch (error) {
-				this.logger.error(`Error polling server for user migration job: ${error.message || 'Unknown error'}`, { error })
+				this.logger.error(`Error getting migrators: ${error.message || 'Unknown error'}`, { error })
+			}
+		},
+
+		async fetchStatus() {
+			try {
+				const response = await axios.get(generateOcsUrl('/apps/{appId}/api/v1/status', { appId: APP_ID }))
+				this.status = response?.data?.ocs?.data
+			} catch (error) {
+				this.logger.error(`Error polling server for migration status: ${error.message || 'Unknown error'}`, { error })
 			}
 		},
 	}

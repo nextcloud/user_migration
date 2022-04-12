@@ -26,60 +26,36 @@
 
 		<h3 class="settings-hint">{{ t(APP_ID, 'Select the data you want to export') }}</h3>
 
-		<!-- TODO use server API -->
-
 		<div class="section__grid">
 			<!-- Base user data is permanently enabled -->
 			<div class="section__checkbox">
 				<CheckboxRadioSwitch name="migrators"
 					value="settings"
-					:checked.sync="tempChecked"
+					:checked.sync="selectedMigrators"
 					:disabled="true">
 					User information and settings
 				</CheckboxRadioSwitch>
 				<em class="section__description">Some descriptive text about the data to be exported. Aliquam eu sem at lacus consequat malesuada sit amet et nulla.</em>
 			</div>
-			<div class="section__checkbox">
+			<div v-for="({id, displayName, description}) in sortedMigrators"
+				class="section__checkbox"
+				:key="id">
 				<CheckboxRadioSwitch name="migrators"
-					value="profile"
-					:checked.sync="tempChecked">
-					Profile information
+					:value="id"
+					:checked.sync="selectedMigrators">
+					{{ displayName }}
 				</CheckboxRadioSwitch>
-				<em class="section__description">Profile picture, Full name, Email, Phone number, Address, Website, Twitter, Organisation, Role, Headline, About, and whether your Profile is enabled</em>
+				<em class="section__description">{{ description }}</em>
 			</div>
 			<!-- TODO since TrashbinMigrator depends on FilesMigrator server should have some sort of migrator dependency API -->
-			<div class="section__checkbox">
-				<CheckboxRadioSwitch name="migrators"
-					value="files"
-					:checked.sync="tempChecked">
-					Files
-				</CheckboxRadioSwitch>
-				<em class="section__description">Includes trashbin, versions, comments, Collaborative tags (systemtags), and favorite state (tags)</em>
-			</div>
-			<div class="section__checkbox">
-				<CheckboxRadioSwitch name="migrators"
-					value="calendar"
-					:checked.sync="tempChecked">
-					Calendar
-				</CheckboxRadioSwitch>
-				<em class="section__description">Some descriptive text about the data to be exported. Aliquam eu sem at lacus consequat malesuada sit amet et nulla.</em>
-			</div>
-			<div class="section__checkbox">
-				<CheckboxRadioSwitch name="migrators"
-					value="contacts"
-					:checked.sync="tempChecked">
-					Contacts
-				</CheckboxRadioSwitch>
-				<em class="section__description">Some descriptive text about the data to be exported. Aliquam eu sem at lacus consequat malesuada sit amet et nulla.</em>
-			</div>
 		</div>
 
-		<!-- <span>Migrators: {{ tempChecked }}</span> -->
+		<!-- <span>Migrators: {{ selectedMigrators }}</span> -->
 
-		<Button v-if="job.current !== 'export'"
+		<Button v-if="status.current !== 'export'"
 			type="secondary"
 			:aria-label="t(APP_ID, 'Export your data')"
-			:disabled="job.current === 'import'"
+			:disabled="status.current === 'import'"
 			@click.stop.prevent="startExport">
 			<template #icon>
 				<PackageDown title="" :size="20" />
@@ -89,7 +65,7 @@
 		<Button v-else
 			type="secondary"
 			:aria-label="t(APP_ID, 'Show export status')"
-			:disabled="job.current === 'import'"
+			:disabled="status.current === 'import'"
 			@click.stop.prevent="openModal">
 			{{ t(APP_ID, 'Show status')}}
 		</Button>
@@ -106,16 +82,20 @@
 						{{ t(APP_ID, 'Please do not use your account while exporting.') }}
 					</template>
 				</EmptyContent>
+				<!-- TODO show list of data currently being exported  -->
+				<!-- TODO use spinner as percentage of export complete cannot be queried from server -->
 				<ProgressBar size="medium"
 					:value="60"
 					:error="error" />
 			</div>
-			<!-- TODO should we show progress text like in the CLI output? -->
 		</Modal>
 	</div>
 </template>
 
 <script>
+import axios from '@nextcloud/axios'
+import { generateOcsUrl } from '@nextcloud/router'
+
 import Button from '@nextcloud/vue/dist/Components/Button'
 import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
 import CheckboxRadioSwitch from '@nextcloud/vue/dist/Components/CheckboxRadioSwitch'
@@ -129,7 +109,11 @@ export default {
 	name: 'ExportSection',
 
 	props: {
-		job: {
+		migrators: {
+			type: Array,
+			default: () => [],
+		},
+		status: {
 			type: Object,
 			default: () => ({}),
 		},
@@ -147,19 +131,30 @@ export default {
 	data() {
 		return {
 			modalOpened: false,
-			tempChecked: ['settings'],
+			selectedMigrators: ['settings'],
 			error: false,
 			APP_ID,
 		}
 	},
 
-	methods: {
-		startExport() {
-			try {
-				// TODO call export API endpoint
-				this.openModal()
-			} catch (e) {
+	computed: {
+		sortedMigrators() {
+			// TODO sort migrators?
+			return this.migrators
+		}
+	},
 
+	methods: {
+		async startExport() {
+			try {
+				await axios.post(
+					generateOcsUrl('/apps/{appId}/api/v1/export', { appId: APP_ID }),
+					{ migrators: this.selectedMigrators },
+				)
+				this.openModal()
+			} catch (error) {
+				this.logger.error(`Error starting user export: ${error.message || 'Unknown error'}`, { error })
+				// TODO show error message in a dialog
 			}
 		},
 

@@ -24,7 +24,7 @@ declare(strict_types=1);
  *
  */
 
-namespace OC\Core\Controller;
+namespace OCA\UserMigration\Controller;
 
 use OCA\UserMigration\AppInfo\Application;
 use OCA\UserMigration\BackgroundJob\UserExportJob;

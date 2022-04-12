@@ -45,7 +45,6 @@
 				</CheckboxRadioSwitch>
 				<em class="section__description">{{ description }}</em>
 			</div>
-			<!-- TODO since TrashbinMigrator depends on FilesMigrator server should have some sort of migrator dependency API -->
 		</div>
 
 		<!-- <span>Migrators: {{ selectedMigrators }}</span> -->
@@ -60,13 +59,15 @@
 			</template>
 			{{ t('user_migration', 'Export') }}
 		</Button>
-		<Button v-else
-			type="secondary"
-			:aria-label="t('user_migration', 'Show export status')"
-			:disabled="status.current === 'import'"
-			@click.stop.prevent="openModal">
-			{{ t('user_migration', 'Show status')}}
-		</Button>
+		<div class="section__status" v-else>
+			<Button type="secondary"
+				:aria-label="t('user_migration', 'Show export status')"
+				:disabled="status.current === 'import'"
+				@click.stop.prevent="openModal">
+				{{ t('user_migration', 'Show status')}}
+			</Button>
+			<span class="settings-hint">{{ t('user_migration', 'Export in progress…') }}</span>
+		</div>
 
 		<Modal v-if="modalOpened"
 			@close="closeModal">
@@ -81,10 +82,7 @@
 					</template>
 				</EmptyContent>
 				<!-- TODO show list of data currently being exported  -->
-				<!-- TODO use spinner as percentage of export complete cannot be queried from server -->
-				<ProgressBar size="medium"
-					:value="60"
-					:error="error" />
+				<div class="section__loading icon-loading" />
 			</div>
 		</Modal>
 	</div>
@@ -101,7 +99,6 @@ import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
 import CheckboxRadioSwitch from '@nextcloud/vue/dist/Components/CheckboxRadioSwitch'
 import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageDown from 'vue-material-design-icons/PackageDown'
-import ProgressBar from '@nextcloud/vue/dist/Components/ProgressBar'
 
 import { APP_ID } from '../shared/constants'
 
@@ -121,11 +118,10 @@ export default {
 
 	components: {
 		Button,
-		EmptyContent,
-		PackageDown,
-		Modal,
-		ProgressBar,
 		CheckboxRadioSwitch,
+		EmptyContent,
+		Modal,
+		PackageDown,
 	},
 
 	data() {
@@ -185,14 +181,25 @@ export default {
 	}
 }
 
-.section__modal {
-	align-self: center;
-	margin: 20px auto;
-	width: 80%;
-	height: 80%;
+.section__status {
 	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
+	gap: 0 20px;
+
+	.settings-hint {
+		margin: auto 0;
+	};
+}
+
+.section__modal {
+	margin: 110px auto;
+
+	&::v-deep .empty-content {
+		margin-top: 0;
+	}
+
+	.section__loading {
+		height: 40px;
+		margin-top: 20px;
+	}
 }
 </style>

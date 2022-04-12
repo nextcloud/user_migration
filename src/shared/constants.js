@@ -21,4 +21,3 @@
  */
 
 export const APP_ID = 'user_migration'
-export const APP_NAME = t(APP_ID, 'User migration')

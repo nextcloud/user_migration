@@ -70,7 +70,7 @@ class UserExportJob extends QueuedJob {
 
 		$export = $this->mapper->getById($id);
 		$user = $export->getSourceUser();
-		$migrators = $export->getMigratorArray();
+		$migrators = $export->getMigratorsArray();
 
 		$userObject = $this->userManager->get($user);
 

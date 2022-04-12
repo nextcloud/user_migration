@@ -113,6 +113,9 @@ class ExportDestination implements IExportDestination {
 		$this->streamer->finalize();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function getPath(): string {
 		return $this->path;
 	}

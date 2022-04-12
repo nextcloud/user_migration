@@ -61,20 +61,19 @@
 </template>
 
 <script>
+import { getFilePickerBuilder, showError } from '@nextcloud/dialogs'
+
 import Button from '@nextcloud/vue/dist/Components/Button'
 import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageUp from 'vue-material-design-icons/PackageUp'
-import { getFilePickerBuilder } from '@nextcloud/dialogs'
 
-const picker = getFilePickerBuilder(t('files', 'Choose a file to import'))
+const picker = getFilePickerBuilder(t('user_migration', 'Choose a file to import'))
 	.setMultiSelect(false)
 	// TODO add custom mime type for user_migration files?
 	// .setMimeTypeFilter([])
 	.setModal(true)
 	.setType(1)
 	.allowDirectories(false)
-	// TODO start at default export folder path?
-	// .startAt('')
 	.build()
 
 export default {
@@ -115,17 +114,18 @@ export default {
 
 			try {
 				const filePath = await picker.pick()
-				this.logger.debug(`path ${filePath} selected for import`)
+				this.logger.debug(`Path "${filePath}" selected for import`)
 				if (!filePath.startsWith('/')) {
-					throw new Error(t('user_migration', 'Invalid import file selected'))
+					throw new Error()
 				}
 				this.$emit('refresh-status')
 				this.openModal()
 				// TODO start background job
 			} catch (error) {
-				this.importError = true
-				this.logger.error(`Selecting file for import aborted: ${error.message || 'Unknown error'}`, { error })
-				this.filePickerError = error.message || t('user_migration', 'Unknown error')
+				const errorMessage = error.message || 'Unknown error'
+				this.logger.error(`Error selecting file to import: ${errorMessage}`, { error })
+				this.filePickerError = errorMessage
+				showError(errorMessage)
 			}
 		},
 	},

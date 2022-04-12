@@ -80,12 +80,12 @@ class ExportDestination implements IExportDestination {
 		$nodes = $folder->getDirectoryListing();
 		foreach ($nodes as $node) {
 			if ($node instanceof File) {
-				$read = $node->fopen('rb');
 				if ($node->getName() === static::EXPORT_FILENAME) {
 					/* Skip previous user export file */
 					// FIXME only ignore root one using getPath()
 					continue;
 				}
+				$read = $node->fopen('rb');
 				$this->streamer->addFileFromStream($read, $destinationPath.'/'.$node->getName());
 			} elseif ($node instanceof Folder) {
 				$success = $this->copyFolder($node, $destinationPath.'/'.$node->getName());

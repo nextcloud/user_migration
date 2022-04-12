@@ -42,7 +42,6 @@ use OCP\IUserSession;
 use OCP\UserMigration\IMigrator;
 
 class ApiController extends OCSController {
-
 	private IUserSession $userSession;
 
 	private UserMigrationService $migrationService;
@@ -63,6 +62,24 @@ class ApiController extends OCSController {
 		$this->migrationService = $migrationService;
 		$this->exportMapper = $exportMapper;
 		$this->jobList = $jobList;
+	}
+
+	/**
+	 * @NoAdminRequired
+	 * @NoSubAdminRequired
+	 */
+	public function migrators(): DataResponse {
+		return new DataResponse(
+			array_map(
+				fn (IMigrator $migrator) => [
+					'id' => $migrator->getId(),
+					'displayName' => $migrator->getDisplayName(),
+					'description' => $migrator->getDescription(),
+				],
+				$this->migrationService->getMigrators(),
+			),
+			Http::STATUS_OK,
+		);
 	}
 
 	/**

@@ -30,8 +30,9 @@ $requirements = [
 
 return [
 	'ocs' => [
-		['name' => 'Api#status', 'url' => '/api/{apiVersion}/status', 'verb' => 'GET'],
-		['name' => 'Api#export', 'url' => '/api/{apiVersion}/export', 'verb' => 'POST'],
-		['name' => 'Api#import', 'url' => '/api/{apiVersion}/import', 'verb' => 'POST'],
+		['name' => 'Api#migrators', 'url' => '/api/{apiVersion}/migrators', 'verb' => 'GET', 'requirements' => $requirements],
+		['name' => 'Api#status', 'url' => '/api/{apiVersion}/status', 'verb' => 'GET', 'requirements' => $requirements],
+		['name' => 'Api#export', 'url' => '/api/{apiVersion}/export', 'verb' => 'POST', 'requirements' => $requirements],
+		['name' => 'Api#import', 'url' => '/api/{apiVersion}/import', 'verb' => 'POST', 'requirements' => $requirements],
 	],
 ];

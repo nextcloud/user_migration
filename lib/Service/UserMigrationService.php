@@ -76,9 +76,8 @@ class UserMigrationService {
 	/**
 	 * @param ?string[] $filteredMigratorList If not null, only these migrators will run. If empty only the main account data will be exported.
 	 * @throws UserMigrationException
-	 * @return string path of the export
 	 */
-	public function export(IExportDestination $exportDestination, IUser $user, ?array $filteredMigratorList = null, ?OutputInterface $output = null): string {
+	public function export(IExportDestination $exportDestination, IUser $user, ?array $filteredMigratorList = null, ?OutputInterface $output = null): void {
 		$output = $output ?? new NullOutput();
 		$uid = $user->getUID();
 
@@ -125,8 +124,6 @@ class UserMigrationService {
 		}
 
 		$exportDestination->close();
-		$output->writeln("Export saved in ".$exportDestination->getPath());
-		return $exportDestination->getPath();
 	}
 
 	public function import(string $path, ?IUser $user = null, ?OutputInterface $output = null): void {

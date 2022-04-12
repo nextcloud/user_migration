@@ -82,12 +82,13 @@ class Export extends Command {
 			}
 			$folder = realpath($folder);
 			$exportDestination = new TempExportDestination($this->tempManager);
-			$path = $this->migrationService->export($exportDestination, $userObject, null, $output);
+			$this->migrationService->export($exportDestination, $userObject, null, $output);
+			$path = $exportDestination->getPath();
 			$exportName = $userObject->getUID().'_'.date('Y-m-d_H-i-s');
 			if (rename($path, $folder.'/'.$exportName.'.zip') === false) {
 				throw new \Exception("Failed to move $path to $folder/$exportName.zip");
 			}
-			$output->writeln("Moved the export to $folder/$exportName.zip");
+			$output->writeln("Export saved in $folder/$exportName.zip");
 		} catch (\Exception $e) {
 			$output->writeln("<error>" . $e->getMessage() . "</error>");
 			return $e->getCode() !== 0 ? (int)$e->getCode() : 1;

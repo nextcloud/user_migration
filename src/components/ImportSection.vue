@@ -70,10 +70,17 @@
 					</EmptyContent>
 					<div v-if="status.status === 'waiting' || status.status === 'started'"
 						class="section__icon icon-loading" />
-					<CheckCircleOutline v-else
-						class="section__icon"
-						title=""
-						:size="40" />
+					<template v-else>
+						<CheckCircleOutline class="section__icon"
+							title=""
+							:size="40" />
+						<Button class="section__close"
+							type="secondary"
+							:aria-label="t('user_migration', 'Close import status')"
+							@click.stop.prevent="closeModal">
+							{{ t('user_migration', 'Close') }}
+						</Button>
+					</template>
 				</div>
 			</Modal>
 		</template>
@@ -205,7 +212,7 @@ export default {
 }
 
 .section__modal {
-	margin: 110px auto;
+	margin: 80px auto 60px auto;
 
 	&::v-deep .empty-content {
 		margin-top: 0;
@@ -213,7 +220,11 @@ export default {
 
 	.section__icon {
 		height: 40px;
-		margin-top: 20px;
+		margin: 20px 0;
+	}
+
+	.section__close {
+		margin: 40px auto 0 auto;
 	}
 }
 </style>

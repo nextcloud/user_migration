@@ -32,11 +32,10 @@ use OCP\Files\NotFoundException;
 use OCP\Files\NotPermittedException;
 use OCP\UserMigration\IImportSource;
 use OCP\UserMigration\UserMigrationException;
-use OC\Archive\Archive;
 use OC\Archive\ZIP;
 
 class ImportSource implements IImportSource {
-	private Archive $archive;
+	private ZIP $archive;
 
 	private string $path;
 
@@ -98,6 +97,12 @@ class ImportSource implements IImportSource {
 
 		try {
 			foreach ($files as $path) {
+				$stat = $this->archive->getStat($sourcePath . $path);
+				if ($stat === null) {
+					// TODO: use exception
+					echo "Stat information not found for " . $sourcePath . $path . "\n";
+					return false;
+				}
 				if (str_ends_with($path, '/')) {
 					try {
 						$folder = $destination->get($path);
@@ -109,9 +114,11 @@ class ImportSource implements IImportSource {
 						$folder = $destination->newFolder($path);
 					}
 					if ($this->copyToFolder($folder, $sourcePath.$path) === false) {
+						// TODO: use exception
 						echo "copy to $sourcePath.$path failed\n";
 						return false;
 					}
+					$folder->touch($stat['mtime']);
 				} else {
 					$stream = $this->archive->getStream($sourcePath.$path, 'r');
 					if ($stream === false) {
@@ -123,11 +130,12 @@ class ImportSource implements IImportSource {
 							$file->putContent($stream);
 						} else {
 							$file->delete();
-							$destination->newFile($path, $stream);
+							$file = $destination->newFile($path, $stream);
 						}
 					} catch (NotFoundException $e) {
-						$destination->newFile($path, $stream);
+						$file = $destination->newFile($path, $stream);
 					}
+					$file->touch($stat['mtime']);
 				}
 			}
 		} catch (NotPermittedException $e) {

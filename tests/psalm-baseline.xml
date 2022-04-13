@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<files psalm-version="4.21.0@d8bec4c7aaee111a532daec32fb09de5687053d1">
+<files psalm-version="4.22.0@fc2c6ab4d5fa5d644d8617089f012f3bb84b8703">
+  <file src="lib/Controller/ApiController.php">
+    <UndefinedInterfaceMethod occurrences="4">
+      <code>getDescription</code>
+      <code>getDisplayName</code>
+      <code>getId</code>
+      <code>getId</code>
+    </UndefinedInterfaceMethod>
+  </file>
   <file src="lib/ExportDestination.php">
     <InvalidArgument occurrences="3">
       <code>$read</code>
@@ -11,16 +19,19 @@
     </MethodSignatureMismatch>
   </file>
   <file src="lib/ImportSource.php">
-    <InvalidPropertyAssignmentValue occurrences="1">
-      <code>new ZIP($this-&gt;path)</code>
-    </InvalidPropertyAssignmentValue>
+    <UndefinedMethod occurrences="1">
+      <code>getStat</code>
+    </UndefinedMethod>
   </file>
   <file src="lib/Service/UserMigrationService.php">
-    <MissingDependency occurrences="4">
-      <code>$this-&gt;root</code>
-      <code>$this-&gt;root</code>
-      <code>IRootFolder</code>
-      <code>IRootFolder</code>
-    </MissingDependency>
+    <InvalidArgument occurrences="1">
+      <code>$migratorVersions</code>
+    </InvalidArgument>
+    <UndefinedInterfaceMethod occurrences="4">
+      <code>getId</code>
+      <code>getId</code>
+      <code>getId</code>
+      <code>getId</code>
+    </UndefinedInterfaceMethod>
   </file>
 </files>

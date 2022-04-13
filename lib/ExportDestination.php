@@ -76,7 +76,9 @@ class ExportDestination implements IExportDestination {
 	 * {@inheritDoc}
 	 */
 	public function copyFolder(Folder $folder, string $destinationPath): bool {
-		$this->streamer->addEmptyDir($destinationPath);
+		$this->streamer->addEmptyDir($destinationPath, [
+			'timestamp' => $folder->getMTime(),
+		]);
 		$nodes = $folder->getDirectoryListing();
 		foreach ($nodes as $node) {
 			if ($node instanceof File) {
@@ -86,7 +88,9 @@ class ExportDestination implements IExportDestination {
 					continue;
 				}
 				$read = $node->fopen('rb');
-				$this->streamer->addFileFromStream($read, $destinationPath.'/'.$node->getName());
+				$this->streamer->addFileFromStream($read, $destinationPath.'/'.$node->getName(), [
+					'timestamp' => $node->getMTime(),
+				]);
 			} elseif ($node instanceof Folder) {
 				$success = $this->copyFolder($node, $destinationPath.'/'.$node->getName());
 				if ($success === false) {

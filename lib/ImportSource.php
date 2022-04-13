@@ -32,11 +32,10 @@ use OCP\Files\NotFoundException;
 use OCP\Files\NotPermittedException;
 use OCP\UserMigration\IImportSource;
 use OCP\UserMigration\UserMigrationException;
-use OC\Archive\Archive;
 use OC\Archive\ZIP;
 
 class ImportSource implements IImportSource {
-	private Archive $archive;
+	private ZIP $archive;
 
 	private string $path;
 

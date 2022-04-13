@@ -66,23 +66,27 @@
 				@click.stop.prevent="openModal">
 				{{ t('user_migration', 'Show status')}}
 			</Button>
-			<span class="settings-hint">{{ t('user_migration', 'Export in progress…') }}</span>
+			<span class="settings-hint">{{ status.status === 'waiting' ? t('user_migration', 'Export queued') : t('user_migration', 'Export in progress…') }}</span>
 		</div>
 
 		<Modal v-if="modalOpened"
 			@close="closeModal">
 			<div class="section__modal">
 				<EmptyContent>
-					{{ t('user_migration', 'Export in progress…') }}
+					{{ modalMessage }}
 					<template #icon>
 						<PackageDown />
 					</template>
-					<template #desc>
+					<template v-if="status.status === 'started'" #desc>
 						{{ t('user_migration', 'Please do not use your account while exporting.') }}
 					</template>
 				</EmptyContent>
-				<!-- TODO show list of data currently being exported  -->
-				<div class="section__loading icon-loading" />
+				<div v-if="status.status === 'waiting' || status.status === 'started'"
+					class="section__icon icon-loading" />
+				<CheckCircleOutline v-else
+					class="section__icon"
+					title=""
+					:size="40" />
 			</div>
 		</Modal>
 	</div>
@@ -95,8 +99,9 @@ import { generateOcsUrl } from '@nextcloud/router'
 import { showError } from '@nextcloud/dialogs'
 
 import Button from '@nextcloud/vue/dist/Components/Button'
-import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
 import CheckboxRadioSwitch from '@nextcloud/vue/dist/Components/CheckboxRadioSwitch'
+import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline'
+import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
 import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageDown from 'vue-material-design-icons/PackageDown'
 
@@ -119,6 +124,7 @@ export default {
 	components: {
 		Button,
 		CheckboxRadioSwitch,
+		CheckCircleOutline,
 		EmptyContent,
 		Modal,
 		PackageDown,
@@ -128,11 +134,19 @@ export default {
 		return {
 			modalOpened: false,
 			selectedMigrators: [],
-			error: false,
 		}
 	},
 
 	computed: {
+		modalMessage() {
+			if (this.status.status === 'waiting') {
+				return t('user_migration', 'Export queued')
+			} else if (this.status.status === 'started') {
+				return t('user_migration', 'Export in progress…')
+			}
+			return t('user_migration', 'Export completed successfully')
+		},
+
 		sortedMigrators() {
 			// TODO sort migrators?
 			return this.migrators
@@ -197,7 +211,7 @@ export default {
 		margin-top: 0;
 	}
 
-	.section__loading {
+	.section__icon {
 		height: 40px;
 		margin-top: 20px;
 	}

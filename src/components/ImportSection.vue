@@ -24,57 +24,60 @@
 	<div class="section">
 		<h2>{{ t('user_migration', 'Import') }}</h2>
 
-		<h3 class="section__hint settings-hint">
-			{{ t('user_migration', 'Please note that existing data may be overwritten') }}
-		</h3>
+		<template v-if="!loading">
+			<h3 class="section__hint settings-hint">
+				{{ t('user_migration', 'Please note that existing data may be overwritten') }}
+			</h3>
 
-		<!-- TODO use server API -->
+			<!-- TODO use server API -->
 
-		<div v-if="status.current !== 'import'"
-			class="section__status">
-			<Button type="secondary"
-				:aria-label="t('user_migration', 'Import your data')"
-				:disabled="status.current === 'export'"
-				@click.stop.prevent="pickImportFile">
-				<template #icon>
-					<PackageUp title="" :size="20" />
-				</template>
-				{{ t('user_migration', 'Import') }}
-			</Button>
-			<div v-if="startingImport" class="icon-loading" />
-		</div>
-		<div v-else class="section__status">
-			<Button type="secondary"
-				:aria-label="t('user_migration', 'Show import status')"
-				:disabled="status.current === 'export'"
-				@click.stop.prevent="openModal">
-				{{ t('user_migration', 'Show status') }}
-			</Button>
-			<span class="settings-hint">{{ status.status === 'waiting' ? t('user_migration', 'Import queued') : t('user_migration', 'Import in progress…') }}</span>
-		</div>
-
-		<span class="section__picker-error error">{{ filePickerError }}</span>
-
-		<Modal v-if="modalOpened"
-			@close="closeModal">
-			<div class="section__modal">
-				<EmptyContent>
-					{{ modalMessage }}
+			<div v-if="status.current !== 'import'"
+				class="section__status">
+				<Button type="secondary"
+					:aria-label="t('user_migration', 'Import your data')"
+					:disabled="status.current === 'export'"
+					@click.stop.prevent="pickImportFile">
 					<template #icon>
-						<PackageUp decorative />
+						<PackageUp title="" :size="20" />
 					</template>
-					<template v-if="status.status === 'started'" #desc>
-						{{ t('user_migration', 'Please do not use your account while importing.') }}
-					</template>
-				</EmptyContent>
-				<div v-if="status.status === 'waiting' || status.status === 'started'"
-					class="section__icon icon-loading" />
-				<CheckCircleOutline v-else
-					class="section__icon"
-					title=""
-					:size="40" />
+					{{ t('user_migration', 'Import') }}
+				</Button>
+				<div v-if="startingImport" class="icon-loading" />
 			</div>
-		</Modal>
+			<div v-else class="section__status">
+				<Button type="secondary"
+					:aria-label="t('user_migration', 'Show import status')"
+					:disabled="status.current === 'export'"
+					@click.stop.prevent="openModal">
+					{{ t('user_migration', 'Show status') }}
+				</Button>
+				<span class="settings-hint">{{ status.status === 'waiting' ? t('user_migration', 'Import queued') : t('user_migration', 'Import in progress…') }}</span>
+			</div>
+
+			<span class="section__picker-error error">{{ filePickerError }}</span>
+
+			<Modal v-if="modalOpened"
+				@close="closeModal">
+				<div class="section__modal">
+					<EmptyContent>
+						{{ modalMessage }}
+						<template #icon>
+							<PackageUp decorative />
+						</template>
+						<template v-if="status.status === 'started'" #desc>
+							{{ t('user_migration', 'Please do not use your account while importing.') }}
+						</template>
+					</EmptyContent>
+					<div v-if="status.status === 'waiting' || status.status === 'started'"
+						class="section__icon icon-loading" />
+					<CheckCircleOutline v-else
+						class="section__icon"
+						title=""
+						:size="40" />
+				</div>
+			</Modal>
+		</template>
+		<div v-else class="icon-loading" />
 	</div>
 </template>
 
@@ -109,6 +112,10 @@ export default {
 	},
 
 	props: {
+		loading: {
+			type: Boolean,
+			default: true,
+		},
 		status: {
 			type: Object,
 			default: () => ({}),

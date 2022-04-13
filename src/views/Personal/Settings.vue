@@ -22,10 +22,12 @@
 
 <template>
 	<section>
-		<ExportSection :status="status"
+		<ExportSection :loading="loading"
 			:migrators="migrators"
+			:status="status"
 			@refresh-status="onRefreshStatus" />
-		<ImportSection :status="status"
+		<ImportSection :loading="loading"
+			:status="status"
 			@refresh-status="onRefreshStatus" />
 	</section>
 </template>
@@ -52,6 +54,7 @@ export default {
 
 	data() {
 		return {
+			loading: true,
 			migrators: [],
 			status: { current: null },
 		}
@@ -60,6 +63,7 @@ export default {
 	async created() {
 		await this.fetchMigrators()
 		await this.fetchStatus()
+		this.loading = false
 		setInterval(this.fetchStatus, STATUS_POLLING_INTERVAL * 1000)
 	},
 

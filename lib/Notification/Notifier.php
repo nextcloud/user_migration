@@ -29,36 +29,28 @@ namespace OCA\UserMigration\Notification;
 
 use OCA\UserMigration\AppInfo\Application;
 use OCA\UserMigration\ExportDestination;
-use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\Files\File;
 use OCP\Files\IRootFolder;
 use OCP\IURLGenerator;
 use OCP\IUser;
 use OCP\IUserManager;
 use OCP\L10N\IFactory;
-use OCP\Notification\IManager;
 use OCP\Notification\INotification;
 use OCP\Notification\INotifier;
 
 class Notifier implements INotifier {
 	protected IFactory $l10nFactory;
 	protected IURLGenerator $urlGenerator;
-	private IManager $notificationManager;
 	private IUserManager $userManager;
-	private ITimeFactory $timeFactory;
 	private IRootFolder $root;
 
 	public function __construct(IFactory $l10nFactory,
 								IURLGenerator $urlGenerator,
-								IManager $notificationManager,
 								IUserManager $userManager,
-								ITimeFactory $timeFactory,
 								IRootFolder $root) {
 		$this->l10nFactory = $l10nFactory;
 		$this->urlGenerator = $urlGenerator;
-		$this->notificationManager = $notificationManager;
 		$this->userManager = $userManager;
-		$this->timeFactory = $timeFactory;
 		$this->root = $root;
 	}
 
@@ -83,6 +75,13 @@ class Notifier implements INotifier {
 		}
 		if ($notification->getSubject() === 'exportFailed') {
 			return $this->handleExportFailed($notification, $languageCode);
+		}
+
+		if ($notification->getSubject() === 'importDone') {
+			return $this->handleImportDone($notification, $languageCode);
+		}
+		if ($notification->getSubject() === 'importFailed') {
+			return $this->handleImportFailed($notification, $languageCode);
 		}
 
 		throw new \InvalidArgumentException('Unhandled subject');
@@ -156,6 +155,69 @@ class Notifier implements INotifier {
 		return $notification;
 	}
 
+	public function handleImportFailed(INotification $notification, string $languageCode): INotification {
+		$l = $this->l10nFactory->get(Application::APP_ID, $languageCode);
+		$param = $notification->getSubjectParameters();
+
+		$sourceUser = $this->getUser($param['sourceUser']);
+		$notification->setRichSubject($l->t('User import failed'))
+			->setParsedSubject($l->t('User import failed'))
+			->setRichMessage(
+				$l->t('Your import of {user} failed.'),
+				[
+					'user' => [
+						'type' => 'user',
+						'id' => $sourceUser->getUID(),
+						'name' => $sourceUser->getDisplayName(),
+					],
+				])
+			->setParsedMessage(
+				str_replace(
+					['{user}'],
+					[$sourceUser->getDisplayName()],
+					$l->t('Your import of {user} failed.')
+				)
+			);
+		return $notification;
+	}
+
+	public function handleImportDone(INotification $notification, string $languageCode): INotification {
+		$l = $this->l10nFactory->get(Application::APP_ID, $languageCode);
+		$param = $notification->getSubjectParameters();
+
+		$sourceUser = $this->getUser($param['sourceUser']);
+		$path = $this->$param['path'];
+		$importFile = $this->getImportFile($sourceUser, $path);
+
+		$notification->setRichSubject($l->t('User import done'))
+			->setParsedSubject($l->t('User import done'))
+			->setRichMessage(
+				$l->t('Your import of {user} has completed: {file}'),
+				[
+					'user' => [
+						'type' => 'user',
+						'id' => $sourceUser->getUID(),
+						'name' => $sourceUser->getDisplayName(),
+					],
+					'file' => [
+						'type' => 'file',
+						'id' => $importFile->getId(),
+						'name' => $importFile->getName(),
+						'path' => $path,
+						'link' => $this->urlGenerator->linkToRouteAbsolute('files.viewcontroller.showFile', ['fileid' => $importFile->getId()]),
+					],
+				])
+			->setParsedMessage(
+				str_replace(
+					['{user}', '{file}'],
+					[$sourceUser->getDisplayName(), $path],
+					$l->t('Your import of {user} has completed: {link}')
+				)
+			);
+
+		return $notification;
+	}
+
 	protected function getUser(string $userId): IUser {
 		$user = $this->userManager->get($userId);
 		if ($user instanceof IUser) {
@@ -169,6 +231,15 @@ class Notifier implements INotifier {
 		$file = $userFolder->get(ExportDestination::EXPORT_FILENAME);
 		if (!$file instanceof File) {
 			throw new \InvalidArgumentException('User export is not a file');
+		}
+		return $file;
+	}
+
+	protected function getImportFile(IUser $user, string $path): File {
+		$userFolder = $this->root->getUserFolder($user->getUID());
+		$file = $userFolder->get($path);
+		if (!$file instanceof File) {
+			throw new \InvalidArgumentException("Import file \"$path\" does not exist");
 		}
 		return $file;
 	}

@@ -54,6 +54,7 @@ class UserFolderExportDestination extends ExportDestination {
 		// FIXME: $file->fopen() is not triggering the "postWrite" hook on fclose
 
 		// workaround to force refresh the size/mtime:
+		parent::close();
 		$this->file->touch();
 	}
 }

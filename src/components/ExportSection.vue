@@ -183,7 +183,7 @@ export default {
 	display: grid;
 	gap: 40px;
 	grid-auto-flow: row;
-	grid-template-columns: repeat(auto-fit, 300px);
+	grid-template-columns: repeat(auto-fit, minmax(320px, 400px));
 	margin-bottom: 40px;
 
 	.section__description {

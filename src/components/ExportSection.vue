@@ -47,8 +47,6 @@
 			</div>
 		</div>
 
-		<!-- <span>Migrators: {{ selectedMigrators }}</span> -->
-
 		<Button v-if="status.current !== 'export'"
 			type="secondary"
 			:aria-label="t('user_migration', 'Export your data')"
@@ -64,7 +62,7 @@
 				:aria-label="t('user_migration', 'Show export status')"
 				:disabled="status.current === 'import'"
 				@click.stop.prevent="openModal">
-				{{ t('user_migration', 'Show status')}}
+				{{ t('user_migration', 'Show status') }}
 			</Button>
 			<span class="settings-hint">{{ status.status === 'waiting' ? t('user_migration', 'Export queued') : t('user_migration', 'Export in progress…') }}</span>
 		</div>
@@ -75,7 +73,7 @@
 				<EmptyContent>
 					{{ modalMessage }}
 					<template #icon>
-						<PackageDown />
+						<PackageDown decorative />
 					</template>
 					<template v-if="status.status === 'started'" #desc>
 						{{ t('user_migration', 'Please do not use your account while exporting.') }}

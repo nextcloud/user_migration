@@ -292,7 +292,6 @@ class FilesMigrator implements IMigrator {
 	 * {@inheritDoc}
 	 */
 	public function getDescription(): string {
-		// TODO handle migrator dependency resoluton as TrashbinMigrator is dependent on FilesMigrator
-		return $this->l10n->t('Files including deleted files, versions, comments, collaborative tags, and favorites');
+		return $this->l10n->t('Files including versions, comments, collaborative tags, and favorites');
 	}
 }

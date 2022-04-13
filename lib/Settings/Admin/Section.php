@@ -55,7 +55,7 @@ class Section implements IIconSection {
 	}
 
 	public function getName(): string {
-		return $this->l->t(Application::SETTINGS_SECTION_NAME);
+		return $this->l->t('Data migration');
 	}
 
 	public function getPriority(): int {

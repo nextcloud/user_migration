@@ -22,19 +22,15 @@
 
 <template>
 	<div class="section">
-		<h2>{{ t(APP_ID, 'Settings') }}</h2>
+		<h2>{{ t('user_migration', 'Settings') }}</h2>
 	</div>
 </template>
 
 <script>
-import { APP_ID } from '../../shared/constants'
-
 export default {
 	name: 'Settings',
 	data() {
-		return {
-			APP_ID,
-		}
+		return {}
 	},
 }
 </script>

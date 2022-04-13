@@ -24,9 +24,10 @@ import Vue from 'vue'
 import { translate as t, translatePlural as n } from '@nextcloud/l10n'
 import '@nextcloud/dialogs/styles/toast.scss'
 
+import logger from './logger'
 import PersonalSettings from './views/Personal/Settings'
 
-Vue.mixin({ methods: { t, n } })
+Vue.mixin({ props: { logger }, methods: { t, n } })
 
 export default new Vue({
 	el: '#personal-settings',

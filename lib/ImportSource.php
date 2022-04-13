@@ -90,7 +90,7 @@ class ImportSource implements IImportSource {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function copyToFolder(Folder $destination, string $sourcePath): bool {
+	public function copyToFolder(Folder $destination, string $sourcePath): void {
 		// TODO log errors to ease debugging
 		$sourcePath = rtrim($sourcePath, '/').'/';
 		$files = $this->archive->getFolder($sourcePath);
@@ -99,9 +99,7 @@ class ImportSource implements IImportSource {
 			foreach ($files as $path) {
 				$stat = $this->archive->getStat($sourcePath . $path);
 				if ($stat === null) {
-					// TODO: use exception
-					echo "Stat information not found for " . $sourcePath . $path . "\n";
-					return false;
+					throw new UserMigrationException("Failed to get stat information from archive for " . $sourcePath . $path . "\"");
 				}
 				if (str_ends_with($path, '/')) {
 					try {
@@ -113,16 +111,12 @@ class ImportSource implements IImportSource {
 					} catch (NotFoundException $e) {
 						$folder = $destination->newFolder($path);
 					}
-					if ($this->copyToFolder($folder, $sourcePath.$path) === false) {
-						// TODO: use exception
-						echo "copy to $sourcePath.$path failed\n";
-						return false;
-					}
+					$this->copyToFolder($folder, $sourcePath.$path);
 					$folder->touch($stat['mtime']);
 				} else {
 					$stream = $this->archive->getStream($sourcePath.$path, 'r');
 					if ($stream === false) {
-						return false;
+						throw new UserMigrationException("Failed to get " . $sourcePath . $path . " from archive\"");
 					}
 					try {
 						$file = $destination->get($path);
@@ -139,9 +133,8 @@ class ImportSource implements IImportSource {
 				}
 			}
 		} catch (NotPermittedException $e) {
-			return false;
+			throw new UserMigrationException("Could not import files due to permission issue", 0, $e);
 		}
-		return true;
 	}
 
 	/**

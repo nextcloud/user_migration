@@ -111,8 +111,10 @@ class UserMigrationService {
 			$migrator->export($user, $exportDestination, $output);
 			$migratorVersions[$migrator->getId()] = $migrator->getVersion();
 		}
-		if ($exportDestination->setMigratorVersions($migratorVersions) === false) {
-			throw new UserMigrationException("Could not export user information.");
+		try {
+			$exportDestination->setMigratorVersions($migratorVersions);
+		} catch (\Throwable $e) {
+			throw new UserMigrationException("Could not export user information.", 0, $e);
 		}
 
 		$exportDestination->close();
@@ -169,8 +171,10 @@ class UserMigrationService {
 			'enabled' => $user->isEnabled(),
 		];
 
-		if ($exportDestination->addFileContents(IImportSource::PATH_USER, json_encode($userinfo)) === false) {
-			throw new UserMigrationException("Could not export user information.");
+		try {
+			$exportDestination->addFileContents(IImportSource::PATH_USER, json_encode($userinfo));
+		} catch (\Throwable $e) {
+			throw new UserMigrationException("Could not export user information.", 0, $e);
 		}
 	}
 
@@ -214,8 +218,10 @@ class UserMigrationService {
 			\OC_App::getAppVersions()
 		);
 
-		if ($exportDestination->addFileContents("versions.json", json_encode($versions)) === false) {
-			throw new UserMigrationException("Could not export versions.");
+		try {
+			$exportDestination->addFileContents("versions.json", json_encode($versions));
+		} catch (\Throwable $e) {
+			throw new UserMigrationException("Could not export versions.", 0, $e);
 		}
 	}
 
@@ -229,8 +235,10 @@ class UserMigrationService {
 
 		$data = $this->config->getAllUserValues($uid);
 
-		if ($exportDestination->addFileContents("settings.json", json_encode($data)) === false) {
-			throw new UserMigrationException("Could not export settings.");
+		try {
+			$exportDestination->addFileContents("settings.json", json_encode($data));
+		} catch (\Throwable $e) {
+			throw new UserMigrationException("Could not export settings.", 0, $e);
 		}
 	}
 

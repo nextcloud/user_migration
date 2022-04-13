@@ -24,7 +24,7 @@
 	<div class="section">
 		<h2>{{ t('user_migration', 'Import') }}</h2>
 
-		<h3 class="settings-hint">{{ t('user_migration', 'Please note that existing data may be overwritten') }}</h3>
+		<h3 class="section__hint settings-hint">{{ t('user_migration', 'Please note that existing data may be overwritten') }}</h3>
 
 		<!-- TODO use server API -->
 
@@ -38,23 +38,36 @@
 			</template>
 			{{ t('user_migration', 'Import') }}
 		</Button>
-		<Button v-else
-			type="secondary"
-			:aria-label="t('user_migration', 'Show import status')"
-			:disabled="status.current === 'export'"
-			@click.stop.prevent="openModal">
-			{{ t('user_migration', 'Show status') }}
-		</Button>
+		<div class="section__status" v-else>
+			<Button type="secondary"
+				:aria-label="t('user_migration', 'Show import status')"
+				:disabled="status.current === 'export'"
+				@click.stop.prevent="openModal">
+				{{ t('user_migration', 'Show status') }}
+			</Button>
+			<span class="settings-hint">{{ status.status === 'waiting' ? t('user_migration', 'Import queued') : t('user_migration', 'Import in progress…') }}</span>
+		</div>
 
-		<span class="error">{{ filePickerError }}</span>
+		<span class="section__picker-error error">{{ filePickerError }}</span>
 
 		<Modal v-if="modalOpened"
 			@close="closeModal">
 			<div class="section__modal">
-				<h2>{{ t('user_migration', 'Importing…') }}</h2>
-				<ProgressBar size="medium"
-					:value="60"
-					:error="error" />
+				<EmptyContent>
+					{{ modalMessage }}
+					<template #icon>
+						<PackageUp decorative />
+					</template>
+					<template v-if="status.status === 'started'" #desc>
+						{{ t('user_migration', 'Please do not use your account while importing.') }}
+					</template>
+				</EmptyContent>
+				<div v-if="status.status === 'waiting' || status.status === 'started'"
+					class="section__icon icon-loading" />
+				<CheckCircleOutline v-else
+					class="section__icon"
+					title=""
+					:size="40" />
 			</div>
 		</Modal>
 	</div>
@@ -64,6 +77,8 @@
 import { getFilePickerBuilder, showError } from '@nextcloud/dialogs'
 
 import Button from '@nextcloud/vue/dist/Components/Button'
+import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline'
+import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
 import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageUp from 'vue-material-design-icons/PackageUp'
 
@@ -88,27 +103,31 @@ export default {
 
 	components: {
 		Button,
+		CheckCircleOutline,
+		EmptyContent,
 		Modal,
 		PackageUp,
 	},
 
 	data() {
 		return {
-			filePickerError: null,
 			modalOpened: false,
-			error: false,
+			filePickerError: null,
 		}
 	},
 
+	computed: {
+		modalMessage() {
+			if (this.status.status === 'waiting') {
+				return t('user_migration', 'Import queued')
+			} else if (this.status.status === 'started') {
+				return t('user_migration', 'Import in progress…')
+			}
+			return t('user_migration', 'Import completed successfully')
+		},
+	},
+
 	methods: {
-		openModal() {
-			this.modalOpened = true
-		},
-
-		closeModal() {
-			this.modalOpened = false
-		},
-
 		async pickImportFile() {
 			this.filePickerError = null
 
@@ -118,9 +137,15 @@ export default {
 				if (!filePath.startsWith('/')) {
 					throw new Error()
 				}
-				this.$emit('refresh-status')
-				this.openModal()
-				// TODO start background job
+				try {
+					// TODO call API to start background job
+					this.$emit('refresh-status')
+					this.openModal()
+				} catch (error) {
+					const errorMessage = error.message || 'Unknown error'
+					this.logger.error(`Error starting user import: ${errorMessage}`, { error })
+					showError(errorMessage)
+				}
 			} catch (error) {
 				const errorMessage = error.message || 'Unknown error'
 				this.logger.error(`Error selecting file to import: ${errorMessage}`, { error })
@@ -128,19 +153,47 @@ export default {
 				showError(errorMessage)
 			}
 		},
+
+		openModal() {
+			this.modalOpened = true
+		},
+
+		closeModal() {
+			this.modalOpened = false
+		},
 	},
 }
 </script>
 
 <style lang="scss" scoped>
-.section__modal {
-	align-self: center;
-	margin: 20px auto;
-	width: 80%;
-	height: 80%;
+.section__hint {
+	margin-bottom: 20px;
+}
+
+.section__status {
 	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
+	gap: 0 20px;
+
+	.settings-hint {
+		margin: auto 0;
+	};
+}
+
+.section__picker-error {
+	display: inline-block;
+	margin: 20px 0;
+}
+
+.section__modal {
+	margin: 110px auto;
+
+	&::v-deep .empty-content {
+		margin-top: 0;
+	}
+
+	.section__icon {
+		height: 40px;
+		margin-top: 20px;
+	}
 }
 </style>

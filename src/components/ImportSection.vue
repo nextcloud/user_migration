@@ -24,7 +24,9 @@
 	<div class="section">
 		<h2>{{ t('user_migration', 'Import') }}</h2>
 
-		<h3 class="section__hint settings-hint">{{ t('user_migration', 'Please note that existing data may be overwritten') }}</h3>
+		<h3 class="section__hint settings-hint">
+			{{ t('user_migration', 'Please note that existing data may be overwritten') }}
+		</h3>
 
 		<!-- TODO use server API -->
 
@@ -38,7 +40,7 @@
 			</template>
 			{{ t('user_migration', 'Import') }}
 		</Button>
-		<div class="section__status" v-else>
+		<div v-else class="section__status">
 			<Button type="secondary"
 				:aria-label="t('user_migration', 'Show import status')"
 				:disabled="status.current === 'export'"
@@ -94,19 +96,19 @@ const picker = getFilePickerBuilder(t('user_migration', 'Choose a file to import
 export default {
 	name: 'ImportSection',
 
-	props: {
-		status: {
-			type: Object,
-			default: () => ({}),
-		},
-	},
-
 	components: {
 		Button,
 		CheckCircleOutline,
 		EmptyContent,
 		Modal,
 		PackageUp,
+	},
+
+	props: {
+		status: {
+			type: Object,
+			default: () => ({}),
+		},
 	},
 
 	data() {
@@ -176,7 +178,7 @@ export default {
 
 	.settings-hint {
 		margin: auto 0;
-	};
+	}
 }
 
 .section__picker-error {

@@ -89,6 +89,6 @@ export default {
 		onRefreshStatus() {
 			this.fetchStatus()
 		},
-	}
+	},
 }
 </script>

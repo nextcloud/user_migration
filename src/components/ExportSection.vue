@@ -24,7 +24,9 @@
 	<div class="section">
 		<h2>{{ t('user_migration', 'Export') }}</h2>
 
-		<h3 class="settings-hint">{{ t('user_migration', 'Please select the data you want to export') }}</h3>
+		<h3 class="settings-hint">
+			{{ t('user_migration', 'Please select the data you want to export') }}
+		</h3>
 
 		<div class="section__grid">
 			<!-- Base user data is permanently enabled -->
@@ -36,8 +38,8 @@
 				<em class="section__description">{{ t('user_migration', 'Basic user information including user ID and display name as well as your settings') }}</em>
 			</div>
 			<div v-for="({id, displayName, description}) in sortedMigrators"
-				class="section__checkbox"
-				:key="id">
+				:key="id"
+				class="section__checkbox">
 				<CheckboxRadioSwitch name="migrators"
 					:value="id"
 					:checked.sync="selectedMigrators">
@@ -57,7 +59,7 @@
 			</template>
 			{{ t('user_migration', 'Export') }}
 		</Button>
-		<div class="section__status" v-else>
+		<div v-else class="section__status">
 			<Button type="secondary"
 				:aria-label="t('user_migration', 'Show export status')"
 				:disabled="status.current === 'import'"
@@ -108,6 +110,15 @@ import { APP_ID } from '../shared/constants'
 export default {
 	name: 'ExportSection',
 
+	components: {
+		Button,
+		CheckboxRadioSwitch,
+		CheckCircleOutline,
+		EmptyContent,
+		Modal,
+		PackageDown,
+	},
+
 	props: {
 		migrators: {
 			type: Array,
@@ -117,15 +128,6 @@ export default {
 			type: Object,
 			default: () => ({}),
 		},
-	},
-
-	components: {
-		Button,
-		CheckboxRadioSwitch,
-		CheckCircleOutline,
-		EmptyContent,
-		Modal,
-		PackageDown,
 	},
 
 	data() {
@@ -148,7 +150,7 @@ export default {
 		sortedMigrators() {
 			// TODO sort migrators?
 			return this.migrators
-		}
+		},
 	},
 
 	methods: {
@@ -199,7 +201,7 @@ export default {
 
 	.settings-hint {
 		margin: auto 0;
-	};
+	}
 }
 
 .section__modal {

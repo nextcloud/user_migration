@@ -31,6 +31,8 @@ use OCP\Files\Folder;
 use OCP\Files\NotFoundException;
 
 class UserFolderExportDestination extends ExportDestination {
+	private File $file;
+
 	public function __construct(Folder $userFolder) {
 		$this->path = static::EXPORT_FILENAME;
 		try {
@@ -43,7 +45,16 @@ class UserFolderExportDestination extends ExportDestination {
 		} catch (NotFoundException $e) {
 			$file = $userFolder->newFile($this->path);
 		}
+		$this->file = $file;
 		$r = $file->fopen('w');
 		parent::__construct($r);
+	}
+
+	public function close(): void {
+		// FIXME: $file->fopen() is not triggering the "postWrite" hook on fclose
+
+		// workaround to force refresh the size/mtime:
+		parent::close();
+		$this->file->touch();
 	}
 }

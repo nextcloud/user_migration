@@ -3,7 +3,7 @@
   -
   - @author Christopher Ng <chrng8@gmail.com>
   -
-  - @license GNU AGPL version 3 or any later version
+  - @license AGPL-3.0-or-later
   -
   - This program is free software: you can redistribute it and/or modify
   - it under the terms of the GNU Affero General Public License as
@@ -160,8 +160,7 @@ export default {
 				await axios.post(generateOcsUrl('/apps/{appId}/api/v1/export', { appId: APP_ID }), {
 					migrators: this.selectedMigrators,
 				})
-				this.$emit('refresh-status')
-				this.openModal()
+				this.$emit('refresh-status', () => this.openModal())
 			} catch (error) {
 				const errorMessage = error.message || 'Unknown error'
 				this.logger.error(`Error starting user export: ${errorMessage}`, { error })

@@ -86,9 +86,9 @@ export default {
 			}
 		},
 
-		async onRefreshStatus(openModalCallback) {
+		async onRefreshStatus(callback) {
 			await this.fetchStatus()
-			openModalCallback()
+			callback()
 		},
 	},
 }

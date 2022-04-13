@@ -27,7 +27,9 @@ import '@nextcloud/dialogs/styles/toast.scss'
 import logger from './logger'
 import PersonalSettings from './views/Personal/Settings'
 
-Vue.mixin({ props: { logger }, methods: { t, n } })
+Vue.prototype.t = t
+Vue.prototype.n = n
+Vue.prototype.logger = logger
 
 export default new Vue({
 	el: '#personal-settings',

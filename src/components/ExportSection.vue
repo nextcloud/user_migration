@@ -24,74 +24,84 @@
 	<div class="section">
 		<h2>{{ t('user_migration', 'Export') }}</h2>
 
-		<h3 class="settings-hint">
-			{{ t('user_migration', 'Please select the data you want to export') }}
-		</h3>
+		<template v-if="!loading">
+			<h3 class="settings-hint">
+				{{ t('user_migration', 'Please select the data you want to export') }}
+			</h3>
 
-		<div class="section__grid">
-			<!-- Base user data is permanently enabled -->
-			<div class="section__checkbox">
-				<CheckboxRadioSwitch :checked="true"
-					:disabled="true">
-					{{ t('user_migration', 'User information and settings') }}
-				</CheckboxRadioSwitch>
-				<em class="section__description">{{ t('user_migration', 'Basic user information including user ID and display name as well as your settings') }}</em>
+			<div class="section__grid">
+				<!-- Base user data is permanently enabled -->
+				<div class="section__checkbox">
+					<CheckboxRadioSwitch :checked="true"
+						:disabled="true">
+						{{ t('user_migration', 'User information and settings') }}
+					</CheckboxRadioSwitch>
+					<em class="section__description">{{ t('user_migration', 'Basic user information including user ID and display name as well as your settings') }}</em>
+				</div>
+				<div v-for="({id, displayName, description}) in migrators"
+					:key="id"
+					class="section__checkbox">
+					<CheckboxRadioSwitch name="migrators"
+						:value="id"
+						:checked.sync="selectedMigrators">
+						{{ displayName }}
+					</CheckboxRadioSwitch>
+					<em class="section__description">{{ description }}</em>
+				</div>
 			</div>
-			<div v-for="({id, displayName, description}) in sortedMigrators"
-				:key="id"
-				class="section__checkbox">
-				<CheckboxRadioSwitch name="migrators"
-					:value="id"
-					:checked.sync="selectedMigrators">
-					{{ displayName }}
-				</CheckboxRadioSwitch>
-				<em class="section__description">{{ description }}</em>
-			</div>
-		</div>
 
-		<div v-if="status.current !== 'export'"
-			class="section__status">
-			<Button type="secondary"
-				:aria-label="t('user_migration', 'Export your data')"
-				:disabled="status.current === 'import'"
-				@click.stop.prevent="startExport">
-				<template #icon>
-					<PackageDown title="" :size="20" />
-				</template>
-				{{ t('user_migration', 'Export') }}
-			</Button>
-			<div v-if="startingExport" class="icon-loading" />
-		</div>
-		<div v-else class="section__status">
-			<Button type="secondary"
-				:aria-label="t('user_migration', 'Show export status')"
-				:disabled="status.current === 'import'"
-				@click.stop.prevent="openModal">
-				{{ t('user_migration', 'Show status') }}
-			</Button>
-			<span class="settings-hint">{{ status.status === 'waiting' ? t('user_migration', 'Export queued') : t('user_migration', 'Export in progress…') }}</span>
-		</div>
-
-		<Modal v-if="modalOpened"
-			@close="closeModal">
-			<div class="section__modal">
-				<EmptyContent>
-					{{ modalMessage }}
+			<div v-if="status.current !== 'export'"
+				class="section__status">
+				<Button type="secondary"
+					:aria-label="t('user_migration', 'Export your data')"
+					:disabled="status.current === 'import'"
+					@click.stop.prevent="startExport">
 					<template #icon>
-						<PackageDown decorative />
+						<PackageDown title="" :size="20" />
 					</template>
-					<template v-if="status.status === 'started'" #desc>
-						{{ t('user_migration', 'Please do not use your account while exporting.') }}
-					</template>
-				</EmptyContent>
-				<div v-if="status.status === 'waiting' || status.status === 'started'"
-					class="section__icon icon-loading" />
-				<CheckCircleOutline v-else
-					class="section__icon"
-					title=""
-					:size="40" />
+					{{ t('user_migration', 'Export') }}
+				</Button>
+				<div v-if="startingExport" class="icon-loading" />
 			</div>
-		</Modal>
+			<div v-else class="section__status">
+				<Button type="secondary"
+					:aria-label="t('user_migration', 'Show export status')"
+					:disabled="status.current === 'import'"
+					@click.stop.prevent="openModal">
+					{{ t('user_migration', 'Show status') }}
+				</Button>
+				<span class="settings-hint">{{ status.status === 'waiting' ? t('user_migration', 'Export queued') : t('user_migration', 'Export in progress…') }}</span>
+			</div>
+
+			<Modal v-if="modalOpened"
+				@close="closeModal">
+				<div class="section__modal">
+					<EmptyContent>
+						{{ modalMessage }}
+						<template #icon>
+							<PackageDown decorative />
+						</template>
+						<template v-if="status.status === 'started'" #desc>
+							{{ t('user_migration', 'Please do not use your account while exporting.') }}
+						</template>
+					</EmptyContent>
+					<div v-if="status.status === 'waiting' || status.status === 'started'"
+						class="section__icon icon-loading" />
+					<template v-else>
+						<CheckCircleOutline class="section__icon"
+							title=""
+							:size="40" />
+						<Button class="section__close"
+							type="secondary"
+							:aria-label="t('user_migration', 'Close export status')"
+							@click.stop.prevent="closeModal">
+							{{ t('user_migration', 'Close') }}
+						</Button>
+					</template>
+				</div>
+			</Modal>
+		</template>
+		<div v-else class="icon-loading" />
 	</div>
 </template>
 
@@ -123,6 +133,10 @@ export default {
 	},
 
 	props: {
+		loading: {
+			type: Boolean,
+			default: true,
+		},
 		migrators: {
 			type: Array,
 			default: () => [],
@@ -150,10 +164,15 @@ export default {
 			}
 			return t('user_migration', 'Export completed successfully')
 		},
+	},
 
-		sortedMigrators() {
-			// TODO sort migrators?
-			return this.migrators
+	watch: {
+		migrators: {
+			deep: true,
+			immediate: true,
+			handler(migrators, oldMigrators) {
+				this.selectedMigrators = migrators.map(({ id }) => id)
+			},
 		},
 	},
 
@@ -213,7 +232,7 @@ export default {
 }
 
 .section__modal {
-	margin: 110px auto;
+	margin: 80px auto 60px auto;
 
 	&::v-deep .empty-content {
 		margin-top: 0;
@@ -221,7 +240,11 @@ export default {
 
 	.section__icon {
 		height: 40px;
-		margin-top: 20px;
+		margin: 20px 0;
+	}
+
+	.section__close {
+		margin: 40px auto 0 auto;
 	}
 }
 </style>

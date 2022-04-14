@@ -1,0 +1,14 @@
+/.eslintrc.js
+/.git
+/.github
+/.gitignore
+/.nextcloudignore
+/Makefile
+/babel.config.js
+/composer.json
+/composer.lock
+/krankerl.toml
+/package-lock.json
+/package.json
+/src/
+/tests

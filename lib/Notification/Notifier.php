@@ -193,7 +193,7 @@ class Notifier implements INotifier {
 		$notification->setRichSubject($l->t('User import done'))
 			->setParsedSubject($l->t('User import done'))
 			->setRichMessage(
-				$l->t('Your import to {user} has completed: {file}'),
+				$l->t('Your import of {file} into {user} has completed.'),
 				[
 					'user' => [
 						'type' => 'user',
@@ -205,14 +205,14 @@ class Notifier implements INotifier {
 						'id' => $importFile->getId(),
 						'name' => $importFile->getName(),
 						'path' => $path,
-						'link' => $this->urlGenerator->linkToRouteAbsolute('files.viewcontroller.showFile', ['fileid' => $importFile->getId()]),
+						'link' => $this->urlGenerator->linkToRouteAbsolute('files.viewcontroller.showFile', ['fileid' => $importFile->getId(), 'openfile' => 0]),
 					],
 				])
 			->setParsedMessage(
 				str_replace(
 					['{user}', '{file}'],
 					[$targetUser->getDisplayName(), $path],
-					$l->t('Your import to {user} has completed: {file}')
+					$l->t('Your import of {file} into {user} has completed.')
 				)
 			);
 

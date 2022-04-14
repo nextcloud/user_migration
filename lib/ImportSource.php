@@ -91,7 +91,6 @@ class ImportSource implements IImportSource {
 	 * {@inheritDoc}
 	 */
 	public function copyToFolder(Folder $destination, string $sourcePath): void {
-		// TODO log errors to ease debugging
 		$sourcePath = rtrim($sourcePath, '/').'/';
 		$files = $this->archive->getFolder($sourcePath);
 
@@ -99,7 +98,7 @@ class ImportSource implements IImportSource {
 			foreach ($files as $path) {
 				$stat = $this->archive->getStat($sourcePath . $path);
 				if ($stat === null) {
-					throw new UserMigrationException("Failed to get stat information from archive for " . $sourcePath . $path . "\"");
+					throw new UserMigrationException("Failed to get stat information from archive for \"" . $sourcePath . $path . "\"");
 				}
 				if (str_ends_with($path, '/')) {
 					try {
@@ -116,7 +115,7 @@ class ImportSource implements IImportSource {
 				} else {
 					$stream = $this->archive->getStream($sourcePath.$path, 'r');
 					if ($stream === false) {
-						throw new UserMigrationException("Failed to get " . $sourcePath . $path . " from archive\"");
+						throw new UserMigrationException("Failed to get \"" . $sourcePath . $path . "\" from archive");
 					}
 					try {
 						$file = $destination->get($path);
@@ -134,6 +133,8 @@ class ImportSource implements IImportSource {
 			}
 		} catch (NotPermittedException $e) {
 			throw new UserMigrationException("Could not import files due to permission issue", 0, $e);
+		} catch (\Throwable $e) {
+			throw new UserMigrationException("Could not import files", 0, $e);
 		}
 	}
 
@@ -141,10 +142,14 @@ class ImportSource implements IImportSource {
 	 * {@inheritDoc}
 	 */
 	public function getMigratorVersions(): array {
-		if ($this->migratorVersions === null) {
-			$this->migratorVersions = json_decode($this->getFileContents("migrator_versions.json"), true, 512, JSON_THROW_ON_ERROR);
+		try {
+			if ($this->migratorVersions === null) {
+				$this->migratorVersions = json_decode($this->getFileContents("migrator_versions.json"), true, 512, JSON_THROW_ON_ERROR);
+			}
+			return $this->migratorVersions;
+		} catch (\Exception $e) {
+			throw new UserMigrationException("Failed to get migrators versions", 0, $e);
 		}
-		return $this->migratorVersions;
 	}
 
 	/**
@@ -159,12 +164,16 @@ class ImportSource implements IImportSource {
 	 * {@inheritDoc}
 	 */
 	public function getOriginalUid(): string {
-		$data = json_decode($this->getFileContents(static::PATH_USER), true, 512, JSON_THROW_ON_ERROR);
+		try {
+			$data = json_decode($this->getFileContents(static::PATH_USER), true, 512, JSON_THROW_ON_ERROR);
 
-		if (isset($data['uid'])) {
-			return $data['uid'];
-		} else {
-			throw new UserMigrationException('No uid found in '.static::PATH_USER);
+			if (isset($data['uid'])) {
+				return $data['uid'];
+			} else {
+				throw new UserMigrationException('No uid found in '.static::PATH_USER);
+			}
+		} catch (\Exception $e) {
+			throw new UserMigrationException("Failed to original uid", 0, $e);
 		}
 	}
 

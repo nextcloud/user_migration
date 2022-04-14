@@ -29,6 +29,7 @@ namespace OCA\UserMigration;
 use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\UserMigration\IExportDestination;
+use OCP\UserMigration\UserMigrationException;
 use ZipStreamer\COMPR;
 use ZipStreamer\ZipStreamer;
 
@@ -57,26 +58,41 @@ class ExportDestination implements IExportDestination {
 	 * {@inheritDoc}
 	 */
 	public function addFileContents(string $path, string $content): void {
-		$stream = fopen('php://temp', 'r+');
-		fwrite($stream, $content);
-		rewind($stream);
-		$this->streamer->addFileFromStream($stream, $path);
+		try {
+			$stream = fopen('php://temp', 'r+');
+			fwrite($stream, $content);
+			rewind($stream);
+			if ($this->streamer->addFileFromStream($stream, $path) !== true) {
+				throw new UserMigrationException();
+			}
+		} catch (\Throwable $e) {
+			throw new UserMigrationException("Failed to add content in $path in archive", 0, $e);
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public function addFileAsStream(string $path, $stream): void {
-		$this->streamer->addFileFromStream($stream, $path);
+		try {
+			if ($this->streamer->addFileFromStream($stream, $path) !== true) {
+				throw new UserMigrationException();
+			}
+		} catch (\Throwable $e) {
+			throw new UserMigrationException("Failed to add content from stream in $path in archive", 0, $e);
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public function copyFolder(Folder $folder, string $destinationPath): void {
-		$this->streamer->addEmptyDir($destinationPath, [
+		$success = $this->streamer->addEmptyDir($destinationPath, [
 			'timestamp' => $folder->getMTime(),
 		]);
+		if (!$success) {
+			throw new UserMigrationException("Failed to create folder $destinationPath in archive");
+		}
 		$nodes = $folder->getDirectoryListing();
 		foreach ($nodes as $node) {
 			if ($node instanceof File) {
@@ -86,9 +102,12 @@ class ExportDestination implements IExportDestination {
 					continue;
 				}
 				$read = $node->fopen('rb');
-				$this->streamer->addFileFromStream($read, $destinationPath.'/'.$node->getName(), [
+				$success = $this->streamer->addFileFromStream($read, $destinationPath.'/'.$node->getName(), [
 					'timestamp' => $node->getMTime(),
 				]);
+				if (!$success) {
+					throw new UserMigrationException("Failed to copy file into ".$destinationPath.'/'.$node->getName()." in archive");
+				}
 			} elseif ($node instanceof Folder) {
 				$this->copyFolder($node, $destinationPath.'/'.$node->getName());
 			} else {
@@ -109,7 +128,10 @@ class ExportDestination implements IExportDestination {
 	 * {@inheritDoc}
 	 */
 	public function close(): void {
-		$this->streamer->finalize();
+		$success = $this->streamer->finalize();
+		if (!$success) {
+			throw new UserMigrationException("Failed to close zip streamer");
+		}
 	}
 
 	/**

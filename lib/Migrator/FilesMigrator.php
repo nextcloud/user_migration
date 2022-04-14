@@ -99,15 +99,19 @@ class FilesMigrator implements IMigrator {
 		$uid = $user->getUID();
 		$userFolder = $this->root->getUserFolder($uid);
 
-		if ($exportDestination->copyFolder($userFolder, static::PATH_FILES) === false) {
-			throw new UserMigrationException("Could not export files.");
+		try {
+			$exportDestination->copyFolder($userFolder, static::PATH_FILES);
+		} catch (\Throwable $e) {
+			throw new UserMigrationException("Could not export files.", 0, $e);
 		}
 
 		try {
 			$versionsFolder = $this->root->get('/'.$uid.'/'.FilesVersionsStorage::VERSIONS_ROOT);
 			$output->writeln("Exporting file versions…");
-			if ($exportDestination->copyFolder($versionsFolder, static::PATH_VERSIONS) === false) {
-				throw new UserMigrationException("Could not export files versions.");
+			try {
+				$exportDestination->copyFolder($versionsFolder, static::PATH_VERSIONS);
+			} catch (\Throwable $e) {
+				throw new UserMigrationException("Could not export files versions.", 0, $e);
 			}
 		} catch (NotFoundException $e) {
 			$output->writeln("No file versions to export…");
@@ -121,8 +125,10 @@ class FilesMigrator implements IMigrator {
 		$tagger = $this->tagManager->load(Application::APP_ID, [], false, $uid);
 		$tags = $tagger->getTagsForObjects(array_values($objectIds));
 		$taggedFiles = array_filter(array_map(fn ($id) => $tags[$id] ?? [], $objectIds));
-		if ($exportDestination->addFileContents(static::PATH_TAGS, json_encode($taggedFiles)) === false) {
-			throw new UserMigrationException("Could not export tagged files information.");
+		try {
+			$exportDestination->addFileContents(static::PATH_TAGS, json_encode($taggedFiles));
+		} catch (\Throwable $e) {
+			throw new UserMigrationException("Could not export tagged files information.", 0, $e);
 		}
 
 		$output->writeln("Exporting file systemtags…");
@@ -136,8 +142,10 @@ class FilesMigrator implements IMigrator {
 			$systemTags
 		);
 		$systemTaggedFiles = array_filter(array_map(fn ($id) => $systemTags[$id] ?? [], $objectIds));
-		if ($exportDestination->addFileContents(static::PATH_SYSTEMTAGS, json_encode($systemTaggedFiles)) === false) {
-			throw new UserMigrationException("Could not export systemtagged files information.");
+		try {
+			$exportDestination->addFileContents(static::PATH_SYSTEMTAGS, json_encode($systemTaggedFiles));
+		} catch (\Throwable $e) {
+			throw new UserMigrationException("Could not export systemtagged files information.", 0, $e);
 		}
 
 		$output->writeln("Exporting file comments…");
@@ -160,8 +168,10 @@ class FilesMigrator implements IMigrator {
 				);
 			}
 		}
-		if ($exportDestination->addFileContents(static::PATH_COMMENTS, json_encode($comments)) === false) {
-			throw new UserMigrationException("Could not export file comments.");
+		try {
+			$exportDestination->addFileContents(static::PATH_COMMENTS, json_encode($comments));
+		} catch (\Throwable $e) {
+			throw new UserMigrationException("Could not export file comments.", 0, $e);
 		}
 
 		// TODO other files metadata should be exported as well if relevant.
@@ -197,8 +207,10 @@ class FilesMigrator implements IMigrator {
 
 		$uid = $user->getUID();
 
-		if ($importSource->copyToFolder($this->root->getUserFolder($uid), static::PATH_FILES) === false) {
-			throw new UserMigrationException("Could not import files.");
+		try {
+			$importSource->copyToFolder($this->root->getUserFolder($uid), static::PATH_FILES);
+		} catch (\Throwable $e) {
+			throw new UserMigrationException("Could not import files.", 0, $e);
 		}
 
 		$userFolder = $this->root->getUserFolder($uid);
@@ -210,8 +222,10 @@ class FilesMigrator implements IMigrator {
 				$versionsFolder = $this->root->newFolder('/'.$uid.'/'.FilesVersionsStorage::VERSIONS_ROOT);
 			}
 			$output->writeln("Importing file versions…");
-			if ($importSource->copyToFolder($versionsFolder, static::PATH_VERSIONS) === false) {
-				throw new UserMigrationException("Could not import files versions.");
+			try {
+				$importSource->copyToFolder($versionsFolder, static::PATH_VERSIONS);
+			} catch (\Throwable $e) {
+				throw new UserMigrationException("Could not import files versions.", 0, $e);
 			}
 		} else {
 			$output->writeln("No file versions to import…");

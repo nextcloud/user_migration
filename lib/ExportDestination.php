@@ -56,26 +56,24 @@ class ExportDestination implements IExportDestination {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function addFileContents(string $path, string $content): bool {
+	public function addFileContents(string $path, string $content): void {
 		$stream = fopen('php://temp', 'r+');
 		fwrite($stream, $content);
 		rewind($stream);
 		$this->streamer->addFileFromStream($stream, $path);
-		return true;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function addFileAsStream(string $path, $stream): bool {
+	public function addFileAsStream(string $path, $stream): void {
 		$this->streamer->addFileFromStream($stream, $path);
-		return true;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function copyFolder(Folder $folder, string $destinationPath): bool {
+	public function copyFolder(Folder $folder, string $destinationPath): void {
 		$this->streamer->addEmptyDir($destinationPath, [
 			'timestamp' => $folder->getMTime(),
 		]);
@@ -92,22 +90,19 @@ class ExportDestination implements IExportDestination {
 					'timestamp' => $node->getMTime(),
 				]);
 			} elseif ($node instanceof Folder) {
-				$success = $this->copyFolder($node, $destinationPath.'/'.$node->getName());
-				if ($success === false) {
-					return false;
-				}
+				$this->copyFolder($node, $destinationPath.'/'.$node->getName());
 			} else {
-				return false;
+				// ignore unknown node type, shouldn't happen
+				continue;
 			}
 		}
-		return true;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function setMigratorVersions(array $versions): bool {
-		return $this->addFileContents("migrator_versions.json", json_encode($versions));
+	public function setMigratorVersions(array $versions): void {
+		$this->addFileContents("migrator_versions.json", json_encode($versions));
 	}
 
 	/**

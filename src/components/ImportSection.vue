@@ -171,7 +171,7 @@ export default {
 						1,
 						null,
 						{
-							allowDirectoryChooser: this.directoriesAllowed,
+							allowDirectoryChooser: false,
 							filter: entry => {
 								if (entry.mimetype === 'httpd/unix-directory') {
 									return true

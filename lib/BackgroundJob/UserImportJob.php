@@ -32,6 +32,7 @@ use OCA\UserMigration\Db\UserImportMapper;
 use OCA\UserMigration\Service\UserMigrationService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\QueuedJob;
+use OCP\Files\IRootFolder;
 use OCP\IUser;
 use OCP\IUserManager;
 use OCP\Notification\IManager as NotificationManager;
@@ -43,6 +44,7 @@ class UserImportJob extends QueuedJob {
 	private LoggerInterface $logger;
 	private NotificationManager $notificationManager;
 	private UserImportMapper $mapper;
+	private IRootFolder $root;
 
 	public function __construct(
 		ITimeFactory $timeFactory,
@@ -50,7 +52,8 @@ class UserImportJob extends QueuedJob {
 		UserMigrationService $migrationService,
 		LoggerInterface $logger,
 		NotificationManager $notificationManager,
-		UserImportMapper $mapper
+		UserImportMapper $mapper,
+		IRootFolder $root
 	) {
 		parent::__construct($timeFactory);
 
@@ -59,6 +62,7 @@ class UserImportJob extends QueuedJob {
 		$this->logger = $logger;
 		$this->notificationManager = $notificationManager;
 		$this->mapper = $mapper;
+		$this->root = $root;
 	}
 
 	public function run($argument): void {
@@ -68,6 +72,7 @@ class UserImportJob extends QueuedJob {
 		$sourceUser = $import->getSourceUser();
 		$targetUser = $import->getTargetUser();
 		$path = $import->getPath();
+		$absolutePath = $this->root->getUserFolder($sourceUser)->get($path)->getPath();
 
 		$sourceUserObject = $this->userManager->get($sourceUser);
 		$targetUserObject = $this->userManager->get($targetUser);
@@ -87,7 +92,7 @@ class UserImportJob extends QueuedJob {
 			$import->setStatus(UserImport::STATUS_STARTED);
 			$this->mapper->update($import);
 
-			$this->migrationService->import($path, $targetUserObject);
+			$this->migrationService->import($absolutePath, $targetUserObject);
 			$this->successNotification($import);
 		} catch (\Exception $e) {
 			$this->logger->error($e->getMessage(), ['exception' => $e]);

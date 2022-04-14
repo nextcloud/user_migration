@@ -40,7 +40,6 @@ use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCS\OCSException;
 use OCP\AppFramework\OCSController;
 use OCP\BackgroundJob\IJobList;
-use OCP\Files\IRootFolder;
 use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\IUserSession;
@@ -57,8 +56,6 @@ class ApiController extends OCSController {
 
 	private UserImportMapper $importMapper;
 
-	private IRootFolder $root;
-
 	private IJobList $jobList;
 
 	public function __construct(
@@ -68,7 +65,6 @@ class ApiController extends OCSController {
 		UserMigrationService $migrationService,
 		UserExportMapper $exportMapper,
 		UserImportMapper $importMapper,
-		IRootFolder $root,
 		IJobList $jobList
 	) {
 		parent::__construct(Application::APP_ID, $request);
@@ -77,7 +73,6 @@ class ApiController extends OCSController {
 		$this->migrationService = $migrationService;
 		$this->exportMapper = $exportMapper;
 		$this->importMapper = $importMapper;
-		$this->root = $root;
 		$this->jobList = $jobList;
 	}
 
@@ -201,9 +196,8 @@ class ApiController extends OCSController {
 	 * @NoSubAdminRequired
 	 * @PasswordConfirmationRequired
 	 */
-	public function import(string $userPath, string $targetUserId): DataResponse {
+	public function import(string $path, string $targetUserId): DataResponse {
 		$sourceUser = $this->userSession->getUser();
-		$absolutePath = $this->root->getUserFolder($sourceUser->getUID())->get($userPath)->getPath();
 
 		if (empty($sourceUser)) {
 			throw new OCSException('No user currently logged in');
@@ -235,7 +229,8 @@ class ApiController extends OCSController {
 		$userImport = new UserImport();
 		$userImport->setSourceUser($sourceUser->getUID());
 		$userImport->setTargetUser($targetUser->getUID());
-		$userImport->setPath($absolutePath);
+		// Path is relative to the source user folder
+		$userImport->setPath($path);
 		// All available migrators are added as migrator selection for import is not allowed for now
 		$userImport->setMigratorsArray($availableMigrators);
 		$userImport->setStatus(UserImport::STATUS_WAITING);

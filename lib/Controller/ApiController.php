@@ -177,6 +177,13 @@ class ApiController extends OCSController {
 			// Allow this exception to proceed with adding user export job
 		}
 
+		try {
+			$userImport = $this->importMapper->getByTargetUser($user->getUID());
+			throw new OCSException('User import already queued');
+		} catch (DoesNotExistException $e) {
+			// Allow this exception to proceed with adding user import job
+		}
+
 		$userExport = new UserExport();
 		$userExport->setSourceUser($user->getUID());
 		$userExport->setMigratorsArray($migrators);
@@ -224,6 +231,13 @@ class ApiController extends OCSController {
 			throw new OCSException('User import already queued');
 		} catch (DoesNotExistException $e) {
 			// Allow this exception to proceed with adding user import job
+		}
+
+		try {
+			$userExport = $this->exportMapper->getBySourceUser($targetUser->getUID());
+			throw new OCSException('User export already queued');
+		} catch (DoesNotExistException $e) {
+			// Allow this exception to proceed with adding user export job
 		}
 
 		$userImport = new UserImport();

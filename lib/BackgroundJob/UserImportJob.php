@@ -65,13 +65,19 @@ class UserImportJob extends QueuedJob {
 		$id = $argument['id'];
 
 		$import = $this->mapper->getById($id);
-		$user = $import->getSourceUser();
+		$sourceUser = $import->getSourceUser();
+		$targetUser = $import->getTargetUser();
 		$path = $import->getPath();
 
-		$userObject = $this->userManager->get($user);
+		$sourceUserObject = $this->userManager->get($sourceUser);
+		$targetUserObject = $this->userManager->get($targetUser);
 
-		if (!$userObject instanceof IUser) {
-			$this->logger->error('Could not import: Unknown user ' . $user);
+		if (!($sourceUserObject instanceof IUser) || !($targetUserObject instanceof IUser)) {
+			if (!($sourceUserObject instanceof IUser)) {
+				$this->logger->error('Could not import: Unknown source user ' . $sourceUser);
+			} else if (!($targetUserObject instanceof IUser)) {
+				$this->logger->error('Could not import: Unknown target user ' . $targetUser);
+			}
 			$this->failedNotication($import);
 			$this->mapper->delete($import);
 			return;
@@ -81,7 +87,7 @@ class UserImportJob extends QueuedJob {
 			$import->setStatus(UserImport::STATUS_STARTED);
 			$this->mapper->update($import);
 
-			$this->migrationService->import($path, $userObject);
+			$this->migrationService->import($path, $targetUserObject);
 			$this->successNotification($import);
 		} catch (\Exception $e) {
 			$this->logger->error($e->getMessage(), ['exception' => $e]);
@@ -99,6 +105,7 @@ class UserImportJob extends QueuedJob {
 			->setDateTime($this->time->getDateTime())
 			->setSubject('importFailed', [
 				'sourceUser' => $import->getSourceUser(),
+				'targetUser' => $import->getTargetUser(),
 			])
 			->setObject('import', (string)$import->getId());
 		$this->notificationManager->notify($notification);
@@ -112,6 +119,7 @@ class UserImportJob extends QueuedJob {
 			->setDateTime($this->time->getDateTime())
 			->setSubject('importDone', [
 				'sourceUser' => $import->getSourceUser(),
+				'targetUser' => $import->getTargetUser(),
 			])
 			->setObject('import', (string)$import->getId());
 		$this->notificationManager->notify($notification);

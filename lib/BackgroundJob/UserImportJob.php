@@ -116,6 +116,7 @@ class UserImportJob extends QueuedJob {
 			->setSubject('importFailed', [
 				'sourceUser' => $import->getSourceUser(),
 				'targetUser' => $import->getTargetUser(),
+				'path' => $import->getPath(),
 			])
 			->setObject('import', (string)$import->getId());
 		$this->notificationManager->notify($notification);
@@ -130,6 +131,7 @@ class UserImportJob extends QueuedJob {
 			->setSubject('importDone', [
 				'sourceUser' => $import->getSourceUser(),
 				'targetUser' => $import->getTargetUser(),
+				'path' => $import->getPath(),
 			])
 			->setObject('import', (string)$import->getId());
 		$this->notificationManager->notify($notification);

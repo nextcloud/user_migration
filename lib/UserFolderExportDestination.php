@@ -33,6 +33,8 @@ use OCP\Files\NotFoundException;
 class UserFolderExportDestination extends ExportDestination {
 	private File $file;
 
+	private $resource;
+
 	public function __construct(Folder $userFolder) {
 		$this->path = static::EXPORT_FILENAME;
 		try {
@@ -46,8 +48,8 @@ class UserFolderExportDestination extends ExportDestination {
 			$file = $userFolder->newFile($this->path);
 		}
 		$this->file = $file;
-		$r = $file->fopen('w');
-		parent::__construct($r);
+		$this->resource = $file->fopen('w');
+		parent::__construct($this->resource);
 	}
 
 	public function close(): void {
@@ -55,6 +57,7 @@ class UserFolderExportDestination extends ExportDestination {
 
 		// workaround to force refresh the size/mtime:
 		parent::close();
+		fclose($this->resource);
 		$this->file->touch();
 	}
 }

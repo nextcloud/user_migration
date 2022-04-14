@@ -148,7 +148,7 @@ class Notifier implements INotifier {
 				str_replace(
 					['{user}', '{file}'],
 					[$sourceUser->getDisplayName(), $path],
-					$l->t('Your export of {user} has completed: {link}')
+					$l->t('Your export of {user} has completed: {file}')
 				)
 			);
 
@@ -159,23 +159,23 @@ class Notifier implements INotifier {
 		$l = $this->l10nFactory->get(Application::APP_ID, $languageCode);
 		$param = $notification->getSubjectParameters();
 
-		$sourceUser = $this->getUser($param['sourceUser']);
+		$targetUser = $this->getUser($param['targetUser']);
 		$notification->setRichSubject($l->t('User import failed'))
 			->setParsedSubject($l->t('User import failed'))
 			->setRichMessage(
-				$l->t('Your import of {user} failed.'),
+				$l->t('Your import to {user} failed.'),
 				[
 					'user' => [
 						'type' => 'user',
-						'id' => $sourceUser->getUID(),
-						'name' => $sourceUser->getDisplayName(),
+						'id' => $targetUser->getUID(),
+						'name' => $targetUser->getDisplayName(),
 					],
 				])
 			->setParsedMessage(
 				str_replace(
 					['{user}'],
-					[$sourceUser->getDisplayName()],
-					$l->t('Your import of {user} failed.')
+					[$targetUser->getDisplayName()],
+					$l->t('Your import to {user} failed.')
 				)
 			);
 		return $notification;
@@ -186,18 +186,19 @@ class Notifier implements INotifier {
 		$param = $notification->getSubjectParameters();
 
 		$sourceUser = $this->getUser($param['sourceUser']);
-		$path = $this->$param['path'];
+		$targetUser = $this->getUser($param['targetUser']);
+		$path = $param['path'];
 		$importFile = $this->getImportFile($sourceUser, $path);
 
 		$notification->setRichSubject($l->t('User import done'))
 			->setParsedSubject($l->t('User import done'))
 			->setRichMessage(
-				$l->t('Your import of {user} has completed: {file}'),
+				$l->t('Your import to {user} has completed: {file}'),
 				[
 					'user' => [
 						'type' => 'user',
-						'id' => $sourceUser->getUID(),
-						'name' => $sourceUser->getDisplayName(),
+						'id' => $targetUser->getUID(),
+						'name' => $targetUser->getDisplayName(),
 					],
 					'file' => [
 						'type' => 'file',
@@ -210,8 +211,8 @@ class Notifier implements INotifier {
 			->setParsedMessage(
 				str_replace(
 					['{user}', '{file}'],
-					[$sourceUser->getDisplayName(), $path],
-					$l->t('Your import of {user} has completed: {link}')
+					[$targetUser->getDisplayName(), $path],
+					$l->t('Your import to {user} has completed: {file}')
 				)
 			);
 

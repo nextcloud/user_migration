@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration\Command;
 
+use OCA\UserMigration\ImportSource;
 use OCA\UserMigration\Service\UserMigrationService;
 use OCP\IUserManager;
 use Symfony\Component\Console\Command\Command;
@@ -90,7 +91,11 @@ class Import extends Command {
 			} else {
 				$user = null;
 			}
-			$this->migrationService->import($input->getArgument('archive'), $user, $output);
+			$path = $input->getArgument('archive');
+			$output->writeln("Importing from ${path}…");
+			$importSource = new ImportSource($path);
+			$this->migrationService->import($importSource, $user, $output);
+			$output->writeln("Successfully imported from ${path}");
 		} catch (\Exception $e) {
 			$output->writeln("$e");
 			$output->writeln("<error>" . $e->getMessage() . "</error>");

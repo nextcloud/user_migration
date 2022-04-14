@@ -30,6 +30,7 @@ use OCA\UserMigration\AppInfo\Application;
 use OCA\UserMigration\Db\UserImport;
 use OCA\UserMigration\Db\UserImportMapper;
 use OCA\UserMigration\Service\UserMigrationService;
+use OCA\UserMigration\UserFolderImportSource;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\QueuedJob;
 use OCP\Files\IRootFolder;
@@ -76,8 +77,6 @@ class UserImportJob extends QueuedJob {
 		$sourceUser = $import->getSourceUser();
 		$targetUser = $import->getTargetUser();
 		$path = $import->getPath();
-		$dataDir = $this->config->getSystemValueString('datadirectory', \OC::$SERVERROOT . '/data');
-		$absolutePath = $dataDir . $this->root->getUserFolder($sourceUser)->get($path)->getPath();
 
 		$sourceUserObject = $this->userManager->get($sourceUser);
 		$targetUserObject = $this->userManager->get($targetUser);
@@ -96,8 +95,9 @@ class UserImportJob extends QueuedJob {
 		try {
 			$import->setStatus(UserImport::STATUS_STARTED);
 			$this->mapper->update($import);
+			$importSource = new UserFolderImportSource($this->root->getUserFolder($sourceUser), $path);
 
-			$this->migrationService->import($absolutePath, $targetUserObject);
+			$this->migrationService->import($importSource, $targetUserObject);
 			$this->successNotification($import);
 		} catch (\Exception $e) {
 			$this->logger->error($e->getMessage(), ['exception' => $e]);

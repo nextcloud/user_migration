@@ -27,7 +27,6 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration\Service;
 
-use OCA\UserMigration\ImportSource;
 use OCP\Files\IRootFolder;
 use OCP\IConfig;
 use OCP\IUser;
@@ -120,11 +119,8 @@ class UserMigrationService {
 		$exportDestination->close();
 	}
 
-	public function import(string $path, ?IUser $user = null, ?OutputInterface $output = null): void {
+	public function import(IImportSource $importSource, ?IUser $user = null, ?OutputInterface $output = null): void {
 		$output = $output ?? new NullOutput();
-
-		$output->writeln("Importing from ${path}…");
-		$importSource = new ImportSource($path);
 
 		try {
 			$migratorVersions = $importSource->getMigratorVersions();
@@ -149,7 +145,7 @@ class UserMigrationService {
 			}
 
 			$uid = $user->getUID();
-			$output->writeln("Successfully imported $uid from $path");
+			$output->writeln("Successfully imported $uid");
 		} finally {
 			$importSource->close();
 		}

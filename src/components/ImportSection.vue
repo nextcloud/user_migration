@@ -187,7 +187,6 @@ export default {
 				const errorMessage = error.message || 'Unknown error'
 				this.logger.error(`Error selecting file to import: ${errorMessage}`, { error })
 				this.filePickerError = errorMessage
-				showError(errorMessage)
 			}
 		},
 

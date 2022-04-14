@@ -29,8 +29,6 @@
 				{{ t('user_migration', 'Please note that existing data may be overwritten') }}
 			</h3>
 
-			<!-- TODO use server API -->
-
 			<div v-if="status.current !== 'import'"
 				class="section__status">
 				<Button type="secondary"
@@ -89,7 +87,10 @@
 </template>
 
 <script>
+import axios from '@nextcloud/axios'
 import confirmPassword from '@nextcloud/password-confirmation'
+import { generateOcsUrl } from '@nextcloud/router'
+import { getCurrentUser } from '@nextcloud/auth'
 import { getFilePickerBuilder, showError } from '@nextcloud/dialogs'
 
 import Button from '@nextcloud/vue/dist/Components/Button'
@@ -97,6 +98,8 @@ import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline'
 import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
 import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageUp from 'vue-material-design-icons/PackageUp'
+
+import { APP_ID } from '../shared/constants'
 
 const picker = getFilePickerBuilder(t('user_migration', 'Choose a file to import'))
 	.setMultiSelect(false)
@@ -156,13 +159,20 @@ export default {
 				const filePath = await picker.pick()
 				this.logger.debug(`Path "${filePath}" selected for import`)
 				if (!filePath.startsWith('/')) {
-					throw new Error()
+					throw new Error(`Invalid path: ${filePath}`)
+				}
+				// TODO remove the file extension check when the custom mime type filter is added
+				if (!filePath.endsWith('.nextcloud_export')) {
+					throw new Error(`Invalid file: ${filePath}, please choose a valid "*.nextcloud_export" file`)
 				}
 
 				try {
 					await confirmPassword()
 					this.startingImport = true
-					// TODO call API to start background job
+					await axios.post(generateOcsUrl('/apps/{appId}/api/v1/import', { appId: APP_ID }), {
+						path: filePath,
+						targetUserId: getCurrentUser().uid,
+					})
 					this.$emit('refresh-status', () => {
 						this.openModal()
 						this.startingImport = false
@@ -177,7 +187,6 @@ export default {
 				const errorMessage = error.message || 'Unknown error'
 				this.logger.error(`Error selecting file to import: ${errorMessage}`, { error })
 				this.filePickerError = errorMessage
-				showError(errorMessage)
 			}
 		},
 

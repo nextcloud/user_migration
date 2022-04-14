@@ -30,8 +30,11 @@ use OCA\UserMigration\AppInfo\Application;
 use OCA\UserMigration\Db\UserImport;
 use OCA\UserMigration\Db\UserImportMapper;
 use OCA\UserMigration\Service\UserMigrationService;
+use OCA\UserMigration\UserFolderImportSource;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\QueuedJob;
+use OCP\Files\IRootFolder;
+use OCP\IConfig;
 use OCP\IUser;
 use OCP\IUserManager;
 use OCP\Notification\IManager as NotificationManager;
@@ -43,6 +46,8 @@ class UserImportJob extends QueuedJob {
 	private LoggerInterface $logger;
 	private NotificationManager $notificationManager;
 	private UserImportMapper $mapper;
+	private IConfig $config;
+	private IRootFolder $root;
 
 	public function __construct(
 		ITimeFactory $timeFactory,
@@ -50,7 +55,9 @@ class UserImportJob extends QueuedJob {
 		UserMigrationService $migrationService,
 		LoggerInterface $logger,
 		NotificationManager $notificationManager,
-		UserImportMapper $mapper
+		UserImportMapper $mapper,
+		IConfig $config,
+		IRootFolder $root
 	) {
 		parent::__construct($timeFactory);
 
@@ -59,19 +66,27 @@ class UserImportJob extends QueuedJob {
 		$this->logger = $logger;
 		$this->notificationManager = $notificationManager;
 		$this->mapper = $mapper;
+		$this->config = $config;
+		$this->root = $root;
 	}
 
 	public function run($argument): void {
 		$id = $argument['id'];
 
 		$import = $this->mapper->getById($id);
-		$user = $import->getSourceUser();
+		$author = $import->getAuthor();
+		$targetUser = $import->getTargetUser();
 		$path = $import->getPath();
 
-		$userObject = $this->userManager->get($user);
+		$authorObject = $this->userManager->get($author);
+		$targetUserObject = $this->userManager->get($targetUser);
 
-		if (!$userObject instanceof IUser) {
-			$this->logger->error('Could not import: Unknown user ' . $user);
+		if (!($authorObject instanceof IUser) || !($targetUserObject instanceof IUser)) {
+			if (!($authorObject instanceof IUser)) {
+				$this->logger->error('Could not import: Unknown author ' . $author);
+			} elseif (!($targetUserObject instanceof IUser)) {
+				$this->logger->error('Could not import: Unknown target user ' . $targetUser);
+			}
 			$this->failedNotication($import);
 			$this->mapper->delete($import);
 			return;
@@ -80,8 +95,9 @@ class UserImportJob extends QueuedJob {
 		try {
 			$import->setStatus(UserImport::STATUS_STARTED);
 			$this->mapper->update($import);
+			$importSource = new UserFolderImportSource($this->root->getUserFolder($author), $path);
 
-			$this->migrationService->import($path, $userObject);
+			$this->migrationService->import($importSource, $targetUserObject);
 			$this->successNotification($import);
 		} catch (\Exception $e) {
 			$this->logger->error($e->getMessage(), ['exception' => $e]);
@@ -94,11 +110,13 @@ class UserImportJob extends QueuedJob {
 	private function failedNotication(UserImport $import): void {
 		// Send notification to user
 		$notification = $this->notificationManager->createNotification();
-		$notification->setUser($import->getSourceUser())
+		$notification->setUser($import->getAuthor())
 			->setApp(Application::APP_ID)
 			->setDateTime($this->time->getDateTime())
 			->setSubject('importFailed', [
-				'sourceUser' => $import->getSourceUser(),
+				'author' => $import->getAuthor(),
+				'targetUser' => $import->getTargetUser(),
+				'path' => $import->getPath(),
 			])
 			->setObject('import', (string)$import->getId());
 		$this->notificationManager->notify($notification);
@@ -107,11 +125,13 @@ class UserImportJob extends QueuedJob {
 	private function successNotification(UserImport $import): void {
 		// Send notification to user
 		$notification = $this->notificationManager->createNotification();
-		$notification->setUser($import->getSourceUser())
+		$notification->setUser($import->getAuthor())
 			->setApp(Application::APP_ID)
 			->setDateTime($this->time->getDateTime())
 			->setSubject('importDone', [
-				'sourceUser' => $import->getSourceUser(),
+				'author' => $import->getAuthor(),
+				'targetUser' => $import->getTargetUser(),
+				'path' => $import->getPath(),
 			])
 			->setObject('import', (string)$import->getId());
 		$this->notificationManager->notify($notification);

@@ -29,8 +29,8 @@ namespace OCA\UserMigration\Db;
 use OCP\AppFramework\Db\Entity;
 
 /**
- * @method void setSourceUser(string $uid)
- * @method string getSourceUser()
+ * @method void setAuthor(string $uid)
+ * @method string getAuthor()
  * @method void setTargetUser(string $uid)
  * @method string getTargetUser()
  * @method void setPath(string $path)
@@ -45,7 +45,7 @@ class UserImport extends Entity {
 	public const STATUS_STARTED = 1;
 
 	/** @var string */
-	protected $sourceUser;
+	protected $author;
 	/** @var string */
 	protected $targetUser;
 	/** @var string */
@@ -56,7 +56,7 @@ class UserImport extends Entity {
 	protected $status;
 
 	public function __construct() {
-		$this->addType('sourceUser', 'string');
+		$this->addType('author', 'string');
 		$this->addType('targetUser', 'string');
 		$this->addType('path', 'string');
 		$this->addType('migrators', 'string');

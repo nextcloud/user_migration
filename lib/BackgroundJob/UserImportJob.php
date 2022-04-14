@@ -85,7 +85,7 @@ class UserImportJob extends QueuedJob {
 		if (!($sourceUserObject instanceof IUser) || !($targetUserObject instanceof IUser)) {
 			if (!($sourceUserObject instanceof IUser)) {
 				$this->logger->error('Could not import: Unknown source user ' . $sourceUser);
-			} else if (!($targetUserObject instanceof IUser)) {
+			} elseif (!($targetUserObject instanceof IUser)) {
 				$this->logger->error('Could not import: Unknown target user ' . $targetUser);
 			}
 			$this->failedNotication($import);

@@ -185,10 +185,10 @@ class Notifier implements INotifier {
 		$l = $this->l10nFactory->get(Application::APP_ID, $languageCode);
 		$param = $notification->getSubjectParameters();
 
-		$sourceUser = $this->getUser($param['sourceUser']);
+		$author = $this->getUser($param['author']);
 		$targetUser = $this->getUser($param['targetUser']);
 		$path = $param['path'];
-		$importFile = $this->getImportFile($sourceUser, $path);
+		$importFile = $this->getImportFile($author, $path);
 
 		$notification->setRichSubject($l->t('User import done'))
 			->setParsedSubject($l->t('User import done'))

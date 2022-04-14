@@ -48,13 +48,13 @@ class UserImportMapper extends QBMapper {
 		return $this->findEntity($qb);
 	}
 
-	public function getBySourceUser(string $userId): UserImport {
+	public function getByAuthor(string $userId): UserImport {
 		$qb = $this->db->getQueryBuilder();
 
 		$qb->select('*')
 			->from($this->getTableName())
 			->where(
-				$qb->expr()->eq('source_user', $qb->createNamedParameter($userId))
+				$qb->expr()->eq('author', $qb->createNamedParameter($userId))
 			);
 
 		return $this->findEntity($qb);

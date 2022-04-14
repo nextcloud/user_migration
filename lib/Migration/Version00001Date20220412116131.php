@@ -52,7 +52,7 @@ class Version00001Date20220412116131 extends SimpleMigrationStep {
 			'length' => 20,
 			'unsigned' => true,
 		]);
-		$table->addColumn('source_user', Types::STRING, [
+		$table->addColumn('author', Types::STRING, [
 			'notnull' => true,
 			'length' => 64,
 		]);

@@ -74,16 +74,16 @@ class UserImportJob extends QueuedJob {
 		$id = $argument['id'];
 
 		$import = $this->mapper->getById($id);
-		$sourceUser = $import->getSourceUser();
+		$author = $import->getAuthor();
 		$targetUser = $import->getTargetUser();
 		$path = $import->getPath();
 
-		$sourceUserObject = $this->userManager->get($sourceUser);
+		$authorObject = $this->userManager->get($author);
 		$targetUserObject = $this->userManager->get($targetUser);
 
-		if (!($sourceUserObject instanceof IUser) || !($targetUserObject instanceof IUser)) {
-			if (!($sourceUserObject instanceof IUser)) {
-				$this->logger->error('Could not import: Unknown source user ' . $sourceUser);
+		if (!($authorObject instanceof IUser) || !($targetUserObject instanceof IUser)) {
+			if (!($authorObject instanceof IUser)) {
+				$this->logger->error('Could not import: Unknown author ' . $author);
 			} elseif (!($targetUserObject instanceof IUser)) {
 				$this->logger->error('Could not import: Unknown target user ' . $targetUser);
 			}
@@ -95,7 +95,7 @@ class UserImportJob extends QueuedJob {
 		try {
 			$import->setStatus(UserImport::STATUS_STARTED);
 			$this->mapper->update($import);
-			$importSource = new UserFolderImportSource($this->root->getUserFolder($sourceUser), $path);
+			$importSource = new UserFolderImportSource($this->root->getUserFolder($author), $path);
 
 			$this->migrationService->import($importSource, $targetUserObject);
 			$this->successNotification($import);
@@ -110,11 +110,11 @@ class UserImportJob extends QueuedJob {
 	private function failedNotication(UserImport $import): void {
 		// Send notification to user
 		$notification = $this->notificationManager->createNotification();
-		$notification->setUser($import->getSourceUser())
+		$notification->setUser($import->getAuthor())
 			->setApp(Application::APP_ID)
 			->setDateTime($this->time->getDateTime())
 			->setSubject('importFailed', [
-				'sourceUser' => $import->getSourceUser(),
+				'author' => $import->getAuthor(),
 				'targetUser' => $import->getTargetUser(),
 				'path' => $import->getPath(),
 			])
@@ -125,11 +125,11 @@ class UserImportJob extends QueuedJob {
 	private function successNotification(UserImport $import): void {
 		// Send notification to user
 		$notification = $this->notificationManager->createNotification();
-		$notification->setUser($import->getSourceUser())
+		$notification->setUser($import->getAuthor())
 			->setApp(Application::APP_ID)
 			->setDateTime($this->time->getDateTime())
 			->setSubject('importDone', [
-				'sourceUser' => $import->getSourceUser(),
+				'author' => $import->getAuthor(),
 				'targetUser' => $import->getTargetUser(),
 				'path' => $import->getPath(),
 			])

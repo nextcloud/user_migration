@@ -125,7 +125,7 @@ class ApiController extends OCSController {
 		}
 
 		try {
-			$userImport = $this->importMapper->getBySourceUser($user->getUID());
+			$userImport = $this->importMapper->getByTargetUser($user->getUID());
 		} catch (DoesNotExistException $e) {
 			// Allow this exception as this just means the user has no import jobs queued currently
 		}
@@ -197,9 +197,9 @@ class ApiController extends OCSController {
 	 * @PasswordConfirmationRequired
 	 */
 	public function import(string $path, string $targetUserId): DataResponse {
-		$sourceUser = $this->userSession->getUser();
+		$author = $this->userSession->getUser();
 
-		if (empty($sourceUser)) {
+		if (empty($author)) {
 			throw new OCSException('No user currently logged in');
 		}
 
@@ -209,7 +209,7 @@ class ApiController extends OCSController {
 		}
 
 		// Importing into another user's account is not allowed for now
-		if ($sourceUser->getUID() !== $targetUser->getUID()) {
+		if ($author->getUID() !== $targetUser->getUID()) {
 			throw new OCSException('Users may only import into their own account');
 		}
 
@@ -220,16 +220,16 @@ class ApiController extends OCSController {
 		);
 
 		try {
-			$userImport = $this->importMapper->getBySourceUser($sourceUser->getUID());
+			$userImport = $this->importMapper->getByTargetUser($targetUser->getUID());
 			throw new OCSException('User import already queued');
 		} catch (DoesNotExistException $e) {
 			// Allow this exception to proceed with adding user import job
 		}
 
 		$userImport = new UserImport();
-		$userImport->setSourceUser($sourceUser->getUID());
+		$userImport->setAuthor($author->getUID());
 		$userImport->setTargetUser($targetUser->getUID());
-		// Path is relative to the source user folder
+		// Path is relative to the author folder
 		$userImport->setPath($path);
 		// All available migrators are added as migrator selection for import is not allowed for now
 		$userImport->setMigratorsArray($availableMigrators);

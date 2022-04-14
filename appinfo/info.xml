@@ -7,7 +7,7 @@
 	<description>
 		<![CDATA[This application allows migration of user data between Nextcloud servers]]>
 	</description>
-	<version>1.0.1-beta.2</version>
+	<version>1.1.0-dev</version>
 	<licence>agpl</licence>
 	<author>Côme Chilliet</author>
 	<author>Christopher Ng</author>
@@ -15,7 +15,7 @@
 	<category>tools</category>
 	<bugs>https://github.com/nextcloud/user_migration</bugs>
 	<dependencies>
-		<nextcloud min-version="24" max-version="24"/>
+		<nextcloud min-version="25" max-version="25"/>
 	</dependencies>
 
 	<commands>

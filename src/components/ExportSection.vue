@@ -38,7 +38,7 @@
 					</CheckboxRadioSwitch>
 					<em class="section__description">{{ t('user_migration', 'Basic user information including user ID and display name as well as your settings') }}</em>
 				</div>
-				<div v-for="({id, displayName, description}) in migrators"
+				<div v-for="({id, displayName, description}) in sortedMigrators"
 					:key="id"
 					class="section__checkbox">
 					<CheckboxRadioSwitch name="migrators"
@@ -156,6 +156,12 @@ export default {
 	},
 
 	computed: {
+		sortedMigrators() {
+			// TODO do this in better way if needed
+			const sortOrder = ['files', 'trashbin', 'account', 'calendar', 'contacts']
+			return [...this.migrators].sort((a, b) => sortOrder.indexOf(a.id) - sortOrder.indexOf(b.id))
+		},
+
 		modalMessage() {
 			if (this.status.status === 'waiting') {
 				return t('user_migration', 'Export queued')
@@ -167,7 +173,7 @@ export default {
 	},
 
 	watch: {
-		migrators: {
+		sortedMigrators: {
 			deep: true,
 			immediate: true,
 			handler(migrators, oldMigrators) {

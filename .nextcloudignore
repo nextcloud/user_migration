@@ -12,3 +12,11 @@
 /package.json
 /src/
 /tests
+/node_modules
+/phpunit.xml
+/phpunit.integration.xml
+/psalm.xml
+/stylelint.config.js
+/webpack.config.js
+/.php-cs-fixer.dist.php
+/.gitattributes

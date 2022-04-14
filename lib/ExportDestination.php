@@ -66,7 +66,7 @@ class ExportDestination implements IExportDestination {
 				throw new UserMigrationException();
 			}
 		} catch (\Throwable $e) {
-			throw new UserMigrationException("Failed to add content in $path", 0, $e);
+			throw new UserMigrationException("Failed to add content in $path in archive", 0, $e);
 		}
 	}
 
@@ -79,7 +79,7 @@ class ExportDestination implements IExportDestination {
 				throw new UserMigrationException();
 			}
 		} catch (\Throwable $e) {
-			throw new UserMigrationException("Failed to add content from stream in $path", 0, $e);
+			throw new UserMigrationException("Failed to add content from stream in $path in archive", 0, $e);
 		}
 	}
 
@@ -91,7 +91,7 @@ class ExportDestination implements IExportDestination {
 			'timestamp' => $folder->getMTime(),
 		]);
 		if (!$success) {
-			throw new UserMigrationException("Failed to create folder $destinationPath");
+			throw new UserMigrationException("Failed to create folder $destinationPath in archive");
 		}
 		$nodes = $folder->getDirectoryListing();
 		foreach ($nodes as $node) {
@@ -106,7 +106,7 @@ class ExportDestination implements IExportDestination {
 					'timestamp' => $node->getMTime(),
 				]);
 				if (!$success) {
-					throw new UserMigrationException("Failed to copy file into ".$destinationPath.'/'.$node->getName());
+					throw new UserMigrationException("Failed to copy file into ".$destinationPath.'/'.$node->getName()." in archive");
 				}
 			} elseif ($node instanceof Folder) {
 				$this->copyFolder($node, $destinationPath.'/'.$node->getName());

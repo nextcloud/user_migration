@@ -3,7 +3,7 @@
   -
   - @author Christopher Ng <chrng8@gmail.com>
   -
-  - @license GNU AGPL version 3 or any later version
+  - @license AGPL-3.0-or-later
   -
   - This program is free software: you can redistribute it and/or modify
   - it under the terms of the GNU Affero General Public License as
@@ -57,9 +57,9 @@ export default {
 		}
 	},
 
-	beforeMount() {
-		this.fetchMigrators()
-		this.fetchStatus()
+	async created() {
+		await this.fetchMigrators()
+		await this.fetchStatus()
 		setInterval(this.fetchStatus, STATUS_POLLING_INTERVAL * 1000)
 	},
 
@@ -86,8 +86,9 @@ export default {
 			}
 		},
 
-		onRefreshStatus() {
-			this.fetchStatus()
+		async onRefreshStatus(callback) {
+			await this.fetchStatus()
+			callback()
 		},
 	},
 }

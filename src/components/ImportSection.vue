@@ -3,7 +3,7 @@
   -
   - @author Christopher Ng <chrng8@gmail.com>
   -
-  - @license GNU AGPL version 3 or any later version
+  - @license AGPL-3.0-or-later
   -
   - This program is free software: you can redistribute it and/or modify
   - it under the terms of the GNU Affero General Public License as
@@ -30,16 +30,19 @@
 
 		<!-- TODO use server API -->
 
-		<Button v-if="status.current !== 'import'"
-			type="secondary"
-			:aria-label="t('user_migration', 'Import your data')"
-			:disabled="status.current === 'export'"
-			@click.stop.prevent="pickImportFile">
-			<template #icon>
-				<PackageUp title="" :size="20" />
-			</template>
-			{{ t('user_migration', 'Import') }}
-		</Button>
+		<div v-if="status.current !== 'import'"
+			class="section__status">
+			<Button type="secondary"
+				:aria-label="t('user_migration', 'Import your data')"
+				:disabled="status.current === 'export'"
+				@click.stop.prevent="pickImportFile">
+				<template #icon>
+					<PackageUp title="" :size="20" />
+				</template>
+				{{ t('user_migration', 'Import') }}
+			</Button>
+			<div v-if="startingImport" class="icon-loading" />
+		</div>
 		<div v-else class="section__status">
 			<Button type="secondary"
 				:aria-label="t('user_migration', 'Show import status')"
@@ -76,6 +79,7 @@
 </template>
 
 <script>
+import confirmPassword from '@nextcloud/password-confirmation'
 import { getFilePickerBuilder, showError } from '@nextcloud/dialogs'
 
 import Button from '@nextcloud/vue/dist/Components/Button'
@@ -114,6 +118,7 @@ export default {
 	data() {
 		return {
 			modalOpened: false,
+			startingImport: false,
 			filePickerError: null,
 		}
 	},
@@ -139,11 +144,17 @@ export default {
 				if (!filePath.startsWith('/')) {
 					throw new Error()
 				}
+
 				try {
+					await confirmPassword()
+					this.startingImport = true
 					// TODO call API to start background job
-					this.$emit('refresh-status')
-					this.openModal()
+					this.$emit('refresh-status', () => {
+						this.openModal()
+						this.startingImport = false
+					})
 				} catch (error) {
+					this.startingImport = false
 					const errorMessage = error.message || 'Unknown error'
 					this.logger.error(`Error starting user import: ${errorMessage}`, { error })
 					showError(errorMessage)

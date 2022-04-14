@@ -3,7 +3,7 @@
  *
  * @author Christopher Ng <chrng8@gmail.com>
  *
- * @license GNU AGPL version 3 or any later version
+ * @license AGPL-3.0-or-later
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -27,7 +27,9 @@ import '@nextcloud/dialogs/styles/toast.scss'
 import logger from './logger'
 import PersonalSettings from './views/Personal/Settings'
 
-Vue.mixin({ props: { logger }, methods: { t, n } })
+Vue.prototype.t = t
+Vue.prototype.n = n
+Vue.prototype.logger = logger
 
 export default new Vue({
 	el: '#personal-settings',

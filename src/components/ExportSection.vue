@@ -3,7 +3,7 @@
   -
   - @author Christopher Ng <chrng8@gmail.com>
   -
-  - @license GNU AGPL version 3 or any later version
+  - @license AGPL-3.0-or-later
   -
   - This program is free software: you can redistribute it and/or modify
   - it under the terms of the GNU Affero General Public License as
@@ -49,16 +49,19 @@
 			</div>
 		</div>
 
-		<Button v-if="status.current !== 'export'"
-			type="secondary"
-			:aria-label="t('user_migration', 'Export your data')"
-			:disabled="status.current === 'import'"
-			@click.stop.prevent="startExport">
-			<template #icon>
-				<PackageDown title="" :size="20" />
-			</template>
-			{{ t('user_migration', 'Export') }}
-		</Button>
+		<div v-if="status.current !== 'export'"
+			class="section__status">
+			<Button type="secondary"
+				:aria-label="t('user_migration', 'Export your data')"
+				:disabled="status.current === 'import'"
+				@click.stop.prevent="startExport">
+				<template #icon>
+					<PackageDown title="" :size="20" />
+				</template>
+				{{ t('user_migration', 'Export') }}
+			</Button>
+			<div v-if="startingExport" class="icon-loading" />
+		</div>
 		<div v-else class="section__status">
 			<Button type="secondary"
 				:aria-label="t('user_migration', 'Show export status')"
@@ -133,6 +136,7 @@ export default {
 	data() {
 		return {
 			modalOpened: false,
+			startingExport: false,
 			selectedMigrators: [],
 		}
 	},
@@ -157,12 +161,16 @@ export default {
 		async startExport() {
 			try {
 				await confirmPassword()
+				this.startingExport = true
 				await axios.post(generateOcsUrl('/apps/{appId}/api/v1/export', { appId: APP_ID }), {
 					migrators: this.selectedMigrators,
 				})
-				this.$emit('refresh-status')
-				this.openModal()
+				this.$emit('refresh-status', () => {
+					this.openModal()
+					this.startingExport = false
+				})
 			} catch (error) {
+				this.startingExport = false
 				const errorMessage = error.message || 'Unknown error'
 				this.logger.error(`Error starting user export: ${errorMessage}`, { error })
 				showError(errorMessage)

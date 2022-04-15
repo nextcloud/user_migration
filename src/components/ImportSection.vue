@@ -33,7 +33,7 @@
 				class="section__status">
 				<Button type="secondary"
 					:aria-label="t('user_migration', 'Import your data')"
-					:disabled="status.current === 'export'"
+					:disabled="status.current === 'export' || startingImport"
 					@click.stop.prevent="pickImportFile">
 					<template #icon>
 						<PackageUp title="" :size="20" />
@@ -188,8 +188,8 @@ export default {
 				}
 
 				try {
-					await confirmPassword()
 					this.startingImport = true
+					await confirmPassword()
 					await axios.post(generateOcsUrl('/apps/{appId}/api/v1/import', { appId: APP_ID }), {
 						path: filePath,
 						targetUserId: getCurrentUser().uid,

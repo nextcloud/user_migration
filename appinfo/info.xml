@@ -5,7 +5,7 @@
 	<name>User migration</name>
 	<summary>Migrate user data</summary>
 	<description>
-		<![CDATA[This application allows migration of user data between Nextcloud servers]]>
+		<![CDATA[This app allows migration of user data between Nextcloud servers]]>
 	</description>
 	<version>1.1.0-dev</version>
 	<licence>agpl</licence>

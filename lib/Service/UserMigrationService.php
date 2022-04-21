@@ -38,6 +38,11 @@ use OCP\UserMigration\IMigrator;
 use OCP\UserMigration\TMigratorBasicVersionHandling;
 use OCP\UserMigration\UserMigrationException;
 use OC\AppFramework\Bootstrap\Coordinator;
+use OCA\UserMigration\Db\UserExport;
+use OCA\UserMigration\Db\UserExportMapper;
+use OCA\UserMigration\Db\UserImport;
+use OCA\UserMigration\Db\UserImportMapper;
+use OCP\AppFramework\Db\DoesNotExistException;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -56,18 +61,26 @@ class UserMigrationService {
 	// Allow use of the private Coordinator class here to get and run registered migrators
 	protected Coordinator $coordinator;
 
+	protected UserExportMapper $exportMapper;
+
+	protected UserImportMapper $importMapper;
+
 	public function __construct(
 		IRootFolder $rootFolder,
 		IConfig $config,
 		IUserManager $userManager,
 		ContainerInterface $container,
-		Coordinator $coordinator
+		Coordinator $coordinator,
+		UserExportMapper $exportMapper,
+		UserImportMapper $importMapper
 	) {
 		$this->root = $rootFolder;
 		$this->config = $config;
 		$this->userManager = $userManager;
 		$this->container = $container;
 		$this->coordinator = $coordinator;
+		$this->exportMapper = $exportMapper;
+		$this->importMapper = $importMapper;
 
 		$this->mandatory = true;
 	}
@@ -274,6 +287,75 @@ class UserMigrationService {
 		}
 
 		return $migrators;
+	}
+
+	/**
+	 * @return null|UserExport|UserImport
+	 *
+	 * @throws UserMigrationException
+	 */
+	public function getCurrentJob(IUser $user) {
+		// TODO merge export and import entities?
+
+		try {
+			$exportJob = $this->exportMapper->getBySourceUser($user->getUID());
+		} catch (DoesNotExistException $e) {
+			// Allow this exception as this just means the user has no export jobs queued currently
+		}
+
+		try {
+			$importJob = $this->importMapper->getByTargetUser($user->getUID());
+		} catch (DoesNotExistException $e) {
+			// Allow this exception as this just means the user has no import jobs queued currently
+		}
+
+		if (!empty($exportJob) && !empty($importJob)) {
+			throw new UserMigrationException('A user export and import job cannot be queued or run at the same time');
+		}
+
+		$job = $exportJob ?? $importJob;
+
+		if (empty($job)) {
+			return null;
+		}
+
+		return $job;
+	}
+
+	/**
+	 * @return array{current: ?string, migrators?: string[], status?: string}
+	 *
+	 * @throws UserMigrationException
+	 */
+	public function getCurrentJobData(IUser $user): array {
+		$job = $this->getCurrentJob($user);
+
+		if (empty($job)) {
+			return ['current' => null];
+		}
+
+		switch (true) {
+			case $job instanceof UserExport:
+				$type = 'export';
+				break;
+			case $job instanceof UserImport:
+				$type = 'import';
+				break;
+			default:
+				throw new UserMigrationException('Class must be one of \OCA\UserMigration\Db\UserExport or \OCA\UserMigration\Db\UserImport');
+		}
+
+		$statusMap = [
+			// TODO merge export and import entities?
+			UserExport::STATUS_WAITING => 'waiting',
+			UserExport::STATUS_STARTED => 'started',
+		];
+
+		return [
+			'current' => $type,
+			'migrators' => $job->getMigratorsArray(),
+			'status' => $statusMap[$job->getStatus()],
+		];
 	}
 
 	/**

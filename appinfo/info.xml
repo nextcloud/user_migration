@@ -2,10 +2,10 @@
 <info xmlns:xsi= "http://www.w3.org/2001/XMLSchema-instance"
 	  xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
 	<id>user_migration</id>
-	<name>User Migration</name>
+	<name>User migration</name>
 	<summary>Migrate user data</summary>
 	<description>
-		<![CDATA[This application allows migration of user data between Nextcloud servers]]>
+		<![CDATA[This app allows migration of user data between Nextcloud servers]]>
 	</description>
 	<version>1.0.1-beta.2</version>
 	<licence>agpl</licence>

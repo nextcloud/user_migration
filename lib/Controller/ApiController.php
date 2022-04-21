@@ -34,7 +34,6 @@ use OCA\UserMigration\Db\UserExportMapper;
 use OCA\UserMigration\Db\UserImport;
 use OCA\UserMigration\Db\UserImportMapper;
 use OCA\UserMigration\Service\UserMigrationService;
-use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCS\OCSException;
@@ -44,6 +43,7 @@ use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\IUserSession;
 use OCP\UserMigration\IMigrator;
+use Throwable;
 
 class ApiController extends OCSController {
 	private IUserSession $userSession;
@@ -105,45 +105,57 @@ class ApiController extends OCSController {
 			throw new OCSException('No user currently logged in');
 		}
 
+		return new DataResponse(
+			$this->migrationService->getCurrentJobData($user),
+			Http::STATUS_OK,
+		);
+	}
+
+	/**
+	 * @NoAdminRequired
+	 * @NoSubAdminRequired
+	 * @PasswordConfirmationRequired
+	 */
+	public function cancel(): DataResponse {
+		$user = $this->userSession->getUser();
+
+		if (empty($user)) {
+			throw new OCSException('No user currently logged in');
+		}
+
+		$job = $this->migrationService->getCurrentJob($user);
+
+		if (empty($job)) {
+			throw new OCSException('No user migration to cancel');
+		}
+
 		try {
-			$userExport = $this->exportMapper->getBySourceUser($user->getUID());
-		} catch (DoesNotExistException $e) {
-			// Allow this exception as this just means the user has no export jobs queued currently
+			// TODO remove IJob class
+			// $this->jobList->remove($job, [
+				// 'id' => $job->getId(),
+			// ]);
+		} catch (Throwable $e) {
+			throw new OCSException('Error cancelling user migration');
 		}
 
-		$exportStatusMap = [
-			UserExport::STATUS_WAITING => 'waiting',
-			UserExport::STATUS_STARTED => 'started',
-		];
-
-		if (!empty($userExport)) {
-			return new DataResponse([
-				'current' => 'export',
-				'migrators' => $userExport->getMigratorsArray(),
-				'status' => $exportStatusMap[$userExport->getStatus()],
-			], Http::STATUS_OK);
+		switch (true) {
+			case $job instanceof UserExport:
+				try {
+					$this->exportMapper->delete($job);
+				} catch (Throwable $e) {
+					throw new OCSException('Error cancelling export');
+				}
+				return new DataResponse([], Http::STATUS_OK);
+			case $job instanceof UserImport:
+				try {
+					$this->importMapper->delete($job);
+				} catch (Throwable $e) {
+					throw new OCSException('Error cancelling import');
+				}
+				return new DataResponse([], Http::STATUS_OK);
+			default:
+				throw new OCSException('Error cancelling user migration');
 		}
-
-		try {
-			$userImport = $this->importMapper->getByTargetUser($user->getUID());
-		} catch (DoesNotExistException $e) {
-			// Allow this exception as this just means the user has no import jobs queued currently
-		}
-
-		$importStatusMap = [
-			UserImport::STATUS_WAITING => 'waiting',
-			UserImport::STATUS_STARTED => 'started',
-		];
-
-		if (!empty($userImport)) {
-			return new DataResponse([
-				'current' => 'import',
-				'migrators' => $userImport->getMigratorsArray(),
-				'status' => $importStatusMap[$userImport->getStatus()],
-			], Http::STATUS_OK);
-		}
-
-		return new DataResponse(['current' => null], Http::STATUS_OK);
 	}
 
 	/**
@@ -170,18 +182,9 @@ class ApiController extends OCSController {
 			}
 		}
 
-		try {
-			$userExport = $this->exportMapper->getBySourceUser($user->getUID());
-			throw new OCSException('User export already queued');
-		} catch (DoesNotExistException $e) {
-			// Allow this exception to proceed with adding user export job
-		}
-
-		try {
-			$userImport = $this->importMapper->getByTargetUser($user->getUID());
-			throw new OCSException('User import already queued');
-		} catch (DoesNotExistException $e) {
-			// Allow this exception to proceed with adding user import job
+		$job = $this->migrationService->getCurrentJob($user);
+		if (!empty($job)) {
+			throw new OCSException('User migration already queued');
 		}
 
 		$userExport = new UserExport();
@@ -226,18 +229,9 @@ class ApiController extends OCSController {
 			$this->migrationService->getMigrators(),
 		);
 
-		try {
-			$userImport = $this->importMapper->getByTargetUser($targetUser->getUID());
-			throw new OCSException('User import already queued');
-		} catch (DoesNotExistException $e) {
-			// Allow this exception to proceed with adding user import job
-		}
-
-		try {
-			$userExport = $this->exportMapper->getBySourceUser($targetUser->getUID());
-			throw new OCSException('User export already queued');
-		} catch (DoesNotExistException $e) {
-			// Allow this exception to proceed with adding user export job
+		$job = $this->migrationService->getCurrentJob($targetUser);
+		if (!empty($job)) {
+			throw new OCSException('User migration already queued');
 		}
 
 		$userImport = new UserImport();

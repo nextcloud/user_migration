@@ -28,6 +28,8 @@ declare(strict_types=1);
 namespace OCA\UserMigration\Service;
 
 use OC\AppFramework\Bootstrap\Coordinator;
+use OCA\UserMigration\BackgroundJob\UserExportJob;
+use OCA\UserMigration\BackgroundJob\UserImportJob;
 use OCA\UserMigration\Db\UserExport;
 use OCA\UserMigration\Db\UserExportMapper;
 use OCA\UserMigration\Db\UserImport;

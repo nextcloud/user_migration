@@ -129,6 +129,11 @@ class ApiController extends OCSController {
 			throw new OCSException('No user migration operation to cancel');
 		}
 
+		// TODO merge export and import entities?
+		if ($job->getStatus() === UserExport::STATUS_STARTED) {
+			throw new OCSException('Cannot cancel a user migration operation that is in progress');
+		}
+
 		try {
 			$this->migrationService->cancelJob($job);
 		} catch (UserMigrationException $e) {

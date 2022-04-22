@@ -36,7 +36,6 @@ use OCP\AppFramework\OCS\OCSException;
 use OCP\AppFramework\OCSController;
 use OCP\IRequest;
 use OCP\IUser;
-use OCP\IUserManager;
 use OCP\IUserSession;
 use OCP\UserMigration\IMigrator;
 use OCP\UserMigration\UserMigrationException;
@@ -44,19 +43,15 @@ use OCP\UserMigration\UserMigrationException;
 class ApiController extends OCSController {
 	private IUserSession $userSession;
 
-	private IUserManager $userManager;
-
 	private UserMigrationService $migrationService;
 
 	public function __construct(
 		IRequest $request,
 		IUserSession $userSession,
-		IUserManager $userManager,
 		UserMigrationService $migrationService
 	) {
 		parent::__construct(Application::APP_ID, $request);
 		$this->userSession = $userSession;
-		$this->userManager = $userManager;
 		$this->migrationService = $migrationService;
 	}
 
@@ -227,21 +222,13 @@ class ApiController extends OCSController {
 	 *
 	 * @throws OCSException
 	 */
-	public function import(string $path, string $targetUserId): DataResponse {
+	public function import(string $path): DataResponse {
 		$author = $this->userSession->getUser();
+		// Set target user to the author as importing into another user's account is not allowed for now
+		$targetUser = $author;
 
 		if (empty($author)) {
 			throw new OCSException('No user currently logged in');
-		}
-
-		$targetUser = $this->userManager->get($targetUserId);
-		if (empty($targetUser)) {
-			throw new OCSException('Target user does not exist');
-		}
-
-		// Importing into another user's account is not allowed for now
-		if ($author->getUID() !== $targetUser->getUID()) {
-			throw new OCSException('Users may only import into their own account');
 		}
 
 		try {

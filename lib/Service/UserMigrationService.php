@@ -381,15 +381,15 @@ class UserMigrationService {
 	}
 
 	/**
-	 * @return array{current: ?string, migrators?: string[], status?: string}
+	 * @return ?array{current: string, migrators: ?string[], status: string}
 	 *
 	 * @throws UserMigrationException
 	 */
-	public function getCurrentJobData(IUser $user): array {
+	public function getCurrentJobData(IUser $user): ?array {
 		$job = $this->getCurrentJob($user);
 
 		if (empty($job)) {
-			return ['current' => null];
+			return null;
 		}
 
 		switch (true) {

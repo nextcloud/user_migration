@@ -194,7 +194,6 @@ export default {
 						generateOcsUrl('/apps/{appId}/api/v{apiVersion}/import', { appId: APP_ID, apiVersion: API_VERSION }),
 						{
 							path: filePath,
-							targetUserId: getCurrentUser().uid,
 						},
 					)
 					this.$emit('refresh-status', () => {

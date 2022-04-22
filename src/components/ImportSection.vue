@@ -87,10 +87,6 @@
 </template>
 
 <script>
-import axios from '@nextcloud/axios'
-import confirmPassword from '@nextcloud/password-confirmation'
-import { generateOcsUrl } from '@nextcloud/router'
-import { getCurrentUser } from '@nextcloud/auth'
 // import { getFilePickerBuilder, showError } from '@nextcloud/dialogs'
 import { showError } from '@nextcloud/dialogs'
 
@@ -100,7 +96,7 @@ import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
 import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageUp from 'vue-material-design-icons/PackageUp'
 
-import { APP_ID, API_VERSION } from '../shared/constants'
+import { queueImport } from '../services/migrationService'
 
 /*
 const picker = getFilePickerBuilder(t('user_migration', 'Choose a file to import'))
@@ -189,13 +185,7 @@ export default {
 
 				try {
 					this.startingImport = true
-					await confirmPassword()
-					await axios.post(
-						generateOcsUrl('/apps/{appId}/api/v{apiVersion}/import', { appId: APP_ID, apiVersion: API_VERSION }),
-						{
-							path: filePath,
-						},
-					)
+					await queueImport(filePath)
 					this.$emit('refresh-status', () => {
 						this.openModal()
 						this.startingImport = false

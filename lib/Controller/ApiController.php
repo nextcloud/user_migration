@@ -88,7 +88,7 @@ class ApiController extends OCSController {
 		}
 
 		return new DataResponse(
-			$this->migrationService->getCurrentJobData($user),
+			$this->migrationService->getCurrentJobData($user) ?? ['current' => null],
 			Http::STATUS_OK,
 		);
 	}

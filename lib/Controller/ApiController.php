@@ -27,18 +27,12 @@ declare(strict_types=1);
 namespace OCA\UserMigration\Controller;
 
 use OCA\UserMigration\AppInfo\Application;
-use OCA\UserMigration\BackgroundJob\UserExportJob;
-use OCA\UserMigration\BackgroundJob\UserImportJob;
 use OCA\UserMigration\Db\UserExport;
-use OCA\UserMigration\Db\UserExportMapper;
-use OCA\UserMigration\Db\UserImport;
-use OCA\UserMigration\Db\UserImportMapper;
 use OCA\UserMigration\Service\UserMigrationService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCS\OCSException;
 use OCP\AppFramework\OCSController;
-use OCP\BackgroundJob\IJobList;
 use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\IUserSession;
@@ -52,28 +46,16 @@ class ApiController extends OCSController {
 
 	private UserMigrationService $migrationService;
 
-	private UserExportMapper $exportMapper;
-
-	private UserImportMapper $importMapper;
-
-	private IJobList $jobList;
-
 	public function __construct(
 		IRequest $request,
 		IUserSession $userSession,
 		IUserManager $userManager,
-		UserMigrationService $migrationService,
-		UserExportMapper $exportMapper,
-		UserImportMapper $importMapper,
-		IJobList $jobList
+		UserMigrationService $migrationService
 	) {
 		parent::__construct(Application::APP_ID, $request);
 		$this->userSession = $userSession;
 		$this->userManager = $userManager;
 		$this->migrationService = $migrationService;
-		$this->exportMapper = $exportMapper;
-		$this->importMapper = $importMapper;
-		$this->jobList = $jobList;
 	}
 
 	/**
@@ -172,16 +154,11 @@ class ApiController extends OCSController {
 			throw new OCSException('User migration operation already queued');
 		}
 
-		$userExport = new UserExport();
-		$userExport->setSourceUser($user->getUID());
-		$userExport->setMigratorsArray($migrators);
-		$userExport->setStatus(UserExport::STATUS_WAITING);
-		/** @var UserExport $userExport */
-		$userExport = $this->exportMapper->insert($userExport);
-
-		$this->jobList->add(UserExportJob::class, [
-			'id' => $userExport->getId(),
-		]);
+		try {
+			$this->migrationService->queueExport($user, $migrators);
+		} catch (UserMigrationException $e) {
+			throw new OCSException('Error queueing export');
+		}
 
 		return new DataResponse([], Http::STATUS_OK);
 	}
@@ -208,31 +185,16 @@ class ApiController extends OCSController {
 			throw new OCSException('Users may only import into their own account');
 		}
 
-		/** @var string[] $availableMigrators */
-		$availableMigrators = array_map(
-			fn (IMigrator $migrator) => $migrator->getId(),
-			$this->migrationService->getMigrators(),
-		);
-
 		$job = $this->migrationService->getCurrentJob($targetUser);
 		if (!empty($job)) {
 			throw new OCSException('User migration operation already queued');
 		}
 
-		$userImport = new UserImport();
-		$userImport->setAuthor($author->getUID());
-		$userImport->setTargetUser($targetUser->getUID());
-		// Path is relative to the author folder
-		$userImport->setPath($path);
-		// All available migrators are added as migrator selection for import is not allowed for now
-		$userImport->setMigratorsArray($availableMigrators);
-		$userImport->setStatus(UserImport::STATUS_WAITING);
-		/** @var UserImport $userImport */
-		$userImport = $this->importMapper->insert($userImport);
-
-		$this->jobList->add(UserImportJob::class, [
-			'id' => $userImport->getId(),
-		]);
+		try {
+			$this->migrationService->queueImport($author, $targetUser, $path);
+		} catch (UserMigrationException $e) {
+			throw new OCSException('Error queueing import');
+		}
 
 		return new DataResponse([], Http::STATUS_OK);
 	}

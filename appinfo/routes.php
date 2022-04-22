@@ -25,15 +25,15 @@ declare(strict_types=1);
  */
 
 $requirements = [
-	'apiVersion' => 'v(1)',
+	'apiVersion' => '1',
 ];
 
 return [
 	'ocs' => [
-		['name' => 'Api#migrators', 'url' => '/api/{apiVersion}/migrators', 'verb' => 'GET', 'requirements' => $requirements],
-		['name' => 'Api#status', 'url' => '/api/{apiVersion}/status', 'verb' => 'GET', 'requirements' => $requirements],
-		['name' => 'Api#cancel', 'url' => '/api/{apiVersion}/cancel', 'verb' => 'PUT', 'requirements' => $requirements],
-		['name' => 'Api#export', 'url' => '/api/{apiVersion}/export', 'verb' => 'POST', 'requirements' => $requirements],
-		['name' => 'Api#import', 'url' => '/api/{apiVersion}/import', 'verb' => 'POST', 'requirements' => $requirements],
+		['name' => 'Api#migrators', 'url' => '/api/v{apiVersion}/migrators', 'verb' => 'GET', 'requirements' => $requirements],
+		['name' => 'Api#status', 'url' => '/api/v{apiVersion}/status', 'verb' => 'GET', 'requirements' => $requirements],
+		['name' => 'Api#cancel', 'url' => '/api/v{apiVersion}/cancel', 'verb' => 'PUT', 'requirements' => $requirements],
+		['name' => 'Api#export', 'url' => '/api/v{apiVersion}/export', 'verb' => 'POST', 'requirements' => $requirements],
+		['name' => 'Api#import', 'url' => '/api/v{apiVersion}/import', 'verb' => 'POST', 'requirements' => $requirements],
 	],
 ];

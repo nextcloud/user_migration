@@ -37,7 +37,7 @@ import axios from '@nextcloud/axios'
 import { generateOcsUrl } from '@nextcloud/router'
 import { showError } from '@nextcloud/dialogs'
 
-import { APP_ID } from '../../shared/constants'
+import { APP_ID, API_VERSION } from '../../shared/constants'
 import ExportSection from '../../components/ExportSection'
 import ImportSection from '../../components/ImportSection'
 
@@ -70,8 +70,10 @@ export default {
 	methods: {
 		async fetchMigrators() {
 			try {
-				const response = await axios.get(generateOcsUrl('/apps/{appId}/api/v1/migrators', { appId: APP_ID }))
-				this.migrators = response?.data?.ocs?.data
+				const response = await axios.get(
+					generateOcsUrl('/apps/{appId}/api/v{apiVersion}/migrators', { appId: APP_ID, apiVersion: API_VERSION })
+				)
+				this.migrators = response.data.ocs?.data
 			} catch (error) {
 				const errorMessage = error.message || 'Unknown error'
 				this.logger.error(`Error getting available migrators: ${errorMessage}`, { error })
@@ -81,8 +83,10 @@ export default {
 
 		async fetchStatus() {
 			try {
-				const response = await axios.get(generateOcsUrl('/apps/{appId}/api/v1/status', { appId: APP_ID }))
-				this.status = response?.data?.ocs?.data
+				const response = await axios.get(
+					generateOcsUrl('/apps/{appId}/api/v{apiVersion}/status', { appId: APP_ID, apiVersion: API_VERSION })
+				)
+				this.status = response.data.ocs?.data
 			} catch (error) {
 				const errorMessage = error.message || 'Unknown error'
 				this.logger.error(`Error polling server for export and import status: ${errorMessage}`, { error })

@@ -43,7 +43,7 @@ use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\IUserSession;
 use OCP\UserMigration\IMigrator;
-use Throwable;
+use OCP\UserMigration\UserMigrationException;
 
 class ApiController extends OCSController {
 	private IUserSession $userSession;
@@ -126,36 +126,16 @@ class ApiController extends OCSController {
 		$job = $this->migrationService->getCurrentJob($user);
 
 		if (empty($job)) {
-			throw new OCSException('No user migration to cancel');
+			throw new OCSException('No user migration operation to cancel');
 		}
 
 		try {
-			// TODO remove IJob class
-			// $this->jobList->remove($job, [
-				// 'id' => $job->getId(),
-			// ]);
-		} catch (Throwable $e) {
-			throw new OCSException('Error cancelling user migration');
+			$this->migrationService->cancelJob($job);
+		} catch (UserMigrationException $e) {
+			throw new OCSException('Error cancelling user migration operation');
 		}
 
-		switch (true) {
-			case $job instanceof UserExport:
-				try {
-					$this->exportMapper->delete($job);
-				} catch (Throwable $e) {
-					throw new OCSException('Error cancelling export');
-				}
-				return new DataResponse([], Http::STATUS_OK);
-			case $job instanceof UserImport:
-				try {
-					$this->importMapper->delete($job);
-				} catch (Throwable $e) {
-					throw new OCSException('Error cancelling import');
-				}
-				return new DataResponse([], Http::STATUS_OK);
-			default:
-				throw new OCSException('Error cancelling user migration');
-		}
+		return new DataResponse([], Http::STATUS_OK);
 	}
 
 	/**
@@ -184,7 +164,7 @@ class ApiController extends OCSController {
 
 		$job = $this->migrationService->getCurrentJob($user);
 		if (!empty($job)) {
-			throw new OCSException('User migration already queued');
+			throw new OCSException('User migration operation already queued');
 		}
 
 		$userExport = new UserExport();
@@ -231,7 +211,7 @@ class ApiController extends OCSController {
 
 		$job = $this->migrationService->getCurrentJob($targetUser);
 		if (!empty($job)) {
-			throw new OCSException('User migration already queued');
+			throw new OCSException('User migration operation already queued');
 		}
 
 		$userImport = new UserImport();

@@ -46,6 +46,7 @@ use OCP\AppFramework\Db\DoesNotExistException;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Throwable;
 
 class UserMigrationService {
 	use TMigratorBasicVersionHandling;
@@ -125,7 +126,7 @@ class UserMigrationService {
 		}
 		try {
 			$exportDestination->setMigratorVersions($migratorVersions);
-		} catch (\Throwable $e) {
+		} catch (Throwable $e) {
 			throw new UserMigrationException("Could not export user information.", 0, $e);
 		}
 
@@ -182,7 +183,7 @@ class UserMigrationService {
 
 		try {
 			$exportDestination->addFileContents(IImportSource::PATH_USER, json_encode($userinfo));
-		} catch (\Throwable $e) {
+		} catch (Throwable $e) {
 			throw new UserMigrationException("Could not export user information.", 0, $e);
 		}
 	}
@@ -229,7 +230,7 @@ class UserMigrationService {
 
 		try {
 			$exportDestination->addFileContents("versions.json", json_encode($versions));
-		} catch (\Throwable $e) {
+		} catch (Throwable $e) {
 			throw new UserMigrationException("Could not export versions.", 0, $e);
 		}
 	}
@@ -246,7 +247,7 @@ class UserMigrationService {
 
 		try {
 			$exportDestination->addFileContents("settings.json", json_encode($data));
-		} catch (\Throwable $e) {
+		} catch (Throwable $e) {
 			throw new UserMigrationException("Could not export settings.", 0, $e);
 		}
 	}
@@ -356,6 +357,36 @@ class UserMigrationService {
 			'migrators' => $job->getMigratorsArray(),
 			'status' => $statusMap[$job->getStatus()],
 		];
+	}
+
+	/**
+	 * @param UserExport|UserImport $job
+	 *
+	 * @throws UserMigrationException
+	 */
+	public function cancelJob($job): void {
+		switch (true) {
+			case $job instanceof UserExport:
+				try {
+					$this->jobList->remove(UserExportJob::class, [
+						'id' => $job->getId(),
+					]);
+					$this->exportMapper->delete($job);
+				} catch (Throwable $e) {
+					throw new UserMigrationException('Error cancelling export job', 0, $e);
+				}
+			case $job instanceof UserImport:
+				try {
+					$this->jobList->remove(UserImportJob::class, [
+						'id' => $job->getId(),
+					]);
+					$this->importMapper->delete($job);
+				} catch (Throwable $e) {
+					throw new UserMigrationException('Error cancelling import job', 0, $e);
+				}
+			default:
+				throw new UserMigrationException('Error cancelling user migration job');
+		}
 	}
 
 	/**

@@ -106,9 +106,6 @@
 </template>
 
 <script>
-import axios from '@nextcloud/axios'
-import confirmPassword from '@nextcloud/password-confirmation'
-import { generateOcsUrl } from '@nextcloud/router'
 import { showError } from '@nextcloud/dialogs'
 
 import Button from '@nextcloud/vue/dist/Components/Button'
@@ -118,7 +115,7 @@ import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
 import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageDown from 'vue-material-design-icons/PackageDown'
 
-import { APP_ID, API_VERSION } from '../shared/constants.js'
+import { queueExport } from '../services/migrationService.js'
 
 export default {
 	name: 'ExportSection',
@@ -186,13 +183,7 @@ export default {
 		async startExport() {
 			try {
 				this.startingExport = true
-				await confirmPassword()
-				await axios.post(
-					generateOcsUrl('/apps/{appId}/api/v{apiVersion}/export', { appId: APP_ID, apiVersion: API_VERSION }),
-					{
-						migrators: this.selectedMigrators,
-					},
-				)
+				await queueExport(this.selectedMigrators)
 				this.$emit('refresh-status', () => {
 					this.openModal()
 					this.startingExport = false

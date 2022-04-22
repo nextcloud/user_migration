@@ -21,3 +21,4 @@
  */
 
 export const APP_ID = 'user_migration'
+export const API_VERSION = '1'

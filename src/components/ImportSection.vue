@@ -100,7 +100,7 @@ import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
 import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageUp from 'vue-material-design-icons/PackageUp'
 
-import { APP_ID } from '../shared/constants.js'
+import { APP_ID, API_VERSION } from '../shared/constants.js'
 
 /*
 const picker = getFilePickerBuilder(t('user_migration', 'Choose a file to import'))
@@ -190,10 +190,13 @@ export default {
 				try {
 					this.startingImport = true
 					await confirmPassword()
-					await axios.post(generateOcsUrl('/apps/{appId}/api/v1/import', { appId: APP_ID }), {
-						path: filePath,
-						targetUserId: getCurrentUser().uid,
-					})
+					await axios.post(
+						generateOcsUrl('/apps/{appId}/api/v{apiVersion}/import', { appId: APP_ID, apiVersion: API_VERSION }),
+						{
+							path: filePath,
+							targetUserId: getCurrentUser().uid,
+						},
+					)
 					this.$emit('refresh-status', () => {
 						this.openModal()
 						this.startingImport = false

@@ -27,6 +27,13 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration\Service;
 
+use OC\AppFramework\Bootstrap\Coordinator;
+use OCA\UserMigration\Db\UserExport;
+use OCA\UserMigration\Db\UserExportMapper;
+use OCA\UserMigration\Db\UserImport;
+use OCA\UserMigration\Db\UserImportMapper;
+use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\BackgroundJob\IJobList;
 use OCP\Files\IRootFolder;
 use OCP\IConfig;
 use OCP\IUser;
@@ -37,12 +44,6 @@ use OCP\UserMigration\IImportSource;
 use OCP\UserMigration\IMigrator;
 use OCP\UserMigration\TMigratorBasicVersionHandling;
 use OCP\UserMigration\UserMigrationException;
-use OC\AppFramework\Bootstrap\Coordinator;
-use OCA\UserMigration\Db\UserExport;
-use OCA\UserMigration\Db\UserExportMapper;
-use OCA\UserMigration\Db\UserImport;
-use OCA\UserMigration\Db\UserImportMapper;
-use OCP\AppFramework\Db\DoesNotExistException;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -66,6 +67,8 @@ class UserMigrationService {
 
 	protected UserImportMapper $importMapper;
 
+	protected IJobList $jobList;
+
 	public function __construct(
 		IRootFolder $rootFolder,
 		IConfig $config,
@@ -73,7 +76,8 @@ class UserMigrationService {
 		ContainerInterface $container,
 		Coordinator $coordinator,
 		UserExportMapper $exportMapper,
-		UserImportMapper $importMapper
+		UserImportMapper $importMapper,
+		IJobList $jobList
 	) {
 		$this->root = $rootFolder;
 		$this->config = $config;
@@ -82,6 +86,7 @@ class UserMigrationService {
 		$this->coordinator = $coordinator;
 		$this->exportMapper = $exportMapper;
 		$this->importMapper = $importMapper;
+		$this->jobList = $jobList;
 
 		$this->mandatory = true;
 	}
@@ -265,6 +270,56 @@ class UserMigrationService {
 			foreach ($values as $key => $value) {
 				$this->config->setUserValue($user->getUID(), $app, $key, $value);
 			}
+		}
+	}
+
+	/**
+	 * @throws UserMigrationException
+	 */
+	public function queueExport(IUser $user, array $migrators): void {
+		try {
+			$userExport = new UserExport();
+			$userExport->setSourceUser($user->getUID());
+			$userExport->setMigratorsArray($migrators);
+			$userExport->setStatus(UserExport::STATUS_WAITING);
+			/** @var UserExport $userExport */
+			$userExport = $this->exportMapper->insert($userExport);
+
+			$this->jobList->add(UserExportJob::class, [
+				'id' => $userExport->getId(),
+			]);
+		} catch (Throwable $e) {
+			throw new UserMigrationException('Error queueing export job', 0, $e);
+		}
+	}
+
+	/**
+	 * @throws UserMigrationException
+	 */
+	public function queueImport(IUser $author, IUser $targetUser, string $path): void {
+		/** @var string[] $availableMigrators */
+		$availableMigrators = array_map(
+			fn (IMigrator $migrator) => $migrator->getId(),
+			$this->getMigrators(),
+		);
+
+		try {
+			$userImport = new UserImport();
+			$userImport->setAuthor($author->getUID());
+			$userImport->setTargetUser($targetUser->getUID());
+			// Path is relative to the author folder
+			$userImport->setPath($path);
+			// All available migrators are added as migrator selection for import is not allowed for now
+			$userImport->setMigratorsArray($availableMigrators);
+			$userImport->setStatus(UserImport::STATUS_WAITING);
+			/** @var UserImport $userImport */
+			$userImport = $this->importMapper->insert($userImport);
+
+			$this->jobList->add(UserImportJob::class, [
+				'id' => $userImport->getId(),
+			]);
+		} catch (Throwable $e) {
+			throw new UserMigrationException('Error queueing import job', 0, $e);
 		}
 	}
 

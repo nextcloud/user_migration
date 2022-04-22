@@ -118,7 +118,7 @@ import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
 import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageDown from 'vue-material-design-icons/PackageDown'
 
-import { APP_ID } from '../shared/constants'
+import { APP_ID, API_VERSION } from '../shared/constants.js'
 
 export default {
 	name: 'ExportSection',
@@ -187,9 +187,12 @@ export default {
 			try {
 				this.startingExport = true
 				await confirmPassword()
-				await axios.post(generateOcsUrl('/apps/{appId}/api/v1/export', { appId: APP_ID }), {
-					migrators: this.selectedMigrators,
-				})
+				await axios.post(
+					generateOcsUrl('/apps/{appId}/api/v{apiVersion}/export', { appId: APP_ID, apiVersion: API_VERSION }),
+					{
+						migrators: this.selectedMigrators,
+					},
+				)
 				this.$emit('refresh-status', () => {
 					this.openModal()
 					this.startingExport = false

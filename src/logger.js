@@ -20,8 +20,9 @@
  *
  */
 
-import { APP_ID } from './shared/constants'
 import { getLoggerBuilder } from '@nextcloud/logger'
+
+import { APP_ID } from './shared/constants.js'
 
 export default getLoggerBuilder()
 	.setApp(APP_ID)

@@ -118,7 +118,7 @@ import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
 import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageDown from 'vue-material-design-icons/PackageDown'
 
-import { APP_ID } from '../shared/constants'
+import { APP_ID } from '../shared/constants.js'
 
 export default {
 	name: 'ExportSection',

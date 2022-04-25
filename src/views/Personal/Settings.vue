@@ -37,9 +37,10 @@ import axios from '@nextcloud/axios'
 import { generateOcsUrl } from '@nextcloud/router'
 import { showError } from '@nextcloud/dialogs'
 
-import { APP_ID } from '../../shared/constants'
-import ExportSection from '../../components/ExportSection'
-import ImportSection from '../../components/ImportSection'
+import { APP_ID } from '../../shared/constants.js'
+
+import ExportSection from '../../components/ExportSection.vue'
+import ImportSection from '../../components/ImportSection.vue'
 
 // Polling interval in seconds
 const STATUS_POLLING_INTERVAL = 30

@@ -100,7 +100,7 @@ import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
 import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageUp from 'vue-material-design-icons/PackageUp'
 
-import { APP_ID } from '../shared/constants'
+import { APP_ID } from '../shared/constants.js'
 
 /*
 const picker = getFilePickerBuilder(t('user_migration', 'Choose a file to import'))

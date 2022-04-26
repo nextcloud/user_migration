@@ -28,12 +28,14 @@ namespace OCA\UserMigration\Controller;
 
 use OCA\UserMigration\AppInfo\Application;
 use OCA\UserMigration\Db\UserExport;
+use OCA\UserMigration\Db\UserImport;
 use OCA\UserMigration\Service\UserMigrationService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCS\OCSException;
 use OCP\AppFramework\OCSController;
 use OCP\IRequest;
+use OCP\IUser;
 use OCP\IUserManager;
 use OCP\IUserSession;
 use OCP\UserMigration\IMigrator;
@@ -77,6 +79,42 @@ class ApiController extends OCSController {
 	}
 
 	/**
+	 * @return ?array{current: string, migrators: ?string[], status: string}
+	 *
+	 * @throws OCSException
+	 */
+	private function getCurrentJobData(IUser $user): ?array {
+		$job = $this->migrationService->getCurrentJob($user);
+
+		if (empty($job)) {
+			return null;
+		}
+
+		switch (true) {
+			case $job instanceof UserExport:
+				$type = 'export';
+				break;
+			case $job instanceof UserImport:
+				$type = 'import';
+				break;
+			default:
+				throw new OCSException('Error getting current user migration operation');
+		}
+
+		$statusMap = [
+			// TODO merge export and import entities?
+			UserExport::STATUS_WAITING => 'waiting',
+			UserExport::STATUS_STARTED => 'started',
+		];
+
+		return [
+			'current' => $type,
+			'migrators' => $job->getMigratorsArray(),
+			'status' => $statusMap[$job->getStatus()],
+		];
+	}
+
+	/**
 	 * @NoAdminRequired
 	 * @NoSubAdminRequired
 	 */
@@ -88,7 +126,7 @@ class ApiController extends OCSController {
 		}
 
 		return new DataResponse(
-			$this->migrationService->getCurrentJobData($user) ?? ['current' => null],
+			$this->getCurrentJobData($user) ?? ['current' => null],
 			Http::STATUS_OK,
 		);
 	}

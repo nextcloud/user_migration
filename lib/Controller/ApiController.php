@@ -117,6 +117,8 @@ class ApiController extends OCSController {
 	/**
 	 * @NoAdminRequired
 	 * @NoSubAdminRequired
+	 *
+	 * @throws OCSException
 	 */
 	public function status(): DataResponse {
 		$user = $this->userSession->getUser();
@@ -135,6 +137,8 @@ class ApiController extends OCSController {
 	 * @NoAdminRequired
 	 * @NoSubAdminRequired
 	 * @PasswordConfirmationRequired
+	 *
+	 * @throws OCSException
 	 */
 	public function cancel(): DataResponse {
 		$user = $this->userSession->getUser();
@@ -167,6 +171,8 @@ class ApiController extends OCSController {
 	 * @NoAdminRequired
 	 * @NoSubAdminRequired
 	 * @PasswordConfirmationRequired
+	 *
+	 * @throws OCSException
 	 */
 	public function export(array $migrators): DataResponse {
 		$user = $this->userSession->getUser();
@@ -205,6 +211,8 @@ class ApiController extends OCSController {
 	 * @NoAdminRequired
 	 * @NoSubAdminRequired
 	 * @PasswordConfirmationRequired
+	 *
+	 * @throws OCSException
 	 */
 	public function import(string $path, string $targetUserId): DataResponse {
 		$author = $this->userSession->getUser();

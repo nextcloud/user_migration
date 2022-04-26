@@ -278,7 +278,7 @@ class UserMigrationService {
 	/**
 	 * @throws UserMigrationException
 	 */
-	public function queueExport(IUser $user, array $migrators): void {
+	public function queueExportJob(IUser $user, array $migrators): void {
 		try {
 			$userExport = new UserExport();
 			$userExport->setSourceUser($user->getUID());
@@ -298,7 +298,7 @@ class UserMigrationService {
 	/**
 	 * @throws UserMigrationException
 	 */
-	public function queueImport(IUser $author, IUser $targetUser, string $path): void {
+	public function queueImportJob(IUser $author, IUser $targetUser, string $path): void {
 		/** @var string[] $availableMigrators */
 		$availableMigrators = array_map(
 			fn (IMigrator $migrator) => $migrator->getId(),

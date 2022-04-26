@@ -155,7 +155,7 @@ class ApiController extends OCSController {
 		}
 
 		try {
-			$this->migrationService->queueExport($user, $migrators);
+			$this->migrationService->queueExportJob($user, $migrators);
 		} catch (UserMigrationException $e) {
 			throw new OCSException('Error queueing export');
 		}
@@ -191,7 +191,7 @@ class ApiController extends OCSController {
 		}
 
 		try {
-			$this->migrationService->queueImport($author, $targetUser, $path);
+			$this->migrationService->queueImportJob($author, $targetUser, $path);
 		} catch (UserMigrationException $e) {
 			throw new OCSException('Error queueing import');
 		}

@@ -84,7 +84,11 @@ class ApiController extends OCSController {
 	 * @throws OCSException
 	 */
 	private function getCurrentJobData(IUser $user): ?array {
-		$job = $this->migrationService->getCurrentJob($user);
+		try {
+			$job = $this->migrationService->getCurrentJob($user);
+		} catch (UserMigrationException $e) {
+			throw new OCSException('Error getting current user migration operation');
+		}
 
 		if (empty($job)) {
 			return null;
@@ -147,7 +151,11 @@ class ApiController extends OCSController {
 			throw new OCSException('No user currently logged in');
 		}
 
-		$job = $this->migrationService->getCurrentJob($user);
+		try {
+			$job = $this->migrationService->getCurrentJob($user);
+		} catch (UserMigrationException $e) {
+			throw new OCSException('Error getting current user migration operation');
+		}
 
 		if (empty($job)) {
 			throw new OCSException('No user migration operation to cancel');
@@ -193,7 +201,12 @@ class ApiController extends OCSController {
 			}
 		}
 
-		$job = $this->migrationService->getCurrentJob($user);
+		try {
+			$job = $this->migrationService->getCurrentJob($user);
+		} catch (UserMigrationException $e) {
+			throw new OCSException('Error getting current user migration operation');
+		}
+
 		if (!empty($job)) {
 			throw new OCSException('User migration operation already queued');
 		}
@@ -231,7 +244,12 @@ class ApiController extends OCSController {
 			throw new OCSException('Users may only import into their own account');
 		}
 
-		$job = $this->migrationService->getCurrentJob($targetUser);
+		try {
+			$job = $this->migrationService->getCurrentJob($targetUser);
+		} catch (UserMigrationException $e) {
+			throw new OCSException('Error getting current user migration operation');
+		}
+
 		if (!empty($job)) {
 			throw new OCSException('User migration operation already queued');
 		}

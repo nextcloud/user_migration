@@ -71,6 +71,11 @@ class UserMigrationService {
 
 	protected IJobList $jobList;
 
+	protected const ENTITY_JOB_MAP = [
+		UserExport::class => UserExportJob::class,
+		UserImport::class => UserImportJob::class,
+	];
+
 	public function __construct(
 		IRootFolder $rootFolder,
 		IConfig $config,
@@ -276,6 +281,30 @@ class UserMigrationService {
 	}
 
 	/**
+	 * @param UserExport|UserImport $job
+	 *
+	 * @throws UserMigrationException
+	 */
+	protected function deleteMapperJob($job): void {
+		switch (true) {
+			case $job instanceof UserExport:
+				try {
+					$this->exportMapper->delete($job);
+				} catch (Throwable $e) {
+					throw new UserMigrationException('Error deleting export job', 0, $e);
+				}
+			case $job instanceof UserImport:
+				try {
+					$this->importMapper->delete($job);
+				} catch (Throwable $e) {
+					throw new UserMigrationException('Error deleting import job', 0, $e);
+				}
+			default:
+				throw new UserMigrationException('Error deleting user migration job');
+		}
+	}
+
+	/**
 	 * @throws UserMigrationException
 	 */
 	public function queueExportJob(IUser $user, array $migrators): void {
@@ -377,6 +406,11 @@ class UserMigrationService {
 			return null;
 		}
 
+		if (!$this->jobList->has(static::ENTITY_JOB_MAP[get_class($job)], ['id' => $job->getId()])) {
+			$this->deleteMapperJob($job);
+			throw new UserMigrationException('Expected "' . get_class($job) . '" job with id argument "' . $job->getId() . '" in `oc_jobs` database table');
+		}
+
 		return $job;
 	}
 
@@ -386,6 +420,11 @@ class UserMigrationService {
 	 * @throws UserMigrationException
 	 */
 	public function cancelJob($job): void {
+		if (!$this->jobList->has(static::ENTITY_JOB_MAP[get_class($job)], ['id' => $job->getId()])) {
+			$this->deleteMapperJob($job);
+			throw new UserMigrationException('Expected "' . get_class($job) . '" job with id argument "' . $job->getId() . '" in `oc_jobs` database table');
+		}
+
 		switch (true) {
 			case $job instanceof UserExport:
 				try {

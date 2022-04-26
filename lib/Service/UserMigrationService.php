@@ -381,42 +381,6 @@ class UserMigrationService {
 	}
 
 	/**
-	 * @return ?array{current: string, migrators: ?string[], status: string}
-	 *
-	 * @throws UserMigrationException
-	 */
-	public function getCurrentJobData(IUser $user): ?array {
-		$job = $this->getCurrentJob($user);
-
-		if (empty($job)) {
-			return null;
-		}
-
-		switch (true) {
-			case $job instanceof UserExport:
-				$type = 'export';
-				break;
-			case $job instanceof UserImport:
-				$type = 'import';
-				break;
-			default:
-				throw new UserMigrationException('Class must be one of \OCA\UserMigration\Db\UserExport or \OCA\UserMigration\Db\UserImport');
-		}
-
-		$statusMap = [
-			// TODO merge export and import entities?
-			UserExport::STATUS_WAITING => 'waiting',
-			UserExport::STATUS_STARTED => 'started',
-		];
-
-		return [
-			'current' => $type,
-			'migrators' => $job->getMigratorsArray(),
-			'status' => $statusMap[$job->getStatus()],
-		];
-	}
-
-	/**
 	 * @param UserExport|UserImport $job
 	 *
 	 * @throws UserMigrationException

@@ -60,7 +60,7 @@ export const cancelJob = async () => {
 }
 
 /**
- * @param {string[]} migrators
+ * @param {string[]} migrators Array of migrators
  *
  * @return {object}
  */
@@ -77,7 +77,7 @@ export const queueExportJob = async (migrators) => {
 }
 
 /**
- * @param {string} path
+ * @param {string} path Path to file
  *
  * @return {object}
  */

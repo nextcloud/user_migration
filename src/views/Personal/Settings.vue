@@ -62,17 +62,17 @@ export default {
 		}
 	},
 
+	computed: {
+		notificationsEnabled() {
+			return Boolean(getCapabilities()?.notifications)
+		},
+	},
+
 	async created() {
 		await this.fetchMigrators()
 		await this.fetchStatus()
 		this.loading = false
 		setInterval(this.fetchStatus, STATUS_POLLING_INTERVAL * 1000)
-	},
-
-	computed: {
-		notificationsEnabled() {
-			return Boolean(getCapabilities()?.notifications)
-		},
 	},
 
 	methods: {

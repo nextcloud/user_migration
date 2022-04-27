@@ -64,7 +64,7 @@ export const cancelJob = async () => {
  *
  * @return {object}
  */
- export const queueExport = async (migrators) => {
+ export const queueExportJob = async (migrators) => {
 	const url = generateOcsUrl('/apps/{appId}/api/v{apiVersion}/export', { appId: APP_ID, apiVersion: API_VERSION })
 
 	await confirmPassword()
@@ -81,7 +81,7 @@ export const cancelJob = async () => {
  *
  * @return {object}
  */
- export const queueImport = async (path) => {
+ export const queueImportJob = async (path) => {
 	const url = generateOcsUrl('/apps/{appId}/api/v{apiVersion}/import', { appId: APP_ID, apiVersion: API_VERSION })
 
 	await confirmPassword()

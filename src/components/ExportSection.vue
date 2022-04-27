@@ -118,7 +118,7 @@ import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
 import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageDown from 'vue-material-design-icons/PackageDown'
 
-import { queueExport } from '../services/migrationService.js'
+import { queueExportJob } from '../services/migrationService.js'
 
 export default {
 	name: 'ExportSection',
@@ -190,7 +190,7 @@ export default {
 		async startExport() {
 			try {
 				this.startingExport = true
-				await queueExport(this.selectedMigrators)
+				await queueExportJob(this.selectedMigrators)
 				this.$emit('refresh-status', () => {
 					this.openModal()
 					this.startingExport = false

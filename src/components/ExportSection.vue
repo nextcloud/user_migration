@@ -50,8 +50,17 @@
 				</div>
 			</div>
 
-			<div v-if="status.current !== 'export'"
+			<div v-if="status.current === 'export'"
 				class="section__status">
+				<Button type="secondary"
+					:aria-label="t('user_migration', 'Show export status')"
+					:disabled="status.current === 'import'"
+					@click.stop.prevent="openModal">
+					{{ t('user_migration', 'Show status') }}
+				</Button>
+				<span class="settings-hint">{{ status.status === 'waiting' ? t('user_migration', 'Export queued') : t('user_migration', 'Export in progress…') }}</span>
+			</div>
+			<div v-else class="section__status">
 				<Button type="secondary"
 					:aria-label="t('user_migration', 'Export your data')"
 					:disabled="status.current === 'import' || startingExport"
@@ -62,15 +71,6 @@
 					{{ t('user_migration', 'Export') }}
 				</Button>
 				<div v-if="startingExport" class="icon-loading" />
-			</div>
-			<div v-else class="section__status">
-				<Button type="secondary"
-					:aria-label="t('user_migration', 'Show export status')"
-					:disabled="status.current === 'import'"
-					@click.stop.prevent="openModal">
-					{{ t('user_migration', 'Show status') }}
-				</Button>
-				<span class="settings-hint">{{ status.status === 'waiting' ? t('user_migration', 'Export queued') : t('user_migration', 'Export in progress…') }}</span>
 			</div>
 
 			<Modal v-if="modalOpened"

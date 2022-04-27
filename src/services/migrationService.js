@@ -29,7 +29,7 @@ import { APP_ID, API_VERSION } from '../shared/constants'
 /**
  * @return {object}
  */
- export const getMigrators = async () => {
+export const getMigrators = async () => {
 	const url = generateOcsUrl('/apps/{appId}/api/v{apiVersion}/migrators', { appId: APP_ID, apiVersion: API_VERSION })
 	const response = await axios.get(url)
 
@@ -39,7 +39,7 @@ import { APP_ID, API_VERSION } from '../shared/constants'
 /**
  * @return {object}
  */
- export const getStatus = async () => {
+export const getStatus = async () => {
 	const url = generateOcsUrl('/apps/{appId}/api/v{apiVersion}/status', { appId: APP_ID, apiVersion: API_VERSION })
 	const response = await axios.get(url)
 
@@ -64,7 +64,7 @@ export const cancelJob = async () => {
  *
  * @return {object}
  */
- export const queueExportJob = async (migrators) => {
+export const queueExportJob = async (migrators) => {
 	const url = generateOcsUrl('/apps/{appId}/api/v{apiVersion}/export', { appId: APP_ID, apiVersion: API_VERSION })
 
 	await confirmPassword()
@@ -81,7 +81,7 @@ export const cancelJob = async () => {
  *
  * @return {object}
  */
- export const queueImportJob = async (path) => {
+export const queueImportJob = async (path) => {
 	const url = generateOcsUrl('/apps/{appId}/api/v{apiVersion}/import', { appId: APP_ID, apiVersion: API_VERSION })
 
 	await confirmPassword()

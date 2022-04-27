@@ -23,16 +23,19 @@
 <template>
 	<section>
 		<ExportSection :loading="loading"
+			:notifications-enabled="notificationsEnabled"
 			:migrators="migrators"
 			:status="status"
 			@refresh-status="onRefreshStatus" />
 		<ImportSection :loading="loading"
+			:notifications-enabled="notificationsEnabled"
 			:status="status"
 			@refresh-status="onRefreshStatus" />
 	</section>
 </template>
 
 <script>
+import { getCapabilities } from '@nextcloud/capabilities'
 import { showError } from '@nextcloud/dialogs'
 
 import { getMigrators, getStatus } from '../../services/migrationService.js'
@@ -64,6 +67,12 @@ export default {
 		await this.fetchStatus()
 		this.loading = false
 		setInterval(this.fetchStatus, STATUS_POLLING_INTERVAL * 1000)
+	},
+
+	computed: {
+		notificationsEnabled() {
+			return Boolean(getCapabilities()?.notifications)
+		},
 	},
 
 	methods: {

@@ -81,7 +81,10 @@
 						<template #icon>
 							<PackageDown decorative />
 						</template>
-						<template v-if="status.status === 'started'" #desc>
+						<template v-if="status.status === 'waiting'" #desc>
+							{{ notificationsEnabled ? t('user_migration', 'You will be notified when your export has completed, this may take a while.') : t('user_migration', 'This may take a while.') }}
+						</template>
+						<template v-else-if="status.status === 'started'" #desc>
 							{{ t('user_migration', 'Please do not use your account while exporting.') }}
 						</template>
 					</EmptyContent>
@@ -130,6 +133,10 @@ export default {
 	},
 
 	props: {
+		notificationsEnabled: {
+			type: Boolean,
+			default: false,
+		},
 		loading: {
 			type: Boolean,
 			default: true,

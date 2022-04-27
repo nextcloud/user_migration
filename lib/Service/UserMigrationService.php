@@ -293,12 +293,14 @@ class UserMigrationService {
 				} catch (Throwable $e) {
 					throw new UserMigrationException('Error deleting export job', 0, $e);
 				}
+				break;
 			case $job instanceof UserImport:
 				try {
 					$this->importMapper->delete($job);
 				} catch (Throwable $e) {
 					throw new UserMigrationException('Error deleting import job', 0, $e);
 				}
+				break;
 			default:
 				throw new UserMigrationException('Error deleting user migration job');
 		}
@@ -435,6 +437,7 @@ class UserMigrationService {
 				} catch (Throwable $e) {
 					throw new UserMigrationException('Error cancelling export job', 0, $e);
 				}
+				break;
 			case $job instanceof UserImport:
 				try {
 					$this->jobList->remove(UserImportJob::class, [
@@ -444,6 +447,7 @@ class UserMigrationService {
 				} catch (Throwable $e) {
 					throw new UserMigrationException('Error cancelling import job', 0, $e);
 				}
+				break;
 			default:
 				throw new UserMigrationException('Error cancelling user migration job');
 		}

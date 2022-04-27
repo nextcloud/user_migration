@@ -99,7 +99,7 @@ import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
 import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageUp from 'vue-material-design-icons/PackageUp'
 
-import { queueImport } from '../services/migrationService'
+import { queueImportJob } from '../services/migrationService'
 
 /*
 const picker = getFilePickerBuilder(t('user_migration', 'Choose a file to import'))
@@ -192,7 +192,7 @@ export default {
 
 				try {
 					this.startingImport = true
-					await queueImport(filePath)
+					await queueImportJob(filePath)
 					this.$emit('refresh-status', () => {
 						this.openModal()
 						this.startingImport = false

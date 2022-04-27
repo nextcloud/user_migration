@@ -35,9 +35,20 @@
 					:aria-label="t('user_migration', 'Show import status')"
 					:disabled="status.current === 'export'"
 					@click.stop.prevent="openModal">
+					<template #icon>
+						<InformationOutline title="" :size="20" />
+					</template>
 					{{ t('user_migration', 'Show status') }}
 				</Button>
+				<Button class="section__modal-button"
+					type="secondary"
+					:aria-label="t('user_migration', 'Cancel import')"
+					:disabled="status.status !== 'waiting'"
+					@click.stop.prevent="cancelImport">
+					{{ t('user_migration', 'Cancel') }}
+				</Button>
 				<span class="settings-hint">{{ status.status === 'waiting' ? t('user_migration', 'Import queued') : t('user_migration', 'Import in progress…') }}</span>
+				<div v-if="cancellingImport" class="icon-loading section__loading" />
 			</div>
 			<div v-else class="section__status">
 				<Button type="secondary"
@@ -49,7 +60,7 @@
 					</template>
 					{{ t('user_migration', 'Import') }}
 				</Button>
-				<div v-if="startingImport" class="icon-loading" />
+				<div v-if="startingImport" class="icon-loading section__loading" />
 			</div>
 
 			<span class="section__picker-error error">{{ filePickerError }}</span>
@@ -75,7 +86,7 @@
 						<CheckCircleOutline class="section__icon"
 							title=""
 							:size="40" />
-						<Button class="section__close"
+						<Button class="section__modal-button"
 							type="secondary"
 							:aria-label="t('user_migration', 'Close import status')"
 							@click.stop.prevent="closeModal">
@@ -96,10 +107,11 @@ import { showError } from '@nextcloud/dialogs'
 import Button from '@nextcloud/vue/dist/Components/Button'
 import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline'
 import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
+import InformationOutline from 'vue-material-design-icons/InformationOutline'
 import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageUp from 'vue-material-design-icons/PackageUp'
 
-import { queueImportJob } from '../services/migrationService.js'
+import { queueImportJob, cancelJob } from '../services/migrationService.js'
 
 /*
 const picker = getFilePickerBuilder(t('user_migration', 'Choose a file to import'))
@@ -119,6 +131,7 @@ export default {
 		Button,
 		CheckCircleOutline,
 		EmptyContent,
+		InformationOutline,
 		Modal,
 		PackageUp,
 	},
@@ -142,6 +155,7 @@ export default {
 		return {
 			modalOpened: false,
 			startingImport: false,
+			cancellingImport: false,
 			filePickerError: null,
 		}
 	},
@@ -210,6 +224,21 @@ export default {
 			}
 		},
 
+		async cancelImport() {
+			try {
+				this.cancellingImport = true
+				await cancelJob()
+				this.$emit('refresh-status', () => {
+					this.cancellingImport = false
+				})
+			} catch (error) {
+				this.cancellingImport = false
+				const errorMessage = error.message || 'Unknown error'
+				this.logger.error(`Error cancelling user import: ${errorMessage}`, { error })
+				showError(errorMessage)
+			}
+		},
+
 		openModal() {
 			this.modalOpened = true
 		},
@@ -228,7 +257,11 @@ export default {
 
 .section__status {
 	display: flex;
-	gap: 0 20px;
+	gap: 0 14px;
+
+	.section__loading {
+		margin-left: 6px;
+	}
 
 	.settings-hint {
 		margin: auto 0;
@@ -252,7 +285,7 @@ export default {
 		margin: 20px 0;
 	}
 
-	.section__close {
+	.section__modal-button {
 		margin: 40px auto 0 auto;
 	}
 }

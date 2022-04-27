@@ -56,9 +56,20 @@
 					:aria-label="t('user_migration', 'Show export status')"
 					:disabled="status.current === 'import'"
 					@click.stop.prevent="openModal">
+					<template #icon>
+						<InformationOutline title="" :size="20" />
+					</template>
 					{{ t('user_migration', 'Show status') }}
 				</Button>
+				<Button class="section__modal-button"
+					type="secondary"
+					:aria-label="t('user_migration', 'Cancel export')"
+					:disabled="status.status !== 'waiting'"
+					@click.stop.prevent="cancelExport">
+					{{ t('user_migration', 'Cancel') }}
+				</Button>
 				<span class="settings-hint">{{ status.status === 'waiting' ? t('user_migration', 'Export queued') : t('user_migration', 'Export in progress…') }}</span>
+				<div v-if="cancellingExport" class="icon-loading section__loading" />
 			</div>
 			<div v-else class="section__status">
 				<Button type="secondary"
@@ -70,7 +81,7 @@
 					</template>
 					{{ t('user_migration', 'Export') }}
 				</Button>
-				<div v-if="startingExport" class="icon-loading" />
+				<div v-if="startingExport" class="icon-loading section__loading" />
 			</div>
 
 			<Modal v-if="modalOpened"
@@ -94,7 +105,7 @@
 						<CheckCircleOutline class="section__icon"
 							title=""
 							:size="40" />
-						<Button class="section__close"
+						<Button class="section__modal-button"
 							type="secondary"
 							:aria-label="t('user_migration', 'Close export status')"
 							@click.stop.prevent="closeModal">
@@ -115,10 +126,11 @@ import Button from '@nextcloud/vue/dist/Components/Button'
 import CheckboxRadioSwitch from '@nextcloud/vue/dist/Components/CheckboxRadioSwitch'
 import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline'
 import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
+import InformationOutline from 'vue-material-design-icons/InformationOutline'
 import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageDown from 'vue-material-design-icons/PackageDown'
 
-import { queueExportJob } from '../services/migrationService.js'
+import { queueExportJob, cancelJob } from '../services/migrationService.js'
 
 export default {
 	name: 'ExportSection',
@@ -128,6 +140,7 @@ export default {
 		CheckboxRadioSwitch,
 		CheckCircleOutline,
 		EmptyContent,
+		InformationOutline,
 		Modal,
 		PackageDown,
 	},
@@ -155,6 +168,7 @@ export default {
 		return {
 			modalOpened: false,
 			startingExport: false,
+			cancellingExport: false,
 			selectedMigrators: [],
 		}
 	},
@@ -203,6 +217,21 @@ export default {
 			}
 		},
 
+		async cancelExport() {
+			try {
+				this.cancellingExport = true
+				await cancelJob()
+				this.$emit('refresh-status', () => {
+					this.cancellingExport = false
+				})
+			} catch (error) {
+				this.cancellingExport = false
+				const errorMessage = error.message || 'Unknown error'
+				this.logger.error(`Error cancelling user export: ${errorMessage}`, { error })
+				showError(errorMessage)
+			}
+		},
+
 		openModal() {
 			this.modalOpened = true
 		},
@@ -231,7 +260,11 @@ export default {
 
 .section__status {
 	display: flex;
-	gap: 0 20px;
+	gap: 0 14px;
+
+	.section__loading {
+		margin-left: 6px;
+	}
 
 	.settings-hint {
 		margin: auto 0;
@@ -250,7 +283,7 @@ export default {
 		margin: 20px 0;
 	}
 
-	.section__close {
+	.section__modal-button {
 		margin: 40px auto 0 auto;
 	}
 }

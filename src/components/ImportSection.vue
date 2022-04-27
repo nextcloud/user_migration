@@ -33,7 +33,7 @@
 				class="section__status">
 				<Button type="secondary"
 					:aria-label="t('user_migration', 'Show import status')"
-					:disabled="status.current === 'export'"
+					:disabled="status.current === 'export' || cancellingImport"
 					@click.stop.prevent="openModal">
 					<template #icon>
 						<InformationOutline title="" :size="20" />

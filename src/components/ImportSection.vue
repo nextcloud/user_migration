@@ -29,8 +29,17 @@
 				{{ t('user_migration', 'Please note that existing data may be overwritten') }}
 			</h3>
 
-			<div v-if="status.current !== 'import'"
+			<div v-if="status.current === 'import'"
 				class="section__status">
+				<Button type="secondary"
+					:aria-label="t('user_migration', 'Show import status')"
+					:disabled="status.current === 'export'"
+					@click.stop.prevent="openModal">
+					{{ t('user_migration', 'Show status') }}
+				</Button>
+				<span class="settings-hint">{{ status.status === 'waiting' ? t('user_migration', 'Import queued') : t('user_migration', 'Import in progress…') }}</span>
+			</div>
+			<div v-else class="section__status">
 				<Button type="secondary"
 					:aria-label="t('user_migration', 'Import your data')"
 					:disabled="status.current === 'export' || startingImport"
@@ -41,15 +50,6 @@
 					{{ t('user_migration', 'Import') }}
 				</Button>
 				<div v-if="startingImport" class="icon-loading" />
-			</div>
-			<div v-else class="section__status">
-				<Button type="secondary"
-					:aria-label="t('user_migration', 'Show import status')"
-					:disabled="status.current === 'export'"
-					@click.stop.prevent="openModal">
-					{{ t('user_migration', 'Show status') }}
-				</Button>
-				<span class="settings-hint">{{ status.status === 'waiting' ? t('user_migration', 'Import queued') : t('user_migration', 'Import in progress…') }}</span>
 			</div>
 
 			<span class="section__picker-error error">{{ filePickerError }}</span>

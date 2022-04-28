@@ -23,21 +23,22 @@
 <template>
 	<section>
 		<ExportSection :loading="loading"
+			:notifications-enabled="notificationsEnabled"
 			:migrators="migrators"
 			:status="status"
 			@refresh-status="onRefreshStatus" />
 		<ImportSection :loading="loading"
+			:notifications-enabled="notificationsEnabled"
 			:status="status"
 			@refresh-status="onRefreshStatus" />
 	</section>
 </template>
 
 <script>
-import axios from '@nextcloud/axios'
-import { generateOcsUrl } from '@nextcloud/router'
+import { getCapabilities } from '@nextcloud/capabilities'
 import { showError } from '@nextcloud/dialogs'
 
-import { APP_ID } from '../../shared/constants.js'
+import { getMigrators, getStatus } from '../../services/migrationService.js'
 
 import ExportSection from '../../components/ExportSection.vue'
 import ImportSection from '../../components/ImportSection.vue'
@@ -61,6 +62,12 @@ export default {
 		}
 	},
 
+	computed: {
+		notificationsEnabled() {
+			return Boolean(getCapabilities()?.notifications)
+		},
+	},
+
 	async created() {
 		await this.fetchMigrators()
 		await this.fetchStatus()
@@ -71,8 +78,7 @@ export default {
 	methods: {
 		async fetchMigrators() {
 			try {
-				const response = await axios.get(generateOcsUrl('/apps/{appId}/api/v1/migrators', { appId: APP_ID }))
-				this.migrators = response?.data?.ocs?.data
+				this.migrators = await getMigrators()
 			} catch (error) {
 				const errorMessage = error.message || 'Unknown error'
 				this.logger.error(`Error getting available migrators: ${errorMessage}`, { error })
@@ -82,8 +88,7 @@ export default {
 
 		async fetchStatus() {
 			try {
-				const response = await axios.get(generateOcsUrl('/apps/{appId}/api/v1/status', { appId: APP_ID }))
-				this.status = response?.data?.ocs?.data
+				this.status = await getStatus()
 			} catch (error) {
 				const errorMessage = error.message || 'Unknown error'
 				this.logger.error(`Error polling server for export and import status: ${errorMessage}`, { error })

@@ -27,53 +27,32 @@ declare(strict_types=1);
 namespace OCA\UserMigration\Controller;
 
 use OCA\UserMigration\AppInfo\Application;
-use OCA\UserMigration\BackgroundJob\UserExportJob;
-use OCA\UserMigration\BackgroundJob\UserImportJob;
 use OCA\UserMigration\Db\UserExport;
-use OCA\UserMigration\Db\UserExportMapper;
 use OCA\UserMigration\Db\UserImport;
-use OCA\UserMigration\Db\UserImportMapper;
 use OCA\UserMigration\Service\UserMigrationService;
-use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCS\OCSException;
 use OCP\AppFramework\OCSController;
-use OCP\BackgroundJob\IJobList;
 use OCP\IRequest;
-use OCP\IUserManager;
+use OCP\IUser;
 use OCP\IUserSession;
 use OCP\UserMigration\IMigrator;
+use OCP\UserMigration\UserMigrationException;
 
 class ApiController extends OCSController {
 	private IUserSession $userSession;
 
-	private IUserManager $userManager;
-
 	private UserMigrationService $migrationService;
-
-	private UserExportMapper $exportMapper;
-
-	private UserImportMapper $importMapper;
-
-	private IJobList $jobList;
 
 	public function __construct(
 		IRequest $request,
 		IUserSession $userSession,
-		IUserManager $userManager,
-		UserMigrationService $migrationService,
-		UserExportMapper $exportMapper,
-		UserImportMapper $importMapper,
-		IJobList $jobList
+		UserMigrationService $migrationService
 	) {
 		parent::__construct(Application::APP_ID, $request);
 		$this->userSession = $userSession;
-		$this->userManager = $userManager;
 		$this->migrationService = $migrationService;
-		$this->exportMapper = $exportMapper;
-		$this->importMapper = $importMapper;
-		$this->jobList = $jobList;
 	}
 
 	/**
@@ -95,8 +74,50 @@ class ApiController extends OCSController {
 	}
 
 	/**
+	 * @return ?array{current: string, migrators: ?string[], status: string}
+	 *
+	 * @throws OCSException
+	 */
+	private function getCurrentJobData(IUser $user): ?array {
+		try {
+			$job = $this->migrationService->getCurrentJob($user);
+		} catch (UserMigrationException $e) {
+			throw new OCSException('Error getting current user migration operation');
+		}
+
+		if (empty($job)) {
+			return null;
+		}
+
+		switch (true) {
+			case $job instanceof UserExport:
+				$type = 'export';
+				break;
+			case $job instanceof UserImport:
+				$type = 'import';
+				break;
+			default:
+				throw new OCSException('Error getting current user migration operation');
+		}
+
+		$statusMap = [
+			// TODO merge export and import entities?
+			UserExport::STATUS_WAITING => 'waiting',
+			UserExport::STATUS_STARTED => 'started',
+		];
+
+		return [
+			'current' => $type,
+			'migrators' => $job->getMigratorsArray(),
+			'status' => $statusMap[$job->getStatus()],
+		];
+	}
+
+	/**
 	 * @NoAdminRequired
 	 * @NoSubAdminRequired
+	 *
+	 * @throws OCSException
 	 */
 	public function status(): DataResponse {
 		$user = $this->userSession->getUser();
@@ -105,51 +126,56 @@ class ApiController extends OCSController {
 			throw new OCSException('No user currently logged in');
 		}
 
-		try {
-			$userExport = $this->exportMapper->getBySourceUser($user->getUID());
-		} catch (DoesNotExistException $e) {
-			// Allow this exception as this just means the user has no export jobs queued currently
-		}
-
-		$exportStatusMap = [
-			UserExport::STATUS_WAITING => 'waiting',
-			UserExport::STATUS_STARTED => 'started',
-		];
-
-		if (!empty($userExport)) {
-			return new DataResponse([
-				'current' => 'export',
-				'migrators' => $userExport->getMigratorsArray(),
-				'status' => $exportStatusMap[$userExport->getStatus()],
-			], Http::STATUS_OK);
-		}
-
-		try {
-			$userImport = $this->importMapper->getByTargetUser($user->getUID());
-		} catch (DoesNotExistException $e) {
-			// Allow this exception as this just means the user has no import jobs queued currently
-		}
-
-		$importStatusMap = [
-			UserImport::STATUS_WAITING => 'waiting',
-			UserImport::STATUS_STARTED => 'started',
-		];
-
-		if (!empty($userImport)) {
-			return new DataResponse([
-				'current' => 'import',
-				'migrators' => $userImport->getMigratorsArray(),
-				'status' => $importStatusMap[$userImport->getStatus()],
-			], Http::STATUS_OK);
-		}
-
-		return new DataResponse(['current' => null], Http::STATUS_OK);
+		return new DataResponse(
+			$this->getCurrentJobData($user) ?? ['current' => null],
+			Http::STATUS_OK,
+		);
 	}
 
 	/**
 	 * @NoAdminRequired
 	 * @NoSubAdminRequired
 	 * @PasswordConfirmationRequired
+	 *
+	 * @throws OCSException
+	 */
+	public function cancel(): DataResponse {
+		$user = $this->userSession->getUser();
+
+		if (empty($user)) {
+			throw new OCSException('No user currently logged in');
+		}
+
+		try {
+			$job = $this->migrationService->getCurrentJob($user);
+		} catch (UserMigrationException $e) {
+			throw new OCSException('Error getting current user migration operation');
+		}
+
+		if (empty($job)) {
+			throw new OCSException('No user migration operation to cancel');
+		}
+
+		// TODO merge export and import entities?
+		if ($job->getStatus() === UserExport::STATUS_STARTED) {
+			throw new OCSException('Cannot cancel a user migration operation that is in progress');
+		}
+
+		try {
+			$this->migrationService->cancelJob($job);
+		} catch (UserMigrationException $e) {
+			throw new OCSException('Error cancelling user migration operation');
+		}
+
+		return new DataResponse([], Http::STATUS_OK);
+	}
+
+	/**
+	 * @NoAdminRequired
+	 * @NoSubAdminRequired
+	 * @PasswordConfirmationRequired
+	 *
+	 * @throws OCSException
 	 */
 	public function export(array $migrators): DataResponse {
 		$user = $this->userSession->getUser();
@@ -171,29 +197,20 @@ class ApiController extends OCSController {
 		}
 
 		try {
-			$userExport = $this->exportMapper->getBySourceUser($user->getUID());
-			throw new OCSException('User export already queued');
-		} catch (DoesNotExistException $e) {
-			// Allow this exception to proceed with adding user export job
+			$job = $this->migrationService->getCurrentJob($user);
+		} catch (UserMigrationException $e) {
+			throw new OCSException('Error getting current user migration operation');
+		}
+
+		if (!empty($job)) {
+			throw new OCSException('User migration operation already queued');
 		}
 
 		try {
-			$userImport = $this->importMapper->getByTargetUser($user->getUID());
-			throw new OCSException('User import already queued');
-		} catch (DoesNotExistException $e) {
-			// Allow this exception to proceed with adding user import job
+			$this->migrationService->queueExportJob($user, $migrators);
+		} catch (UserMigrationException $e) {
+			throw new OCSException('Error queueing export');
 		}
-
-		$userExport = new UserExport();
-		$userExport->setSourceUser($user->getUID());
-		$userExport->setMigratorsArray($migrators);
-		$userExport->setStatus(UserExport::STATUS_WAITING);
-		/** @var UserExport $userExport */
-		$userExport = $this->exportMapper->insert($userExport);
-
-		$this->jobList->add(UserExportJob::class, [
-			'id' => $userExport->getId(),
-		]);
 
 		return new DataResponse([], Http::STATUS_OK);
 	}
@@ -202,58 +219,33 @@ class ApiController extends OCSController {
 	 * @NoAdminRequired
 	 * @NoSubAdminRequired
 	 * @PasswordConfirmationRequired
+	 *
+	 * @throws OCSException
 	 */
-	public function import(string $path, string $targetUserId): DataResponse {
+	public function import(string $path): DataResponse {
 		$author = $this->userSession->getUser();
+		// Set target user to the author as importing into another user's account is not allowed for now
+		$targetUser = $author;
 
 		if (empty($author)) {
 			throw new OCSException('No user currently logged in');
 		}
 
-		$targetUser = $this->userManager->get($targetUserId);
-		if (empty($targetUser)) {
-			throw new OCSException('Target user does not exist');
-		}
-
-		// Importing into another user's account is not allowed for now
-		if ($author->getUID() !== $targetUser->getUID()) {
-			throw new OCSException('Users may only import into their own account');
-		}
-
-		/** @var string[] $availableMigrators */
-		$availableMigrators = array_map(
-			fn (IMigrator $migrator) => $migrator->getId(),
-			$this->migrationService->getMigrators(),
-		);
-
 		try {
-			$userImport = $this->importMapper->getByTargetUser($targetUser->getUID());
-			throw new OCSException('User import already queued');
-		} catch (DoesNotExistException $e) {
-			// Allow this exception to proceed with adding user import job
+			$job = $this->migrationService->getCurrentJob($targetUser);
+		} catch (UserMigrationException $e) {
+			throw new OCSException('Error getting current user migration operation');
+		}
+
+		if (!empty($job)) {
+			throw new OCSException('User migration operation already queued');
 		}
 
 		try {
-			$userExport = $this->exportMapper->getBySourceUser($targetUser->getUID());
-			throw new OCSException('User export already queued');
-		} catch (DoesNotExistException $e) {
-			// Allow this exception to proceed with adding user export job
+			$this->migrationService->queueImportJob($author, $targetUser, $path);
+		} catch (UserMigrationException $e) {
+			throw new OCSException('Error queueing import');
 		}
-
-		$userImport = new UserImport();
-		$userImport->setAuthor($author->getUID());
-		$userImport->setTargetUser($targetUser->getUID());
-		// Path is relative to the author folder
-		$userImport->setPath($path);
-		// All available migrators are added as migrator selection for import is not allowed for now
-		$userImport->setMigratorsArray($availableMigrators);
-		$userImport->setStatus(UserImport::STATUS_WAITING);
-		/** @var UserImport $userImport */
-		$userImport = $this->importMapper->insert($userImport);
-
-		$this->jobList->add(UserImportJob::class, [
-			'id' => $userImport->getId(),
-		]);
 
 		return new DataResponse([], Http::STATUS_OK);
 	}

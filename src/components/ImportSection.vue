@@ -29,8 +29,28 @@
 				{{ t('user_migration', 'Please note that existing data may be overwritten') }}
 			</h3>
 
-			<div v-if="status.current !== 'import'"
+			<div v-if="status.current === 'import'"
 				class="section__status">
+				<Button type="secondary"
+					:aria-label="t('user_migration', 'Show import status')"
+					:disabled="status.current === 'export' || cancellingImport"
+					@click.stop.prevent="openModal">
+					<template #icon>
+						<InformationOutline title="" :size="20" />
+					</template>
+					{{ t('user_migration', 'Show status') }}
+				</Button>
+				<Button class="section__modal-button"
+					type="secondary"
+					:aria-label="t('user_migration', 'Cancel import')"
+					:disabled="status.status !== 'waiting'"
+					@click.stop.prevent="cancelImport">
+					{{ t('user_migration', 'Cancel') }}
+				</Button>
+				<span class="settings-hint">{{ status.status === 'waiting' ? t('user_migration', 'Import queued') : t('user_migration', 'Import in progress…') }}</span>
+				<div v-if="cancellingImport" class="icon-loading section__loading" />
+			</div>
+			<div v-else class="section__status">
 				<Button type="secondary"
 					:aria-label="t('user_migration', 'Import your data')"
 					:disabled="status.current === 'export' || startingImport"
@@ -40,16 +60,7 @@
 					</template>
 					{{ t('user_migration', 'Import') }}
 				</Button>
-				<div v-if="startingImport" class="icon-loading" />
-			</div>
-			<div v-else class="section__status">
-				<Button type="secondary"
-					:aria-label="t('user_migration', 'Show import status')"
-					:disabled="status.current === 'export'"
-					@click.stop.prevent="openModal">
-					{{ t('user_migration', 'Show status') }}
-				</Button>
-				<span class="settings-hint">{{ status.status === 'waiting' ? t('user_migration', 'Import queued') : t('user_migration', 'Import in progress…') }}</span>
+				<div v-if="startingImport" class="icon-loading section__loading" />
 			</div>
 
 			<span class="section__picker-error error">{{ filePickerError }}</span>
@@ -62,7 +73,10 @@
 						<template #icon>
 							<PackageUp decorative />
 						</template>
-						<template v-if="status.status === 'started'" #desc>
+						<template v-if="status.status === 'waiting'" #desc>
+							{{ notificationsEnabled ? t('user_migration', 'You will be notified when your import has completed. This may take a while.') : t('user_migration', 'This may take a while.') }}
+						</template>
+						<template v-else-if="status.status === 'started'" #desc>
 							{{ t('user_migration', 'Please do not use your account while importing.') }}
 						</template>
 					</EmptyContent>
@@ -72,7 +86,7 @@
 						<CheckCircleOutline class="section__icon"
 							title=""
 							:size="40" />
-						<Button class="section__close"
+						<Button class="section__modal-button"
 							type="secondary"
 							:aria-label="t('user_migration', 'Close import status')"
 							@click.stop.prevent="closeModal">
@@ -87,20 +101,17 @@
 </template>
 
 <script>
-import axios from '@nextcloud/axios'
-import confirmPassword from '@nextcloud/password-confirmation'
-import { generateOcsUrl } from '@nextcloud/router'
-import { getCurrentUser } from '@nextcloud/auth'
 // import { getFilePickerBuilder, showError } from '@nextcloud/dialogs'
 import { showError } from '@nextcloud/dialogs'
 
 import Button from '@nextcloud/vue/dist/Components/Button'
 import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline'
 import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
+import InformationOutline from 'vue-material-design-icons/InformationOutline'
 import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageUp from 'vue-material-design-icons/PackageUp'
 
-import { APP_ID } from '../shared/constants.js'
+import { queueImportJob, cancelJob } from '../services/migrationService.js'
 
 /*
 const picker = getFilePickerBuilder(t('user_migration', 'Choose a file to import'))
@@ -120,11 +131,16 @@ export default {
 		Button,
 		CheckCircleOutline,
 		EmptyContent,
+		InformationOutline,
 		Modal,
 		PackageUp,
 	},
 
 	props: {
+		notificationsEnabled: {
+			type: Boolean,
+			default: false,
+		},
 		loading: {
 			type: Boolean,
 			default: true,
@@ -139,6 +155,7 @@ export default {
 		return {
 			modalOpened: false,
 			startingImport: false,
+			cancellingImport: false,
 			filePickerError: null,
 		}
 	},
@@ -189,11 +206,7 @@ export default {
 
 				try {
 					this.startingImport = true
-					await confirmPassword()
-					await axios.post(generateOcsUrl('/apps/{appId}/api/v1/import', { appId: APP_ID }), {
-						path: filePath,
-						targetUserId: getCurrentUser().uid,
-					})
+					await queueImportJob(filePath)
 					this.$emit('refresh-status', () => {
 						this.openModal()
 						this.startingImport = false
@@ -208,6 +221,21 @@ export default {
 				const errorMessage = error.message || 'Unknown error'
 				this.logger.error(`Error selecting file to import: ${errorMessage}`, { error })
 				this.filePickerError = errorMessage
+			}
+		},
+
+		async cancelImport() {
+			try {
+				this.cancellingImport = true
+				await cancelJob()
+				this.$emit('refresh-status', () => {
+					this.cancellingImport = false
+				})
+			} catch (error) {
+				this.cancellingImport = false
+				const errorMessage = error.message || 'Unknown error'
+				this.logger.error(`Error cancelling user import: ${errorMessage}`, { error })
+				showError(errorMessage)
 			}
 		},
 
@@ -229,7 +257,11 @@ export default {
 
 .section__status {
 	display: flex;
-	gap: 0 20px;
+	gap: 0 14px;
+
+	.section__loading {
+		margin-left: 6px;
+	}
 
 	.settings-hint {
 		margin: auto 0;
@@ -253,7 +285,7 @@ export default {
 		margin: 20px 0;
 	}
 
-	.section__close {
+	.section__modal-button {
 		margin: 40px auto 0 auto;
 	}
 }

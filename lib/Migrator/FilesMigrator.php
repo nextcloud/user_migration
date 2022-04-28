@@ -89,6 +89,35 @@ class FilesMigrator implements IMigrator {
 	/**
 	 * {@inheritDoc}
 	 */
+	public function getExportEstimatedSize(IUser $user): int {
+		$uid = $user->getUID();
+
+		$userFolder = $this->root->getUserFolder($uid);
+
+		$size = $userFolder->getSize() / 1024;
+
+		try {
+			$versionsFolder = $this->root->get('/'.$uid.'/'.FilesVersionsStorage::VERSIONS_ROOT);
+			if ($versionsFolder instanceof Folder) {
+				return 0;
+			}
+			$size += $versionsFolder->getSize() / 1024;
+		} catch (\Throwable $e) {
+			return 0;
+		}
+
+		// 1MiB for tags and system tags
+		$size += 1024;
+
+		// 2MiB for comments
+		$size += 2048;
+
+		return (int)ceil($size);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function export(
 		IUser $user,
 		IExportDestination $exportDestination,

@@ -100,6 +100,24 @@ class UserMigrationService {
 
 	/**
 	 * @param ?string[] $filteredMigratorList If not null, only these migrators will run. If empty only the main account data will be exported.
+	 * @return int Estimated size in KiB
+	 */
+	public function estimateExportSize(IUser $user, ?array $filteredMigratorList = null): int {
+		$size = 1024;
+
+		foreach ($this->getMigrators() as $migrator) {
+			if ($filteredMigratorList !== null && !in_array($migrator->getId(), $filteredMigratorList)) {
+				continue;
+			}
+			// TODO Cache this (so that user can check/uncheck migrators to see the difference in export size)
+			$size += $migrator->getExportEstimatedSize($user);
+		}
+
+		return $size;
+	}
+
+	/**
+	 * @param ?string[] $filteredMigratorList If not null, only these migrators will run. If empty only the main account data will be exported.
 	 * @throws UserMigrationException
 	 */
 	public function export(IExportDestination $exportDestination, IUser $user, ?array $filteredMigratorList = null, ?OutputInterface $output = null): void {

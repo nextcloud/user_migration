@@ -33,6 +33,7 @@ return [
 		['name' => 'Api#migrators', 'url' => '/api/v{apiVersion}/migrators', 'verb' => 'GET', 'requirements' => $requirements],
 		['name' => 'Api#status', 'url' => '/api/v{apiVersion}/status', 'verb' => 'GET', 'requirements' => $requirements],
 		['name' => 'Api#cancel', 'url' => '/api/v{apiVersion}/cancel', 'verb' => 'PUT', 'requirements' => $requirements],
+		['name' => 'Api#estimateExportSize', 'url' => '/api/v{apiVersion}/estimate', 'verb' => 'POST', 'requirements' => $requirements],
 		['name' => 'Api#export', 'url' => '/api/v{apiVersion}/export', 'verb' => 'POST', 'requirements' => $requirements],
 		['name' => 'Api#import', 'url' => '/api/v{apiVersion}/import', 'verb' => 'POST', 'requirements' => $requirements],
 	],

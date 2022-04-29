@@ -116,3 +116,23 @@ namespace OC\Hooks {
 	interface Emitter {
 	}
 }
+
+namespace OC\Cache {
+
+	use OCP\ICache;
+
+	class CappedMemoryCache implements ICache, \ArrayAccess {
+		public function __construct($capacity = 512);
+		public function hasKey($key): bool {}
+		public function get($key) {}
+		public function set($key, $value, $ttl = 0): bool {}
+		public function remove($key) {}
+		public function clear($prefix = '') {}
+		public function offsetExists($offset): bool {}
+		public function &offsetGet($offset) {}
+		public function offsetSet($offset, $value): void {}
+		public function offsetUnset($offset): void {}
+		public function getData() {}
+		public static function isAvailable(): bool {}
+	}
+}

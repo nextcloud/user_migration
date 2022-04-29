@@ -170,7 +170,7 @@ class ApiController extends OCSController {
 		return new DataResponse([], Http::STATUS_OK);
 	}
 
-	/*
+	/**
 	 * @throws OCSException
 	 */
 	private function checkJobAndGetUser(): IUser {

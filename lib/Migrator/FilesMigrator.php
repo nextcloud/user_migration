@@ -96,6 +96,7 @@ class FilesMigrator implements IMigrator {
 
 		$size = $userFolder->getSize() / 1024;
 
+		// Export file itself is not exported so we subtract it if existing
 		try {
 			$exportFile = $userFolder->get(ExportDestination::EXPORT_FILENAME);
 			if (!($exportFile instanceof File)) {

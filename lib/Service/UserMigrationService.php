@@ -110,7 +110,7 @@ class UserMigrationService {
 				continue;
 			}
 			// TODO Cache this (so that user can check/uncheck migrators to see the difference in export size)
-			$size += $migrator->getExportEstimatedSize($user);
+			$size += $migrator->getEstimatedExportSize($user);
 		}
 
 		return $size;

@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace OCA\UserMigration\Service;
 
 use OC\AppFramework\Bootstrap\Coordinator;
+use OC\Cache\CappedMemoryCache;
 use OCA\UserMigration\BackgroundJob\UserExportJob;
 use OCA\UserMigration\BackgroundJob\UserImportJob;
 use OCA\UserMigration\Db\UserExport;
@@ -71,6 +72,8 @@ class UserMigrationService {
 
 	protected IJobList $jobList;
 
+	protected CappedMemoryCache $internalCache;
+
 	protected const ENTITY_JOB_MAP = [
 		UserExport::class => UserExportJob::class,
 		UserImport::class => UserImportJob::class,
@@ -94,6 +97,7 @@ class UserMigrationService {
 		$this->exportMapper = $exportMapper;
 		$this->importMapper = $importMapper;
 		$this->jobList = $jobList;
+		$this->internalCache = new CappedMemoryCache();
 
 		$this->mandatory = true;
 	}
@@ -103,16 +107,26 @@ class UserMigrationService {
 	 * @return int Estimated size in KiB
 	 */
 	public function estimateExportSize(IUser $user, ?array $filteredMigratorList = null): int {
+		$cacheKey = $user->getUID();
+		if ($filteredMigratorList !== null) {
+			 $cacheKey .= '::' .json_encode($filteredMigratorList);
+		}
+
+		if ($this->internalCache->hasKey($cacheKey)) {
+			return $this->internalCache->get($cacheKey);
+		}
+
+		// 1MiB for base user data
 		$size = 1024;
 
 		foreach ($this->getMigrators() as $migrator) {
 			if ($filteredMigratorList !== null && !in_array($migrator->getId(), $filteredMigratorList)) {
 				continue;
 			}
-			// TODO Cache this (so that user can check/uncheck migrators to see the difference in export size)
 			$size += $migrator->getEstimatedExportSize($user);
 		}
 
+		$this->internalCache->set($cacheKey, $size);
 		return $size;
 	}
 

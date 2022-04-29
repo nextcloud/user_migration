@@ -109,7 +109,7 @@ class UserMigrationService {
 	public function estimateExportSize(IUser $user, ?array $filteredMigratorList = null): int {
 		$cacheKey = $user->getUID();
 		if ($filteredMigratorList !== null) {
-			 $cacheKey .= '::' .json_encode($filteredMigratorList);
+			$cacheKey .= '::' . json_encode($filteredMigratorList);
 		}
 
 		if ($this->internalCache->hasKey($cacheKey)) {

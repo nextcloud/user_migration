@@ -97,6 +97,17 @@ class FilesMigrator implements IMigrator {
 		$size = $userFolder->getSize() / 1024;
 
 		try {
+			$exportFile = $userFolder->get(ExportDestination::EXPORT_FILENAME);
+			if (!($exportFile instanceof File)) {
+				throw new \InvalidArgumentException('User export is not a file');
+			}
+
+			$size -= $exportFile->getSize() / 1024;
+		} catch (NotFoundException $e) {
+			// No size subtraction needed if export file doesn't exist
+		}
+
+		try {
 			$versionsFolder = $this->root->get('/'.$uid.'/'.FilesVersionsStorage::VERSIONS_ROOT);
 			if ($versionsFolder instanceof Folder) {
 				return 0;

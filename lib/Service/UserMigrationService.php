@@ -37,6 +37,7 @@ use OCA\UserMigration\Db\UserExport;
 use OCA\UserMigration\Db\UserExportMapper;
 use OCA\UserMigration\Db\UserImport;
 use OCA\UserMigration\Db\UserImportMapper;
+use OCA\UserMigration\NotExportableException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\BackgroundJob\IJobList;
 use OCP\Files\IRootFolder;

@@ -24,7 +24,7 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\UserMigration\Service;
+namespace OCA\UserMigration;
 
 use Exception;
 

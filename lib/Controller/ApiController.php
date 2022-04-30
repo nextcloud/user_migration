@@ -29,7 +29,7 @@ namespace OCA\UserMigration\Controller;
 use OCA\UserMigration\AppInfo\Application;
 use OCA\UserMigration\Db\UserExport;
 use OCA\UserMigration\Db\UserImport;
-use OCA\UserMigration\Service\NotExportableException;
+use OCA\UserMigration\NotExportableException;
 use OCA\UserMigration\Service\UserMigrationService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\DataResponse;

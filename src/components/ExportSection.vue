@@ -131,7 +131,7 @@ import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageDown from 'vue-material-design-icons/PackageDown'
 
 import { queueExportJob, cancelJob, checkExportability } from '../services/migrationService.js'
-import { handleWarning } from '../shared/utils.js'
+import { handleError, handleWarning } from '../shared/utils.js'
 
 export default {
 	name: 'ExportSection',
@@ -222,9 +222,7 @@ export default {
 				})
 			} catch (error) {
 				this.startingExport = false
-				const errorMessage = error.message || 'Unknown error'
-				this.logger.error(`Error starting user export: ${errorMessage}`, { error })
-				showError(errorMessage)
+				handleError(error)
 			}
 		},
 
@@ -237,9 +235,7 @@ export default {
 				})
 			} catch (error) {
 				this.cancellingExport = false
-				const errorMessage = error.message || 'Unknown error'
-				this.logger.error(`Error cancelling user export: ${errorMessage}`, { error })
-				showError(errorMessage)
+				handleError(error)
 			}
 		},
 

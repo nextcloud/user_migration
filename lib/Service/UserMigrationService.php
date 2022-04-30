@@ -173,7 +173,7 @@ class UserMigrationService {
 
 		$freeSpaceAfterExport = $freeSpace - $exportSize;
 		if ($freeSpaceAfterExport < 0) {
-			throw new NotExportableException('Insufficient storage space available to export, please free up ' . (int)abs($freeSpaceAfterExport) . ' KiB or more to be able to export your data');
+			throw new NotExportableException('Insufficient storage space available, please free up ' . (int)abs($freeSpaceAfterExport) . ' KiB or more to be able to export your data');
 		}
 	}
 

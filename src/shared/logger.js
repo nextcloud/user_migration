@@ -22,7 +22,7 @@
 
 import { getLoggerBuilder } from '@nextcloud/logger'
 
-import { APP_ID } from './shared/constants.js'
+import { APP_ID } from './constants.js'
 
 export default getLoggerBuilder()
 	.setApp(APP_ID)

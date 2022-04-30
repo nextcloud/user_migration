@@ -20,6 +20,32 @@
  *
  */
 
+import { showWarning, showError } from '@nextcloud/dialogs'
+
+import logger from './logger.js'
+
+/**
+ * @param {AxiosError} error Error object
+ *
+ * @return {void}
+ */
+export const handleWarning = (error) => {
+	const warningMessage = error.response.data.ocs?.meta?.message || 'Unknown warning'
+	logger.warn(warningMessage, { error })
+	showWarning(warningMessage)
+}
+
+/**
+ * @param {AxiosError} error Error object
+ *
+ * @return {void}
+ */
+export const handleError = (error) => {
+	const errorMessage = error.response.data.ocs?.meta?.message || 'Unknown error'
+	logger.error(errorMessage, { error })
+	showError(errorMessage)
+}
+
 /**
  * @param {string} name Name of the query parameter
  * @param {string[]} values Array of values

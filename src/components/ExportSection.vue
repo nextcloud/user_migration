@@ -130,7 +130,8 @@ import InformationOutline from 'vue-material-design-icons/InformationOutline'
 import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageDown from 'vue-material-design-icons/PackageDown'
 
-import { queueExportJob, cancelJob } from '../services/migrationService.js'
+import { queueExportJob, cancelJob, checkExportability } from '../services/migrationService.js'
+import { handleWarning } from '../shared/utils.js'
 
 export default {
 	name: 'ExportSection',
@@ -192,10 +193,20 @@ export default {
 
 	watch: {
 		sortedMigrators: {
-			deep: true,
 			immediate: true,
 			handler(migrators, oldMigrators) {
 				this.selectedMigrators = migrators.map(({ id }) => id)
+			},
+		},
+
+		selectedMigrators: {
+			immediate: false,
+			async handler(migrators, oldMigrators) {
+				try {
+					await checkExportability(migrators)
+				} catch (error) {
+					handleWarning(error)
+				}
 			},
 		},
 	},

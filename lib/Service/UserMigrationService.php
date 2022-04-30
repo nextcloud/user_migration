@@ -151,7 +151,7 @@ class UserMigrationService {
 			$userFolder = $this->root->getUserFolder($user->getUID());
 			$freeSpace = (int)ceil($userFolder->getFreeSpace() / 1024);
 		} catch (Throwable $e) {
-			throw new NotExportableException('Error calculating amount of free space available');
+			throw new NotExportableException('Error calculating amount of free storage space available');
 		}
 
 		try {

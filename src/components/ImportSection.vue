@@ -101,8 +101,7 @@
 </template>
 
 <script>
-// import { getFilePickerBuilder, showError } from '@nextcloud/dialogs'
-import { showError } from '@nextcloud/dialogs'
+// import { getFilePickerBuilder } from '@nextcloud/dialogs'
 
 import Button from '@nextcloud/vue/dist/Components/Button'
 import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline'

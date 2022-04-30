@@ -36,7 +36,6 @@
 
 <script>
 import { getCapabilities } from '@nextcloud/capabilities'
-import { showError } from '@nextcloud/dialogs'
 
 import { getMigrators, getStatus } from '../../services/migrationService.js'
 

@@ -112,6 +112,7 @@ import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageUp from 'vue-material-design-icons/PackageUp'
 
 import { queueImportJob, cancelJob } from '../services/migrationService.js'
+import { handleError } from '../shared/utils.js'
 
 /*
 const picker = getFilePickerBuilder(t('user_migration', 'Choose a file to import'))
@@ -213,9 +214,7 @@ export default {
 					})
 				} catch (error) {
 					this.startingImport = false
-					const errorMessage = error.message || 'Unknown error'
-					this.logger.error(`Error starting user import: ${errorMessage}`, { error })
-					showError(errorMessage)
+					handleError(error)
 				}
 			} catch (error) {
 				const errorMessage = error.message || 'Unknown error'
@@ -233,9 +232,7 @@ export default {
 				})
 			} catch (error) {
 				this.cancellingImport = false
-				const errorMessage = error.message || 'Unknown error'
-				this.logger.error(`Error cancelling user import: ${errorMessage}`, { error })
-				showError(errorMessage)
+				handleError(error)
 			}
 		},
 

@@ -29,6 +29,7 @@ namespace OCA\UserMigration\Controller;
 use OCA\UserMigration\AppInfo\Application;
 use OCA\UserMigration\Db\UserExport;
 use OCA\UserMigration\Db\UserImport;
+use OCA\UserMigration\Service\NotExportableException;
 use OCA\UserMigration\Service\UserMigrationService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\DataResponse;
@@ -173,6 +174,23 @@ class ApiController extends OCSController {
 	/**
 	 * @throws OCSException
 	 */
+	private function checkMigrators(array $migrators): void {
+		/** @var string[] $availableMigrators */
+		$availableMigrators = array_map(
+			fn (IMigrator $migrator) => $migrator->getId(),
+			$this->migrationService->getMigrators(),
+		);
+
+		foreach ($migrators as $migrator) {
+			if (!in_array($migrator, $availableMigrators, true)) {
+				throw new OCSException("Requested migrator \"$migrator\" not available");
+			}
+		}
+	}
+
+	/**
+	 * @throws OCSException
+	 */
 	private function checkJobAndGetUser(): IUser {
 		$user = $this->userSession->getUser();
 
@@ -199,28 +217,20 @@ class ApiController extends OCSController {
 	 *
 	 * @throws OCSException
 	 */
-	public function estimateExportSize(array $migrators): DataResponse {
+	public function exportable(?array $migrators): DataResponse {
 		$user = $this->checkJobAndGetUser();
 
-		/** @var string[] $availableMigrators */
-		$availableMigrators = array_map(
-			fn (IMigrator $migrator) => $migrator->getId(),
-			$this->migrationService->getMigrators(),
-		);
-
-		foreach ($migrators as $migrator) {
-			if (!in_array($migrator, $availableMigrators, true)) {
-				throw new OCSException("Requested migrator \"$migrator\" not available");
-			}
+		if (!is_null($migrators)) {
+			$this->checkMigrators($migrators);
 		}
 
 		try {
-			$size = $this->migrationService->estimateExportSize($user, $migrators);
-		} catch (UserMigrationException $e) {
-			throw new OCSException('Error estimating export size');
+			$this->migrationService->checkExportability($user, $migrators);
+		} catch (NotExportableException $e) {
+			throw new OCSException($e->getMessage());
 		}
 
-		return new DataResponse(['kibibytes' => $size], Http::STATUS_OK);
+		return new DataResponse([], Http::STATUS_OK);
 	}
 
 	/**
@@ -232,18 +242,7 @@ class ApiController extends OCSController {
 	 */
 	public function export(array $migrators): DataResponse {
 		$user = $this->checkJobAndGetUser();
-
-		/** @var string[] $availableMigrators */
-		$availableMigrators = array_map(
-			fn (IMigrator $migrator) => $migrator->getId(),
-			$this->migrationService->getMigrators(),
-		);
-
-		foreach ($migrators as $migrator) {
-			if (!in_array($migrator, $availableMigrators, true)) {
-				throw new OCSException("Requested migrator \"$migrator\" not available");
-			}
-		}
+		$this->checkMigrators($migrators);
 
 		try {
 			$this->migrationService->queueExportJob($user, $migrators);

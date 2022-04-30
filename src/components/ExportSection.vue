@@ -120,8 +120,6 @@
 </template>
 
 <script>
-import { showError } from '@nextcloud/dialogs'
-
 import Button from '@nextcloud/vue/dist/Components/Button'
 import CheckboxRadioSwitch from '@nextcloud/vue/dist/Components/CheckboxRadioSwitch'
 import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline'

@@ -54,7 +54,7 @@
 				class="section__status">
 				<Button type="secondary"
 					:aria-label="t('user_migration', 'Export your data')"
-					:disabled="status.current === 'import'"
+					:disabled="status.current === 'import' || startingExport"
 					@click.stop.prevent="startExport">
 					<template #icon>
 						<PackageDown title="" :size="20" />
@@ -185,8 +185,8 @@ export default {
 	methods: {
 		async startExport() {
 			try {
-				await confirmPassword()
 				this.startingExport = true
+				await confirmPassword()
 				await axios.post(generateOcsUrl('/apps/{appId}/api/v1/export', { appId: APP_ID }), {
 					migrators: this.selectedMigrators,
 				})

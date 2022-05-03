@@ -17,9 +17,6 @@ This app allows users to easily migrate from an instance to another using an exp
 - **⚙ Start the import**
 - **🎉 Enjoy your stay on your new instance** and close you old account
 	]]></description>
-	<screenshot>https://user-images.githubusercontent.com/91878298/166431669-c9799150-2b4d-4d36-9d28-be2cbcd031c7.png</screenshot>
-	<screenshot>https://user-images.githubusercontent.com/91878298/166431664-f956aefc-2c57-4dd5-b1d9-c699c75ec677.png</screenshot>
-	<screenshot>https://user-images.githubusercontent.com/91878298/166431659-7828e390-ac4d-4d7c-ab35-12af2dbb976e.png</screenshot>
 	<version>1.0.2</version>
 	<licence>agpl</licence>
 	<author>Côme Chilliet</author>
@@ -31,6 +28,9 @@ This app allows users to easily migrate from an instance to another using an exp
 	<category>tools</category>
 	<bugs>https://github.com/nextcloud/user_migration/issues</bugs>
 	<repository type="git">https://github.com/nextcloud/user_migration.git</repository>
+	<screenshot>https://raw.githubusercontent.com/nextcloud/user_migration/master/screenshots/export.png</screenshot>
+	<screenshot>https://raw.githubusercontent.com/nextcloud/user_migration/master/screenshots/exporting.png</screenshot>
+	<screenshot>https://raw.githubusercontent.com/nextcloud/user_migration/master/screenshots/import.png</screenshot>
 	<dependencies>
 		<nextcloud min-version="24" max-version="24"/>
 	</dependencies>

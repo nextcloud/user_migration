@@ -16,6 +16,7 @@
 /phpunit.xml
 /phpunit.integration.xml
 /psalm.xml
+/screenshots
 /stylelint.config.js
 /webpack.config.js
 /.php-cs-fixer.dist.php

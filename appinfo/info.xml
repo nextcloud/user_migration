@@ -4,16 +4,33 @@
 	<id>user_migration</id>
 	<name>User migration</name>
 	<summary>Migrate user data</summary>
-	<description>
-		<![CDATA[This app allows migration of user data between Nextcloud servers]]>
-	</description>
+	<description><![CDATA[**👤➡ User migration app for Nextcloud**
+
+This app allows users to easily migrate from an instance to another using an export of their account.
+
+- **🐱 Log into cat.example.com/nextcloud**
+- **☐☒ Select what you want to export** (settings, profile data, avatar, calendars, contacts, files…)
+- **⚙ Start the export** and wait for the server to process it
+- **📁 Download the resulting archive**
+- **🐶 Open an account on dog.example.com/nextcloud**
+- **🡅 Upload the archive into your files**
+- **⚙ Start the import**
+- **🎉 Enjoy your stay on your new instance** and close you old account
+	]]></description>
+	<screenshot>https://user-images.githubusercontent.com/91878298/166431669-c9799150-2b4d-4d36-9d28-be2cbcd031c7.png</screenshot>
+	<screenshot>https://user-images.githubusercontent.com/91878298/166431664-f956aefc-2c57-4dd5-b1d9-c699c75ec677.png</screenshot>
+	<screenshot>https://user-images.githubusercontent.com/91878298/166431659-7828e390-ac4d-4d7c-ab35-12af2dbb976e.png</screenshot>
 	<version>1.0.2</version>
 	<licence>agpl</licence>
 	<author>Côme Chilliet</author>
 	<author>Christopher Ng</author>
 	<namespace>UserMigration</namespace>
+	<documentation>
+		<developer>https://docs.nextcloud.com/server/latest/developer_manual/digging_deeper/user_migration.html</developer>
+	</documentation>
 	<category>tools</category>
-	<bugs>https://github.com/nextcloud/user_migration</bugs>
+	<bugs>https://github.com/nextcloud/user_migration/issues</bugs>
+	<repository type="git">https://github.com/nextcloud/user_migration.git</repository>
 	<dependencies>
 		<nextcloud min-version="24" max-version="24"/>
 	</dependencies>

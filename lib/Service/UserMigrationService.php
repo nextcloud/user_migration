@@ -27,6 +27,15 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration\Service;
 
+use OC\AppFramework\Bootstrap\Coordinator;
+use OCA\UserMigration\BackgroundJob\UserExportJob;
+use OCA\UserMigration\BackgroundJob\UserImportJob;
+use OCA\UserMigration\Db\UserExport;
+use OCA\UserMigration\Db\UserExportMapper;
+use OCA\UserMigration\Db\UserImport;
+use OCA\UserMigration\Db\UserImportMapper;
+use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\BackgroundJob\IJobList;
 use OCP\Files\IRootFolder;
 use OCP\IConfig;
 use OCP\IUser;
@@ -37,10 +46,10 @@ use OCP\UserMigration\IImportSource;
 use OCP\UserMigration\IMigrator;
 use OCP\UserMigration\TMigratorBasicVersionHandling;
 use OCP\UserMigration\UserMigrationException;
-use OC\AppFramework\Bootstrap\Coordinator;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Throwable;
 
 class UserMigrationService {
 	use TMigratorBasicVersionHandling;
@@ -56,18 +65,35 @@ class UserMigrationService {
 	// Allow use of the private Coordinator class here to get and run registered migrators
 	protected Coordinator $coordinator;
 
+	protected UserExportMapper $exportMapper;
+
+	protected UserImportMapper $importMapper;
+
+	protected IJobList $jobList;
+
+	protected const ENTITY_JOB_MAP = [
+		UserExport::class => UserExportJob::class,
+		UserImport::class => UserImportJob::class,
+	];
+
 	public function __construct(
 		IRootFolder $rootFolder,
 		IConfig $config,
 		IUserManager $userManager,
 		ContainerInterface $container,
-		Coordinator $coordinator
+		Coordinator $coordinator,
+		UserExportMapper $exportMapper,
+		UserImportMapper $importMapper,
+		IJobList $jobList
 	) {
 		$this->root = $rootFolder;
 		$this->config = $config;
 		$this->userManager = $userManager;
 		$this->container = $container;
 		$this->coordinator = $coordinator;
+		$this->exportMapper = $exportMapper;
+		$this->importMapper = $importMapper;
+		$this->jobList = $jobList;
 
 		$this->mandatory = true;
 	}
@@ -112,7 +138,7 @@ class UserMigrationService {
 		}
 		try {
 			$exportDestination->setMigratorVersions($migratorVersions);
-		} catch (\Throwable $e) {
+		} catch (Throwable $e) {
 			throw new UserMigrationException("Could not export user information.", 0, $e);
 		}
 
@@ -169,7 +195,7 @@ class UserMigrationService {
 
 		try {
 			$exportDestination->addFileContents(IImportSource::PATH_USER, json_encode($userinfo));
-		} catch (\Throwable $e) {
+		} catch (Throwable $e) {
 			throw new UserMigrationException("Could not export user information.", 0, $e);
 		}
 	}
@@ -216,7 +242,7 @@ class UserMigrationService {
 
 		try {
 			$exportDestination->addFileContents("versions.json", json_encode($versions));
-		} catch (\Throwable $e) {
+		} catch (Throwable $e) {
 			throw new UserMigrationException("Could not export versions.", 0, $e);
 		}
 	}
@@ -233,7 +259,7 @@ class UserMigrationService {
 
 		try {
 			$exportDestination->addFileContents("settings.json", json_encode($data));
-		} catch (\Throwable $e) {
+		} catch (Throwable $e) {
 			throw new UserMigrationException("Could not export settings.", 0, $e);
 		}
 	}
@@ -251,6 +277,82 @@ class UserMigrationService {
 			foreach ($values as $key => $value) {
 				$this->config->setUserValue($user->getUID(), $app, $key, $value);
 			}
+		}
+	}
+
+	/**
+	 * @param UserExport|UserImport $job
+	 *
+	 * @throws UserMigrationException
+	 */
+	protected function deleteMapperJob($job): void {
+		switch (true) {
+			case $job instanceof UserExport:
+				try {
+					$this->exportMapper->delete($job);
+				} catch (Throwable $e) {
+					throw new UserMigrationException('Error deleting export job', 0, $e);
+				}
+				break;
+			case $job instanceof UserImport:
+				try {
+					$this->importMapper->delete($job);
+				} catch (Throwable $e) {
+					throw new UserMigrationException('Error deleting import job', 0, $e);
+				}
+				break;
+			default:
+				throw new UserMigrationException('Error deleting user migration job');
+		}
+	}
+
+	/**
+	 * @throws UserMigrationException
+	 */
+	public function queueExportJob(IUser $user, array $migrators): void {
+		try {
+			$userExport = new UserExport();
+			$userExport->setSourceUser($user->getUID());
+			$userExport->setMigratorsArray($migrators);
+			$userExport->setStatus(UserExport::STATUS_WAITING);
+			/** @var UserExport $userExport */
+			$userExport = $this->exportMapper->insert($userExport);
+
+			$this->jobList->add(UserExportJob::class, [
+				'id' => $userExport->getId(),
+			]);
+		} catch (Throwable $e) {
+			throw new UserMigrationException('Error queueing export job', 0, $e);
+		}
+	}
+
+	/**
+	 * @throws UserMigrationException
+	 */
+	public function queueImportJob(IUser $author, IUser $targetUser, string $path): void {
+		/** @var string[] $availableMigrators */
+		$availableMigrators = array_map(
+			fn (IMigrator $migrator) => $migrator->getId(),
+			$this->getMigrators(),
+		);
+
+		try {
+			$userImport = new UserImport();
+			$userImport->setAuthor($author->getUID());
+			$userImport->setTargetUser($targetUser->getUID());
+			// Path is relative to the author folder
+			$userImport->setPath($path);
+			// All available migrators are added as migrator selection for import is not allowed for now
+			$userImport->setMigratorsArray($availableMigrators);
+			$userImport->setStatus(UserImport::STATUS_WAITING);
+			/** @var UserImport $userImport */
+			$userImport = $this->importMapper->insert($userImport);
+
+			$this->jobList->add(UserImportJob::class, [
+				'id' => $userImport->getId(),
+			]);
+		} catch (Throwable $e) {
+			throw new UserMigrationException('Error queueing import job', 0, $e);
 		}
 	}
 
@@ -274,6 +376,81 @@ class UserMigrationService {
 		}
 
 		return $migrators;
+	}
+
+	/**
+	 * @return null|UserExport|UserImport
+	 *
+	 * @throws UserMigrationException
+	 */
+	public function getCurrentJob(IUser $user) {
+		// TODO merge export and import entities?
+
+		try {
+			$exportJob = $this->exportMapper->getBySourceUser($user->getUID());
+		} catch (DoesNotExistException $e) {
+			// Allow this exception as this just means the user has no export jobs queued currently
+		}
+
+		try {
+			$importJob = $this->importMapper->getByTargetUser($user->getUID());
+		} catch (DoesNotExistException $e) {
+			// Allow this exception as this just means the user has no import jobs queued currently
+		}
+
+		if (!empty($exportJob) && !empty($importJob)) {
+			throw new UserMigrationException('A user export and import job cannot be queued or run at the same time');
+		}
+
+		$job = $exportJob ?? $importJob;
+
+		if (empty($job)) {
+			return null;
+		}
+
+		if (!$this->jobList->has(static::ENTITY_JOB_MAP[get_class($job)], ['id' => $job->getId()])) {
+			$this->deleteMapperJob($job);
+			throw new UserMigrationException('Expected "' . get_class($job) . '" job with id argument "' . $job->getId() . '" in `oc_jobs` database table');
+		}
+
+		return $job;
+	}
+
+	/**
+	 * @param UserExport|UserImport $job
+	 *
+	 * @throws UserMigrationException
+	 */
+	public function cancelJob($job): void {
+		if (!$this->jobList->has(static::ENTITY_JOB_MAP[get_class($job)], ['id' => $job->getId()])) {
+			$this->deleteMapperJob($job);
+			throw new UserMigrationException('Expected "' . get_class($job) . '" job with id argument "' . $job->getId() . '" in `oc_jobs` database table');
+		}
+
+		switch (true) {
+			case $job instanceof UserExport:
+				try {
+					$this->jobList->remove(UserExportJob::class, [
+						'id' => $job->getId(),
+					]);
+					$this->exportMapper->delete($job);
+				} catch (Throwable $e) {
+					throw new UserMigrationException('Error cancelling export job', 0, $e);
+				}
+				break;
+			case $job instanceof UserImport:
+				try {
+					$this->jobList->remove(UserImportJob::class, [
+						'id' => $job->getId(),
+					]);
+					$this->importMapper->delete($job);
+				} catch (Throwable $e) {
+					throw new UserMigrationException('Error cancelling import job', 0, $e);
+				}
+				break;
+			default:
+				throw new UserMigrationException('Error cancelling user migration job');
+		}
 	}
 
 	/**

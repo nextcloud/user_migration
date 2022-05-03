@@ -50,8 +50,28 @@
 				</div>
 			</div>
 
-			<div v-if="status.current !== 'export'"
+			<div v-if="status.current === 'export'"
 				class="section__status">
+				<Button type="secondary"
+					:aria-label="t('user_migration', 'Show export status')"
+					:disabled="status.current === 'import' || cancellingExport"
+					@click.stop.prevent="openModal">
+					<template #icon>
+						<InformationOutline title="" :size="20" />
+					</template>
+					{{ t('user_migration', 'Show status') }}
+				</Button>
+				<Button class="section__modal-button"
+					type="secondary"
+					:aria-label="t('user_migration', 'Cancel export')"
+					:disabled="status.status !== 'waiting'"
+					@click.stop.prevent="cancelExport">
+					{{ t('user_migration', 'Cancel') }}
+				</Button>
+				<span class="settings-hint">{{ status.status === 'waiting' ? t('user_migration', 'Export queued') : t('user_migration', 'Export in progress…') }}</span>
+				<div v-if="cancellingExport" class="icon-loading section__loading" />
+			</div>
+			<div v-else class="section__status">
 				<Button type="secondary"
 					:aria-label="t('user_migration', 'Export your data')"
 					:disabled="status.current === 'import' || startingExport"
@@ -61,16 +81,7 @@
 					</template>
 					{{ t('user_migration', 'Export') }}
 				</Button>
-				<div v-if="startingExport" class="icon-loading" />
-			</div>
-			<div v-else class="section__status">
-				<Button type="secondary"
-					:aria-label="t('user_migration', 'Show export status')"
-					:disabled="status.current === 'import'"
-					@click.stop.prevent="openModal">
-					{{ t('user_migration', 'Show status') }}
-				</Button>
-				<span class="settings-hint">{{ status.status === 'waiting' ? t('user_migration', 'Export queued') : t('user_migration', 'Export in progress…') }}</span>
+				<div v-if="startingExport" class="icon-loading section__loading" />
 			</div>
 
 			<Modal v-if="modalOpened"
@@ -81,7 +92,10 @@
 						<template #icon>
 							<PackageDown decorative />
 						</template>
-						<template v-if="status.status === 'started'" #desc>
+						<template v-if="status.status === 'waiting'" #desc>
+							{{ notificationsEnabled ? t('user_migration', 'You will be notified when your export has completed. This may take a while.') : t('user_migration', 'This may take a while.') }}
+						</template>
+						<template v-else-if="status.status === 'started'" #desc>
 							{{ t('user_migration', 'Please do not use your account while exporting.') }}
 						</template>
 					</EmptyContent>
@@ -91,7 +105,7 @@
 						<CheckCircleOutline class="section__icon"
 							title=""
 							:size="40" />
-						<Button class="section__close"
+						<Button class="section__modal-button"
 							type="secondary"
 							:aria-label="t('user_migration', 'Close export status')"
 							@click.stop.prevent="closeModal">
@@ -106,19 +120,17 @@
 </template>
 
 <script>
-import axios from '@nextcloud/axios'
-import confirmPassword from '@nextcloud/password-confirmation'
-import { generateOcsUrl } from '@nextcloud/router'
 import { showError } from '@nextcloud/dialogs'
 
 import Button from '@nextcloud/vue/dist/Components/Button'
 import CheckboxRadioSwitch from '@nextcloud/vue/dist/Components/CheckboxRadioSwitch'
 import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline'
 import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
+import InformationOutline from 'vue-material-design-icons/InformationOutline'
 import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageDown from 'vue-material-design-icons/PackageDown'
 
-import { APP_ID } from '../shared/constants'
+import { queueExportJob, cancelJob } from '../services/migrationService.js'
 
 export default {
 	name: 'ExportSection',
@@ -128,11 +140,16 @@ export default {
 		CheckboxRadioSwitch,
 		CheckCircleOutline,
 		EmptyContent,
+		InformationOutline,
 		Modal,
 		PackageDown,
 	},
 
 	props: {
+		notificationsEnabled: {
+			type: Boolean,
+			default: false,
+		},
 		loading: {
 			type: Boolean,
 			default: true,
@@ -151,6 +168,7 @@ export default {
 		return {
 			modalOpened: false,
 			startingExport: false,
+			cancellingExport: false,
 			selectedMigrators: [],
 		}
 	},
@@ -186,10 +204,7 @@ export default {
 		async startExport() {
 			try {
 				this.startingExport = true
-				await confirmPassword()
-				await axios.post(generateOcsUrl('/apps/{appId}/api/v1/export', { appId: APP_ID }), {
-					migrators: this.selectedMigrators,
-				})
+				await queueExportJob(this.selectedMigrators)
 				this.$emit('refresh-status', () => {
 					this.openModal()
 					this.startingExport = false
@@ -198,6 +213,21 @@ export default {
 				this.startingExport = false
 				const errorMessage = error.message || 'Unknown error'
 				this.logger.error(`Error starting user export: ${errorMessage}`, { error })
+				showError(errorMessage)
+			}
+		},
+
+		async cancelExport() {
+			try {
+				this.cancellingExport = true
+				await cancelJob()
+				this.$emit('refresh-status', () => {
+					this.cancellingExport = false
+				})
+			} catch (error) {
+				this.cancellingExport = false
+				const errorMessage = error.message || 'Unknown error'
+				this.logger.error(`Error cancelling user export: ${errorMessage}`, { error })
 				showError(errorMessage)
 			}
 		},
@@ -230,7 +260,11 @@ export default {
 
 .section__status {
 	display: flex;
-	gap: 0 20px;
+	gap: 0 14px;
+
+	.section__loading {
+		margin-left: 6px;
+	}
 
 	.settings-hint {
 		margin: auto 0;
@@ -249,7 +283,7 @@ export default {
 		margin: 20px 0;
 	}
 
-	.section__close {
+	.section__modal-button {
 		margin: 40px auto 0 auto;
 	}
 }

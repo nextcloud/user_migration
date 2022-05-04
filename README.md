@@ -9,7 +9,7 @@
 This app allows users to easily migrate from an instance to another using an export of their account.
 
 - **🐱 Log into cat.example.com/nextcloud**
-- **☐☒ Select what you want to export** (settings, profile data, avatar, calendars, contacts, files…)
+- **☑ Select what you want to export** (settings, files, profile information, profile picture, calendars, contacts…)
 - **⚙ Start the export** and wait for the server to process it
 - **📁 Download the resulting archive**
 - **🐶 Open an account on dog.example.com/nextcloud**

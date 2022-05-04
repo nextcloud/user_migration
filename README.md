@@ -21,10 +21,10 @@ This app allows users to easily migrate from one instance to another using an ex
 
 ## Screenshots
 
-### Select what to export
+### Select what to export from your old instance
 ![Export data selection](screenshots/export.png)
 
-### Export in progress on your old instance
+### Export in progress
 ![Export in progress](screenshots/exporting.png)
 
 ### Import into your new instance

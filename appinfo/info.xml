@@ -37,7 +37,7 @@ This app allows users to easily migrate from an instance to another using an exp
 	<screenshot>https://raw.githubusercontent.com/nextcloud/user_migration/main/screenshots/import.png</screenshot>
 
 	<dependencies>
-		<nextcloud min-version="25" max-version="25"/>
+		<nextcloud min-version="24" max-version="25"/>
 	</dependencies>
 
 	<commands>

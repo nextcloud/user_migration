@@ -6,9 +6,9 @@
 
 **👤➡ User migration app for Nextcloud**
 
-This app allows users to easily migrate from an instance to another using an export of their account.
+This app allows users to easily migrate from one instance to another using an export of their account.
 
-- **🐱 Log into cat.example.com/nextcloud**
+- **🐱 Log in to cat.example.com/nextcloud**
 - **☑ Select what you want to export** (settings, files, profile information, profile picture, calendars, contacts…)
 - **⚙ Start the export** and wait for the server to process it
 - **📁 Download the resulting archive**

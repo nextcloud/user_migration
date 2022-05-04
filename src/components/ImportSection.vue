@@ -101,8 +101,7 @@
 </template>
 
 <script>
-// import { getFilePickerBuilder, showError } from '@nextcloud/dialogs'
-import { showError } from '@nextcloud/dialogs'
+import { getFilePickerBuilder, showError } from '@nextcloud/dialogs'
 
 import Button from '@nextcloud/vue/dist/Components/Button'
 import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline'
@@ -113,16 +112,20 @@ import PackageUp from 'vue-material-design-icons/PackageUp'
 
 import { queueImportJob, cancelJob } from '../services/migrationService.js'
 
-/*
-const picker = getFilePickerBuilder(t('user_migration', 'Choose a file to import'))
+const filePickerFilter = (entry) => {
+	if (entry.mimetype === 'httpd/unix-directory') {
+		return true
+	}
+	return entry.name.endsWith('.nextcloud_export')
+}
+
+const filePicker = getFilePickerBuilder(t('user_migration', 'Choose a file to import'))
 	.setMultiSelect(false)
-	// TODO add custom mime type for user_migration files?
-	// .setMimeTypeFilter([])
+	.setFilter(filePickerFilter)
 	.setModal(true)
 	.setType(1)
 	.allowDirectories(false)
 	.build()
-*/
 
 export default {
 	name: 'ImportSection',
@@ -176,30 +179,9 @@ export default {
 			this.filePickerError = null
 
 			try {
-				// TODO: bring this back once nextcloud-dialogs is updated to support the filter function
-				// const filePath = await picker.pick()
-				const filePath = await new Promise((resolve, reject) => {
-					OC.dialogs.filepicker(
-						t('user_migration', 'Choose a file to import'),
-						resolve,
-						false,
-						null,
-						true,
-						1,
-						null,
-						{
-							allowDirectoryChooser: false,
-							filter: entry => {
-								if (entry.mimetype === 'httpd/unix-directory') {
-									return true
-								}
-								return entry.name.endsWith('.nextcloud_export')
-							},
-						}
-					)
-				})
-
+				const filePath = await filePicker.pick()
 				this.logger.debug(`Path "${filePath}" selected for import`)
+
 				if (!filePath.startsWith('/')) {
 					throw new Error(`Invalid path: ${filePath}`)
 				}

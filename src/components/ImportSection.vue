@@ -43,7 +43,7 @@
 				<Button class="section__modal-button"
 					type="secondary"
 					:aria-label="t('user_migration', 'Cancel import')"
-					:disabled="status.status !== 'waiting'"
+					:disabled="status.status !== 'waiting' || cancellingImport"
 					@click.stop.prevent="cancelImport">
 					{{ t('user_migration', 'Cancel') }}
 				</Button>

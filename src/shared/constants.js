@@ -22,3 +22,13 @@
 
 export const APP_ID = 'user_migration'
 export const API_VERSION = '1'
+
+export const TYPE = Object.freeze({
+	EXPORT: 'export',
+	IMPORT: 'import',
+})
+
+export const STATUS = Object.freeze({
+	WAITING: 'waiting',
+	STARTED: 'started',
+})

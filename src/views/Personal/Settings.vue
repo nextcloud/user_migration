@@ -23,11 +23,13 @@
 <template>
 	<section>
 		<ExportSection :loading="loading"
+			:pending.sync="pending"
 			:notifications-enabled="notificationsEnabled"
 			:migrators="migrators"
 			:status="status"
 			@refresh-status="onRefreshStatus" />
 		<ImportSection :loading="loading"
+			:pending.sync="pending"
 			:notifications-enabled="notificationsEnabled"
 			:status="status"
 			@refresh-status="onRefreshStatus" />
@@ -58,6 +60,7 @@ export default {
 		return {
 			loading: true,
 			migrators: [],
+			pending: { current: null, type: null },
 			status: { current: null },
 		}
 	},

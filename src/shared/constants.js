@@ -32,3 +32,8 @@ export const STATUS = Object.freeze({
 	WAITING: 'waiting',
 	STARTED: 'started',
 })
+
+export const PENDING = Object.freeze({
+	STARTING: 'starting',
+	CANCELLING: 'cancelling',
+})

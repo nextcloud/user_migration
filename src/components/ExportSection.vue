@@ -74,14 +74,14 @@
 			<div v-else class="section__status">
 				<Button type="secondary"
 					:aria-label="t('user_migration', 'Export your data')"
-					:disabled="status.current === TYPE.IMPORT || startingExport"
+					:disabled="status.current === TYPE.IMPORT || starting"
 					@click.stop.prevent="startExport">
 					<template #icon>
 						<PackageDown title="" :size="20" />
 					</template>
 					{{ t('user_migration', 'Export') }}
 				</Button>
-				<div v-if="startingExport" class="icon-loading section__loading" />
+				<div v-if="starting" class="icon-loading section__loading" />
 			</div>
 
 			<Modal v-if="modalOpened"
@@ -131,7 +131,7 @@ import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageDown from 'vue-material-design-icons/PackageDown'
 
 import { queueExportJob, cancelJob } from '../services/migrationService.js'
-import { STATUS, TYPE } from '../shared/constants.js'
+import { PENDING, STATUS, TYPE } from '../shared/constants.js'
 
 export default {
 	name: 'ExportSection',
@@ -147,10 +147,6 @@ export default {
 	},
 
 	props: {
-		notificationsEnabled: {
-			type: Boolean,
-			default: false,
-		},
 		loading: {
 			type: Boolean,
 			default: true,
@@ -158,6 +154,14 @@ export default {
 		migrators: {
 			type: Array,
 			default: () => [],
+		},
+		notificationsEnabled: {
+			type: Boolean,
+			default: false,
+		},
+		pending: {
+			type: Object,
+			default: () => ({}),
 		},
 		status: {
 			type: Object,
@@ -168,8 +172,6 @@ export default {
 	data() {
 		return {
 			modalOpened: false,
-			startingExport: false,
-			cancellingExport: false,
 			selectedMigrators: [],
 			TYPE,
 			STATUS,
@@ -181,6 +183,10 @@ export default {
 			// TODO do this in better way if needed
 			const sortOrder = ['files', 'trashbin', 'account', 'calendar', 'contacts']
 			return [...this.migrators].sort((a, b) => sortOrder.indexOf(a.id) - sortOrder.indexOf(b.id))
+		},
+
+		starting() {
+			return this.pending.current === TYPE.EXPORT && this.pending.type === PENDING.STARTING
 		},
 
 		modalMessage() {
@@ -206,14 +212,14 @@ export default {
 	methods: {
 		async startExport() {
 			try {
-				this.startingExport = true
+				this.$emit('update:pending', { current: TYPE.EXPORT, type: PENDING.STARTING })
 				await queueExportJob(this.selectedMigrators)
 				this.$emit('refresh-status', () => {
 					this.openModal()
-					this.startingExport = false
+					this.$emit('update:pending', { current: null, type: null })
 				})
 			} catch (error) {
-				this.startingExport = false
+				this.$emit('update:pending', { current: null, type: null })
 				const errorMessage = error.message || 'Unknown error'
 				this.logger.error(`Error starting user export: ${errorMessage}`, { error })
 				showError(errorMessage)

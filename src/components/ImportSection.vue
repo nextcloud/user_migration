@@ -149,6 +149,10 @@ export default {
 			type: Boolean,
 			default: true,
 		},
+		pending: {
+			type: Object,
+			default: () => ({}),
+		},
 		status: {
 			type: Object,
 			default: () => ({}),

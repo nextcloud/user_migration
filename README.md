@@ -17,13 +17,15 @@ This app allows users to easily migrate from one instance to another using an ex
 - **⚙ Start the import**
 - **🎉 Enjoy your stay on your new instance** and close you old account
 
-### Screenshots
+---
 
-#### Select what to export
-![Export data selection](https://raw.githubusercontent.com/nextcloud/user_migration/main/screenshots/export.png)
+## Screenshots
 
-#### Exporting from your old instance
-![Export in progress](https://raw.githubusercontent.com/nextcloud/user_migration/main/screenshots/exporting.png)
+### Select what to export
+![Export data selection](screenshots/export.png)
 
-#### Import into your new instance
-![Import file selection](https://raw.githubusercontent.com/nextcloud/user_migration/main/screenshots/import.png)
+### Export in progress on your old instance
+![Export in progress](screenshots/exporting.png)
+
+### Import into your new instance
+![Import file selection](screenshots/import.png)

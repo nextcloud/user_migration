@@ -131,7 +131,8 @@ import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageDown from 'vue-material-design-icons/PackageDown'
 
 import { queueExportJob, cancelJob } from '../services/migrationService.js'
-import { PENDING, STATUS, TYPE } from '../shared/constants.js'
+import { REQUEST_TYPE, STATUS, TYPE } from '../shared/constants.js'
+import { resetPendingRequest, setPendingRequest, store } from '../shared/store.js'
 
 export default {
 	name: 'ExportSection',
@@ -159,10 +160,6 @@ export default {
 			type: Boolean,
 			default: false,
 		},
-		pending: {
-			type: Object,
-			default: () => ({}),
-		},
 		status: {
 			type: Object,
 			default: () => ({}),
@@ -173,7 +170,6 @@ export default {
 		return {
 			modalOpened: false,
 			selectedMigrators: [],
-			TYPE,
 			STATUS,
 		}
 	},
@@ -186,7 +182,7 @@ export default {
 		},
 
 		starting() {
-			return this.pending.current === TYPE.EXPORT && this.pending.type === PENDING.STARTING
+			return store.pendingRequest.current === TYPE.EXPORT && store.pendingRequest.type === REQUEST_TYPE.STARTING
 		},
 
 		modalMessage() {
@@ -212,14 +208,14 @@ export default {
 	methods: {
 		async startExport() {
 			try {
-				this.$emit('update:pending', { current: TYPE.EXPORT, type: PENDING.STARTING })
+				setPendingRequest(TYPE.EXPORT, REQUEST_TYPE.STARTING)
 				await queueExportJob(this.selectedMigrators)
 				this.$emit('refresh-status', () => {
 					this.openModal()
-					this.$emit('update:pending', { current: null, type: null })
+					resetPendingRequest()
 				})
 			} catch (error) {
-				this.$emit('update:pending', { current: null, type: null })
+				resetPendingRequest()
 				const errorMessage = error.message || 'Unknown error'
 				this.logger.error(`Error starting user export: ${errorMessage}`, { error })
 				showError(errorMessage)
@@ -228,13 +224,13 @@ export default {
 
 		async cancelExport() {
 			try {
-				this.cancellingExport = true
+				setPendingRequest(TYPE.EXPORT, REQUEST_TYPE.CANCELLING)
 				await cancelJob()
 				this.$emit('refresh-status', () => {
-					this.cancellingExport = false
+					resetPendingRequest()
 				})
 			} catch (error) {
-				this.cancellingExport = false
+				resetPendingRequest()
 				const errorMessage = error.message || 'Unknown error'
 				this.logger.error(`Error cancelling user export: ${errorMessage}`, { error })
 				showError(errorMessage)

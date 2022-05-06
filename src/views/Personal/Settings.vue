@@ -23,13 +23,11 @@
 <template>
 	<section>
 		<ExportSection :loading="loading"
-			:pending.sync="pending"
 			:notifications-enabled="notificationsEnabled"
 			:migrators="migrators"
 			:status="status"
 			@refresh-status="onRefreshStatus" />
 		<ImportSection :loading="loading"
-			:pending.sync="pending"
 			:notifications-enabled="notificationsEnabled"
 			:status="status"
 			@refresh-status="onRefreshStatus" />
@@ -40,6 +38,7 @@
 import { getCapabilities } from '@nextcloud/capabilities'
 import { showError } from '@nextcloud/dialogs'
 
+import { store } from '../../shared/store.js'
 import { getMigrators, getStatus } from '../../services/migrationService.js'
 
 import ExportSection from '../../components/ExportSection.vue'
@@ -60,7 +59,7 @@ export default {
 		return {
 			loading: true,
 			migrators: [],
-			pending: { current: null, type: null },
+			pendingRequest: store.pendingRequest,
 			status: { current: null },
 		}
 	},

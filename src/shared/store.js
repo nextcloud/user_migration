@@ -20,20 +20,11 @@
  *
  */
 
-export const APP_ID = 'user_migration'
-export const API_VERSION = '1'
+import Vue from 'vue'
 
-export const TYPE = Object.freeze({
-	EXPORT: 'export',
-	IMPORT: 'import',
+export const store = Vue.observable({
+	pendingRequest: { current: null, type: null },
 })
 
-export const STATUS = Object.freeze({
-	WAITING: 'waiting',
-	STARTED: 'started',
-})
-
-export const REQUEST_TYPE = Object.freeze({
-	STARTING: 'starting',
-	CANCELLING: 'cancelling',
-})
+export const setPendingRequest = (current, type) => store.pendingRequest = { current, type }
+export const resetPendingRequest = () => store.pendingRequest = { current: null, type: null }

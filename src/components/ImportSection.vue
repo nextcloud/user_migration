@@ -149,7 +149,7 @@ export default {
 			type: Boolean,
 			default: true,
 		},
-		pending: {
+		pendingRequest: {
 			type: Object,
 			default: () => ({}),
 		},
@@ -165,7 +165,6 @@ export default {
 			startingImport: false,
 			cancellingImport: false,
 			filePickerError: null,
-			TYPE,
 			STATUS,
 		}
 	},

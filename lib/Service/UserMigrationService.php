@@ -402,7 +402,7 @@ class UserMigrationService {
 			throw new UserMigrationException('A user export and import job cannot be queued or run at the same time');
 		}
 
-		$job = $exportJob ?? $importJob;
+		$job = $exportJob ?? $importJob ?? null;
 
 		if (empty($job)) {
 			return null;

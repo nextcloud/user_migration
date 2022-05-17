@@ -9,7 +9,7 @@ on:
   pull_request:
   push:
     branches:
-      - master
+      - main
       - stable*
 
 env:
@@ -24,7 +24,7 @@ jobs:
     strategy:
       matrix:
         php-versions: ['7.4', '8.0', '8.1']
-        server-versions: ['master']
+        server-versions: ['main']
 
     services:
       mysql:

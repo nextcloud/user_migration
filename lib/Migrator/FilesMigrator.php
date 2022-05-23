@@ -106,12 +106,16 @@ class FilesMigrator implements IMigrator {
 		}
 
 		try {
-			$versionsFolder = $this->root->get('/'.$uid.'/'.FilesVersionsStorage::VERSIONS_ROOT);
-			$output->writeln("Exporting file versions…");
-			try {
-				$exportDestination->copyFolder($versionsFolder, static::PATH_VERSIONS);
-			} catch (\Throwable $e) {
-				throw new UserMigrationException("Could not export files versions.", 0, $e);
+			if (class_exists(FilesVersionsStorage::class)) {
+				$versionsFolder = $this->root->get('/'.$uid.'/'.FilesVersionsStorage::VERSIONS_ROOT);
+				$output->writeln("Exporting file versions…");
+				try {
+					$exportDestination->copyFolder($versionsFolder, static::PATH_VERSIONS);
+				} catch (\Throwable $e) {
+					throw new UserMigrationException("Could not export files versions.", 0, $e);
+				}
+			} else {
+				$output->writeln("Skip disabled app files_versions…");
 			}
 		} catch (NotFoundException $e) {
 			$output->writeln("No file versions to export…");
@@ -216,16 +220,20 @@ class FilesMigrator implements IMigrator {
 		$userFolder = $this->root->getUserFolder($uid);
 
 		if ($importSource->pathExists(static::PATH_VERSIONS)) {
-			try {
-				$versionsFolder = $this->root->get('/'.$uid.'/'.FilesVersionsStorage::VERSIONS_ROOT);
-			} catch (NotFoundException $e) {
-				$versionsFolder = $this->root->newFolder('/'.$uid.'/'.FilesVersionsStorage::VERSIONS_ROOT);
-			}
-			$output->writeln("Importing file versions…");
-			try {
-				$importSource->copyToFolder($versionsFolder, static::PATH_VERSIONS);
-			} catch (\Throwable $e) {
-				throw new UserMigrationException("Could not import files versions.", 0, $e);
+			if (class_exists(FilesVersionsStorage::class)) {
+				try {
+					$versionsFolder = $this->root->get('/'.$uid.'/'.FilesVersionsStorage::VERSIONS_ROOT);
+				} catch (NotFoundException $e) {
+					$versionsFolder = $this->root->newFolder('/'.$uid.'/'.FilesVersionsStorage::VERSIONS_ROOT);
+				}
+				$output->writeln("Importing file versions…");
+				try {
+					$importSource->copyToFolder($versionsFolder, static::PATH_VERSIONS);
+				} catch (\Throwable $e) {
+					throw new UserMigrationException("Could not import files versions.", 0, $e);
+				}
+			} else {
+				$output->writeln("Skip disabled app files_versions…");
 			}
 		} else {
 			$output->writeln("No file versions to import…");

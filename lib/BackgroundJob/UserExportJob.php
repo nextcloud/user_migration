@@ -89,7 +89,7 @@ class UserExportJob extends QueuedJob {
 
 			$this->migrationService->export($exportDestination, $userObject, $migrators);
 			$this->successNotification($export);
-		} catch (\Exception $e) {
+		} catch (\Throwable $e) {
 			$this->logger->error($e->getMessage(), ['exception' => $e]);
 			$this->failedNotication($export);
 		} finally {

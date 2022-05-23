@@ -99,7 +99,7 @@ class UserImportJob extends QueuedJob {
 
 			$this->migrationService->import($importSource, $targetUserObject);
 			$this->successNotification($import);
-		} catch (\Exception $e) {
+		} catch (\Throwable $e) {
 			$this->logger->error($e->getMessage(), ['exception' => $e]);
 			$this->failedNotication($import);
 		} finally {

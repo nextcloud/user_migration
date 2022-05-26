@@ -30,12 +30,10 @@ use OCA\UserMigration\ImportSource;
 use OCA\UserMigration\Service\UserMigrationService;
 use OCP\IUserManager;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class Import extends Command {
@@ -43,17 +41,13 @@ class Import extends Command {
 
 	private IUserManager $userManager;
 
-	private QuestionHelper $questionHelper;
-
 	public function __construct(
 		UserMigrationService $migrationService,
-		IUserManager $userManager,
-		QuestionHelper $questionHelper
+		IUserManager $userManager
 	) {
 		parent::__construct();
 		$this->migrationService = $migrationService;
 		$this->userManager = $userManager;
-		$this->questionHelper = $questionHelper;
 	}
 
 	protected function configure(): void {
@@ -84,10 +78,8 @@ class Import extends Command {
 					$io->error("User <$uid> does not exist");
 					return 1;
 				} else {
-					$question = new ConfirmationQuestion(
-						'Warning: A user with this uid already exists!'."\n"
-						. 'Do you really want to overwrite this user with the imported data? (y/n) ', false);
-					if (!$this->questionHelper->ask($input, $output, $question)) {
+					$io->warning('A user with this uid already exists!');
+					if (!$io->confirm('Do you really want to overwrite this user with the imported data?', false)) {
 						$io->writeln('aborted.');
 						return 1;
 					}

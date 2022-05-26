@@ -139,6 +139,7 @@ class Export extends Command {
 			return 1;
 		}
 
+		$selectedMigrators = null;
 		$types = $input->getOption('types');
 		if ($types !== false) {
 			$types = explode(',', $types);
@@ -170,7 +171,7 @@ class Export extends Command {
 			}
 			$folder = realpath($folder);
 			$exportDestination = new TempExportDestination($this->tempManager);
-			$this->migrationService->export($exportDestination, $userObject, $selectedMigrators ?? null, $io);
+			$this->migrationService->export($exportDestination, $userObject, $selectedMigrators, $io);
 			$path = $exportDestination->getPath();
 			$exportName = $userObject->getUID().'_'.date('Y-m-d_H-i-s');
 			if (rename($path, $folder.'/'.$exportName.'.zip') === false) {

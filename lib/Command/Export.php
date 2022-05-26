@@ -146,15 +146,15 @@ class Export extends Command {
 			}
 		}
 
-		$user = $input->getArgument('user');
-		if (empty($user)) {
+		$uid = $input->getArgument('user');
+		if (empty($uid)) {
 			$io->warning('Missing user argument');
 			return 2;
 		}
 
-		$userObject = $this->userManager->get($user);
-		if (!$userObject instanceof IUser) {
-			$io->error("Unknown user <$user>");
+		$user = $this->userManager->get($uid);
+		if (!$user instanceof IUser) {
+			$io->error("Unknown user <$uid>");
 			return 1;
 		}
 
@@ -171,9 +171,9 @@ class Export extends Command {
 			}
 			$folder = realpath($folder);
 			$exportDestination = new TempExportDestination($this->tempManager);
-			$this->migrationService->export($exportDestination, $userObject, $selectedMigrators, $io);
+			$this->migrationService->export($exportDestination, $user, $selectedMigrators, $io);
 			$path = $exportDestination->getPath();
-			$exportName = $userObject->getUID().'_'.date('Y-m-d_H-i-s');
+			$exportName = $user->getUID().'_'.date('Y-m-d_H-i-s');
 			if (rename($path, $folder.'/'.$exportName.'.zip') === false) {
 				throw new \Exception("Failed to move $path to $folder/$exportName.zip");
 			}

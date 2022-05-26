@@ -129,7 +129,7 @@ class Export extends Command {
 
 		$user = $input->getArgument('user');
 		if (empty($user)) {
-			$io->error('Missing user argument');
+			$io->warning('Missing user argument');
 			return 2;
 		}
 
@@ -148,7 +148,7 @@ class Export extends Command {
 				} else {
 					foreach ($types as $id) {
 						if (!in_array($id, array_map(fn (IMigrator $migrator) => $migrator->getId(), $migrators), true)) {
-							$io->error("Invalid type: \"$id\"");
+							$io->warning("Invalid type: \"$id\"");
 							return 2;
 						}
 					}
@@ -159,14 +159,14 @@ class Export extends Command {
 
 		$folder = $input->getArgument('folder');
 		if (empty($folder)) {
-			$io->error('Missing folder argument');
+			$io->warning('Missing folder argument');
 			return 2;
 		}
 
 		try {
 			if (!is_writable($folder)) {
 				$io->error("The target folder must exist and be writable by the web server user");
-				return 2;
+				return 1;
 			}
 			$folder = realpath($folder);
 			$exportDestination = new TempExportDestination($this->tempManager);

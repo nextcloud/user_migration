@@ -34,6 +34,7 @@ use OCP\IUserManager;
 use OCP\UserMigration\IMigrator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\HelpCommand;
+use Symfony\Component\Console\Formatter\WrappableOutputFormatterInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -88,6 +89,8 @@ class Export extends Command {
 
 	protected function execute(InputInterface $input, OutputInterface $output): int {
 		$io = new SymfonyStyle($input, $output);
+		/** @var WrappableOutputFormatterInterface $formatter */
+		$formatter = $io->getFormatter();
 
 		$args = array_filter($input->getArguments(), fn (?string $value, string $arg) => $arg === 'command' ? false : !empty($value), ARRAY_FILTER_USE_BOTH);
 		$options = array_filter($input->getOptions(), fn ($value) => $value !== false);
@@ -114,8 +117,7 @@ class Export extends Command {
 							fn (IMigrator $migrator) => [
 								$migrator->getDisplayName(),
 								$migrator->getId(),
-								// Wrap long descriptions
-								'<comment>' . implode("\n", mb_str_split($migrator->getDescription(), 80)) . '</comment>',
+								'<comment>' . $formatter->formatAndWrap($migrator->getDescription(), 80) . '</comment>',
 							],
 							$migrators,
 						)

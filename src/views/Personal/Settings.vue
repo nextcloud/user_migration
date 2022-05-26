@@ -38,6 +38,7 @@
 import { getCapabilities } from '@nextcloud/capabilities'
 import { showError } from '@nextcloud/dialogs'
 
+import { store } from '../../shared/store.js'
 import { getMigrators, getStatus } from '../../services/migrationService.js'
 
 import ExportSection from '../../components/ExportSection.vue'
@@ -58,6 +59,7 @@ export default {
 		return {
 			loading: true,
 			migrators: [],
+			pendingRequest: store.pendingRequest,
 			status: { current: null },
 		}
 	},

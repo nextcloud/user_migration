@@ -29,11 +29,11 @@
 				{{ t('user_migration', 'Please note that existing data may be overwritten') }}
 			</h3>
 
-			<div v-if="status.current === 'import'"
+			<div v-if="status.current === TYPE.IMPORT"
 				class="section__status">
 				<Button type="secondary"
 					:aria-label="t('user_migration', 'Show import status')"
-					:disabled="status.current === 'export' || cancellingImport"
+					:disabled="status.current === TYPE.EXPORT || cancellingImport"
 					@click.stop.prevent="openModal">
 					<template #icon>
 						<InformationOutline title="" :size="20" />
@@ -43,17 +43,17 @@
 				<Button class="section__modal-button"
 					type="secondary"
 					:aria-label="t('user_migration', 'Cancel import')"
-					:disabled="status.status !== 'waiting'"
+					:disabled="status.status !== STATUS.WAITING || cancellingImport"
 					@click.stop.prevent="cancelImport">
 					{{ t('user_migration', 'Cancel') }}
 				</Button>
-				<span class="settings-hint">{{ status.status === 'waiting' ? t('user_migration', 'Import queued') : t('user_migration', 'Import in progress…') }}</span>
+				<span class="settings-hint">{{ status.status === STATUS.WAITING ? t('user_migration', 'Import queued') : t('user_migration', 'Import in progress…') }}</span>
 				<div v-if="cancellingImport" class="icon-loading section__loading" />
 			</div>
 			<div v-else class="section__status">
 				<Button type="secondary"
 					:aria-label="t('user_migration', 'Import your data')"
-					:disabled="status.current === 'export' || startingImport"
+					:disabled="status.current === TYPE.EXPORT || startingImport"
 					@click.stop.prevent="pickImportFile">
 					<template #icon>
 						<PackageUp title="" :size="20" />
@@ -73,14 +73,14 @@
 						<template #icon>
 							<PackageUp decorative />
 						</template>
-						<template v-if="status.status === 'waiting'" #desc>
+						<template v-if="status.status === STATUS.WAITING" #desc>
 							{{ notificationsEnabled ? t('user_migration', 'You will be notified when your import has completed. This may take a while.') : t('user_migration', 'This may take a while.') }}
 						</template>
-						<template v-else-if="status.status === 'started'" #desc>
+						<template v-else-if="status.status === STATUS.STARTED" #desc>
 							{{ t('user_migration', 'Please do not use your account while importing.') }}
 						</template>
 					</EmptyContent>
-					<div v-if="status.status === 'waiting' || status.status === 'started'"
+					<div v-if="status.status === STATUS.WAITING || status.status === STATUS.STARTED"
 						class="section__icon icon-loading" />
 					<template v-else>
 						<CheckCircleOutline class="section__icon"
@@ -101,8 +101,7 @@
 </template>
 
 <script>
-// import { getFilePickerBuilder, showError } from '@nextcloud/dialogs'
-import { showError } from '@nextcloud/dialogs'
+import { getFilePickerBuilder, showError } from '@nextcloud/dialogs'
 
 import Button from '@nextcloud/vue/dist/Components/Button'
 import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline'
@@ -112,17 +111,22 @@ import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageUp from 'vue-material-design-icons/PackageUp'
 
 import { queueImportJob, cancelJob } from '../services/migrationService.js'
+import { STATUS, TYPE } from '../shared/constants.js'
 
-/*
-const picker = getFilePickerBuilder(t('user_migration', 'Choose a file to import'))
+const filePickerFilter = (entry) => {
+	if (entry.mimetype === 'httpd/unix-directory') {
+		return true
+	}
+	return entry.name.endsWith('.nextcloud_export')
+}
+
+const filePicker = getFilePickerBuilder(t('user_migration', 'Choose a file to import'))
 	.setMultiSelect(false)
-	// TODO add custom mime type for user_migration files?
-	// .setMimeTypeFilter([])
+	.setFilter(filePickerFilter)
 	.setModal(true)
 	.setType(1)
 	.allowDirectories(false)
 	.build()
-*/
 
 export default {
 	name: 'ImportSection',
@@ -145,6 +149,10 @@ export default {
 			type: Boolean,
 			default: true,
 		},
+		pendingRequest: {
+			type: Object,
+			default: () => ({}),
+		},
 		status: {
 			type: Object,
 			default: () => ({}),
@@ -157,14 +165,15 @@ export default {
 			startingImport: false,
 			cancellingImport: false,
 			filePickerError: null,
+			STATUS,
 		}
 	},
 
 	computed: {
 		modalMessage() {
-			if (this.status.status === 'waiting') {
+			if (this.status.status === STATUS.WAITING) {
 				return t('user_migration', 'Import queued')
-			} else if (this.status.status === 'started') {
+			} else if (this.status.status === STATUS.STARTED) {
 				return t('user_migration', 'Import in progress…')
 			}
 			return t('user_migration', 'Import completed successfully')
@@ -176,30 +185,9 @@ export default {
 			this.filePickerError = null
 
 			try {
-				// TODO: bring this back once nextcloud-dialogs is updated to support the filter function
-				// const filePath = await picker.pick()
-				const filePath = await new Promise((resolve, reject) => {
-					OC.dialogs.filepicker(
-						t('user_migration', 'Choose a file to import'),
-						resolve,
-						false,
-						null,
-						true,
-						1,
-						null,
-						{
-							allowDirectoryChooser: false,
-							filter: entry => {
-								if (entry.mimetype === 'httpd/unix-directory') {
-									return true
-								}
-								return entry.name.endsWith('.nextcloud_export')
-							},
-						}
-					)
-				})
-
+				const filePath = await filePicker.pick()
 				this.logger.debug(`Path "${filePath}" selected for import`)
+
 				if (!filePath.startsWith('/')) {
 					throw new Error(`Invalid path: ${filePath}`)
 				}

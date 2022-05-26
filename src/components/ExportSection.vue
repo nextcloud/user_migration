@@ -50,11 +50,11 @@
 				</div>
 			</div>
 
-			<div v-if="status.current === 'export'"
+			<div v-if="status.current === TYPE.EXPORT"
 				class="section__status">
 				<Button type="secondary"
 					:aria-label="t('user_migration', 'Show export status')"
-					:disabled="status.current === 'import' || cancellingExport"
+					:disabled="status.current === TYPE.IMPORT || cancellingExport"
 					@click.stop.prevent="openModal">
 					<template #icon>
 						<InformationOutline title="" :size="20" />
@@ -64,24 +64,24 @@
 				<Button class="section__modal-button"
 					type="secondary"
 					:aria-label="t('user_migration', 'Cancel export')"
-					:disabled="status.status !== 'waiting'"
+					:disabled="status.status !== STATUS.WAITING || cancellingExport"
 					@click.stop.prevent="cancelExport">
 					{{ t('user_migration', 'Cancel') }}
 				</Button>
-				<span class="settings-hint">{{ status.status === 'waiting' ? t('user_migration', 'Export queued') : t('user_migration', 'Export in progress…') }}</span>
+				<span class="settings-hint">{{ status.status === STATUS.WAITING ? t('user_migration', 'Export queued') : t('user_migration', 'Export in progress…') }}</span>
 				<div v-if="cancellingExport" class="icon-loading section__loading" />
 			</div>
 			<div v-else class="section__status">
 				<Button type="secondary"
 					:aria-label="t('user_migration', 'Export your data')"
-					:disabled="status.current === 'import' || startingExport"
+					:disabled="status.current === TYPE.IMPORT || starting"
 					@click.stop.prevent="startExport">
 					<template #icon>
 						<PackageDown title="" :size="20" />
 					</template>
 					{{ t('user_migration', 'Export') }}
 				</Button>
-				<div v-if="startingExport" class="icon-loading section__loading" />
+				<div v-if="starting" class="icon-loading section__loading" />
 			</div>
 
 			<Modal v-if="modalOpened"
@@ -92,14 +92,14 @@
 						<template #icon>
 							<PackageDown decorative />
 						</template>
-						<template v-if="status.status === 'waiting'" #desc>
+						<template v-if="status.status === STATUS.WAITING" #desc>
 							{{ notificationsEnabled ? t('user_migration', 'You will be notified when your export has completed. This may take a while.') : t('user_migration', 'This may take a while.') }}
 						</template>
-						<template v-else-if="status.status === 'started'" #desc>
+						<template v-else-if="status.status === STATUS.STARTED" #desc>
 							{{ t('user_migration', 'Please do not use your account while exporting.') }}
 						</template>
 					</EmptyContent>
-					<div v-if="status.status === 'waiting' || status.status === 'started'"
+					<div v-if="status.status === STATUS.WAITING || status.status === STATUS.STARTED"
 						class="section__icon icon-loading" />
 					<template v-else>
 						<CheckCircleOutline class="section__icon"
@@ -131,6 +131,8 @@ import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageDown from 'vue-material-design-icons/PackageDown'
 
 import { queueExportJob, cancelJob } from '../services/migrationService.js'
+import { REQUEST_TYPE, STATUS, TYPE } from '../shared/constants.js'
+import { resetPendingRequest, setPendingRequest, store } from '../shared/store.js'
 
 export default {
 	name: 'ExportSection',
@@ -146,10 +148,6 @@ export default {
 	},
 
 	props: {
-		notificationsEnabled: {
-			type: Boolean,
-			default: false,
-		},
 		loading: {
 			type: Boolean,
 			default: true,
@@ -157,6 +155,10 @@ export default {
 		migrators: {
 			type: Array,
 			default: () => [],
+		},
+		notificationsEnabled: {
+			type: Boolean,
+			default: false,
 		},
 		status: {
 			type: Object,
@@ -167,9 +169,8 @@ export default {
 	data() {
 		return {
 			modalOpened: false,
-			startingExport: false,
-			cancellingExport: false,
 			selectedMigrators: [],
+			STATUS,
 		}
 	},
 
@@ -180,10 +181,14 @@ export default {
 			return [...this.migrators].sort((a, b) => sortOrder.indexOf(a.id) - sortOrder.indexOf(b.id))
 		},
 
+		starting() {
+			return store.pendingRequest.current === TYPE.EXPORT && store.pendingRequest.type === REQUEST_TYPE.STARTING
+		},
+
 		modalMessage() {
-			if (this.status.status === 'waiting') {
+			if (this.status.status === STATUS.WAITING) {
 				return t('user_migration', 'Export queued')
-			} else if (this.status.status === 'started') {
+			} else if (this.status.status === STATUS.STARTED) {
 				return t('user_migration', 'Export in progress…')
 			}
 			return t('user_migration', 'Export completed successfully')
@@ -203,14 +208,14 @@ export default {
 	methods: {
 		async startExport() {
 			try {
-				this.startingExport = true
+				setPendingRequest(TYPE.EXPORT, REQUEST_TYPE.STARTING)
 				await queueExportJob(this.selectedMigrators)
 				this.$emit('refresh-status', () => {
 					this.openModal()
-					this.startingExport = false
+					resetPendingRequest()
 				})
 			} catch (error) {
-				this.startingExport = false
+				resetPendingRequest()
 				const errorMessage = error.message || 'Unknown error'
 				this.logger.error(`Error starting user export: ${errorMessage}`, { error })
 				showError(errorMessage)
@@ -219,13 +224,13 @@ export default {
 
 		async cancelExport() {
 			try {
-				this.cancellingExport = true
+				setPendingRequest(TYPE.EXPORT, REQUEST_TYPE.CANCELLING)
 				await cancelJob()
 				this.$emit('refresh-status', () => {
-					this.cancellingExport = false
+					resetPendingRequest()
 				})
 			} catch (error) {
-				this.cancellingExport = false
+				resetPendingRequest()
 				const errorMessage = error.message || 'Unknown error'
 				this.logger.error(`Error cancelling user export: ${errorMessage}`, { error })
 				showError(errorMessage)

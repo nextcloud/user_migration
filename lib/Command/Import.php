@@ -90,7 +90,7 @@ class Import extends Command {
 			$path = $input->getArgument('archive');
 			$io->writeln("Importing from ${path}…");
 			$importSource = new ImportSource($path);
-			$this->migrationService->import($importSource, $user, $output);
+			$this->migrationService->import($importSource, $user, $io);
 			$io->writeln("Successfully imported from ${path}");
 		} catch (\Exception $e) {
 			$io->error($e->getMessage());

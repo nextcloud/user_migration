@@ -154,7 +154,7 @@ class Export extends Command {
 
 		$userObject = $this->userManager->get($user);
 		if (!$userObject instanceof IUser) {
-			$io->error("Unknown user <" . $input->getArgument('user') . ">");
+			$io->error("Unknown user <$user>");
 			return 1;
 		}
 

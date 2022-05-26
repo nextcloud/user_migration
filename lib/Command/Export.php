@@ -127,18 +127,6 @@ class Export extends Command {
 			}
 		}
 
-		$user = $input->getArgument('user');
-		if (empty($user)) {
-			$io->warning('Missing user argument');
-			return 2;
-		}
-
-		$userObject = $this->userManager->get($user);
-		if (!$userObject instanceof IUser) {
-			$io->error("Unknown user <" . $input->getArgument('user') . ">");
-			return 1;
-		}
-
 		$selectedMigrators = null;
 		$types = $input->getOption('types');
 		if ($types !== false) {
@@ -156,6 +144,18 @@ class Export extends Command {
 					$selectedMigrators = $types;
 				}
 			}
+		}
+
+		$user = $input->getArgument('user');
+		if (empty($user)) {
+			$io->warning('Missing user argument');
+			return 2;
+		}
+
+		$userObject = $this->userManager->get($user);
+		if (!$userObject instanceof IUser) {
+			$io->error("Unknown user <" . $input->getArgument('user') . ">");
+			return 1;
 		}
 
 		$folder = $input->getArgument('folder');

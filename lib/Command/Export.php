@@ -133,8 +133,8 @@ class Export extends Command {
 					);
 					return 0;
 				default:
-					$io->warning("Invalid list argument: \"$list\"");
-					return 2;
+					$io->error("Invalid list argument: \"$list\"");
+					return 1;
 			}
 		}
 
@@ -148,8 +148,8 @@ class Export extends Command {
 				} else {
 					foreach ($types as $id) {
 						if (!in_array($id, array_map(fn (IMigrator $migrator) => $migrator->getId(), $migrators), true)) {
-							$io->warning("Invalid type: \"$id\"");
-							return 2;
+							$io->error("Invalid type: \"$id\"");
+							return 1;
 						}
 					}
 					$selectedMigrators = $types;
@@ -159,8 +159,8 @@ class Export extends Command {
 
 		$uid = $input->getArgument('user');
 		if (empty($uid)) {
-			$io->warning('Missing user argument');
-			return 2;
+			$io->error('Missing user argument');
+			return 1;
 		}
 
 		$user = $this->userManager->get($uid);
@@ -171,8 +171,8 @@ class Export extends Command {
 
 		$folder = $input->getArgument('folder');
 		if (empty($folder)) {
-			$io->warning('Missing folder argument');
-			return 2;
+			$io->error('Missing folder argument');
+			return 1;
 		}
 
 		try {

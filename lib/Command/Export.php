@@ -5,6 +5,7 @@ declare(strict_types=1);
 /**
  * @copyright Copyright (c) 2022 Côme Chilliet <come.chilliet@nextcloud.com>
  *
+ * @author Christopher Ng <chrng8@gmail.com>
  * @author Côme Chilliet <come.chilliet@nextcloud.com>
  *
  * @license AGPL-3.0
@@ -30,20 +31,26 @@ use OCA\UserMigration\TempExportDestination;
 use OCP\ITempManager;
 use OCP\IUser;
 use OCP\IUserManager;
+use OCP\UserMigration\IMigrator;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Command\HelpCommand;
+use Symfony\Component\Console\Formatter\WrappableOutputFormatterInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class Export extends Command {
 	private IUserManager $userManager;
 	private UserMigrationService $migrationService;
 	private ITempManager $tempManager;
 
-	public function __construct(IUserManager $userManager,
-								UserMigrationService $migrationService,
-								ITempManager $tempManager
-								) {
+	public function __construct(
+		IUserManager $userManager,
+		UserMigrationService $migrationService,
+		ITempManager $tempManager
+	) {
 		parent::__construct();
 		$this->userManager = $userManager;
 		$this->migrationService = $migrationService;
@@ -54,43 +61,136 @@ class Export extends Command {
 		$this
 			->setName('user:export')
 			->setDescription('Export a user.')
+			->addOption(
+				'list',
+				'l',
+				InputOption::VALUE_OPTIONAL,
+				'List the available data types, pass <comment>--list=full</comment> to show more information',
+				false,
+			)
+			->addOption(
+				'types',
+				't',
+				InputOption::VALUE_REQUIRED,
+				'Comma-separated list of data type ids, pass <comment>--types=none</comment> to only export base user data',
+				false,
+			)
 			->addArgument(
 				'user',
-				InputArgument::REQUIRED,
-				'user to export'
+				InputArgument::OPTIONAL,
+				'user to export',
 			)
 			->addArgument(
 				'folder',
-				InputArgument::REQUIRED,
-				'local folder to export into'
+				InputArgument::OPTIONAL,
+				'local folder to export into',
 			);
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int {
-		$userObject = $this->userManager->get($input->getArgument('user'));
+		$io = new SymfonyStyle($input, $output);
+		/** @var WrappableOutputFormatterInterface $formatter */
+		$formatter = $io->getFormatter();
 
-		if (!$userObject instanceof IUser) {
-			$output->writeln("<error>Unknown user " . $input->getArgument('user') . "</error>");
+		// Filter for only explicitly passed arguments
+		$args = array_filter(
+			$input->getArguments(),
+			fn (?string $value, string $arg) => $arg === 'command' ? false : !empty($value),
+			ARRAY_FILTER_USE_BOTH,
+		);
+		// Filter for only explicitly passed options
+		$options = array_filter(
+			$input->getOptions(),
+			fn ($value) => $value !== false,
+		);
+
+		// Show help if no arguments or options are passed
+		if (empty($args) && empty($options)) {
+			$help = new HelpCommand();
+			$help->setCommand($this);
+			return $help->run($input, $io);
+		}
+
+		$migrators = $this->migrationService->getMigrators();
+
+		$list = $input->getOption('list');
+		if ($list !== false) {
+			switch (true) {
+				case $list === null:
+					$io->writeln(array_map(fn (IMigrator $migrator) => $migrator->getId(), $migrators));
+					return 0;
+				case $list === 'full':
+					$io->table(
+						['Name', 'Id', 'Description'],
+						array_map(
+							fn (IMigrator $migrator) => [
+								$migrator->getDisplayName(),
+								$migrator->getId(),
+								'<comment>' . $formatter->formatAndWrap($migrator->getDescription(), 80) . '</comment>',
+							],
+							$migrators,
+						)
+					);
+					return 0;
+				default:
+					$io->error("Invalid list argument: \"$list\"");
+					return 1;
+			}
+		}
+
+		$selectedMigrators = null;
+		$types = $input->getOption('types');
+		if ($types !== false) {
+			$types = explode(',', $types);
+			if ($types !== false) {
+				if (count($types) === 1 && reset($types) === 'none') {
+					$selectedMigrators = [];
+				} else {
+					foreach ($types as $id) {
+						if (!in_array($id, array_map(fn (IMigrator $migrator) => $migrator->getId(), $migrators), true)) {
+							$io->error("Invalid type: \"$id\"");
+							return 1;
+						}
+					}
+					$selectedMigrators = $types;
+				}
+			}
+		}
+
+		$uid = $input->getArgument('user');
+		if (empty($uid)) {
+			$io->error('Missing user argument');
+			return 1;
+		}
+
+		$user = $this->userManager->get($uid);
+		if (!$user instanceof IUser) {
+			$io->error("Unknown user <$uid>");
+			return 1;
+		}
+
+		$folder = $input->getArgument('folder');
+		if (empty($folder)) {
+			$io->error('Missing folder argument');
 			return 1;
 		}
 
 		try {
-			$folder = $input->getArgument('folder');
 			if (!is_writable($folder)) {
-				$output->writeln("<error>The target folder must exist and be writable by the web server user</error>");
-				return 2;
+				$io->error("The target folder must exist and be writable by the web server user");
+				return 1;
 			}
 			$folder = realpath($folder);
 			$exportDestination = new TempExportDestination($this->tempManager);
-			$this->migrationService->export($exportDestination, $userObject, null, $output);
+			$this->migrationService->export($exportDestination, $user, $selectedMigrators, $io);
 			$path = $exportDestination->getPath();
-			$exportName = $userObject->getUID().'_'.date('Y-m-d_H-i-s');
+			$exportName = $user->getUID().'_'.date('Y-m-d_H-i-s');
 			if (rename($path, $folder.'/'.$exportName.'.zip') === false) {
 				throw new \Exception("Failed to move $path to $folder/$exportName.zip");
 			}
-			$output->writeln("Export saved in $folder/$exportName.zip");
+			$io->writeln("Export saved in $folder/$exportName.zip");
 		} catch (\Exception $e) {
-			$output->writeln("<error>" . $e->getMessage() . "</error>");
+			$io->error($e->getMessage());
 			return $e->getCode() !== 0 ? (int)$e->getCode() : 1;
 		}
 

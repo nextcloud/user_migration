@@ -92,8 +92,17 @@ class Export extends Command {
 		/** @var WrappableOutputFormatterInterface $formatter */
 		$formatter = $io->getFormatter();
 
-		$args = array_filter($input->getArguments(), fn (?string $value, string $arg) => $arg === 'command' ? false : !empty($value), ARRAY_FILTER_USE_BOTH);
-		$options = array_filter($input->getOptions(), fn ($value) => $value !== false);
+		// Filter for only explicitly passed arguments
+		$args = array_filter(
+			$input->getArguments(),
+			fn (?string $value, string $arg) => $arg === 'command' ? false : !empty($value),
+			ARRAY_FILTER_USE_BOTH,
+		);
+		// Filter for only explicitly passed options
+		$options = array_filter(
+			$input->getOptions(),
+			fn ($value) => $value !== false,
+		);
 
 		// Show help if no arguments or options are passed
 		if (empty($args) && empty($options)) {

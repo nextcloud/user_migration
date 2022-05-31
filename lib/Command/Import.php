@@ -93,6 +93,9 @@ class Import extends Command {
 			$this->migrationService->import($importSource, $user, $io);
 			$io->writeln("Successfully imported from ${path}");
 		} catch (\Exception $e) {
+			if ($io->isDebug()) {
+				$io->error($e->getTrace());
+			}
 			$io->error($e->getMessage());
 			return $e->getCode() !== 0 ? (int)$e->getCode() : 1;
 		}

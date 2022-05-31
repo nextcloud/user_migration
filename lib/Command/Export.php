@@ -190,6 +190,9 @@ class Export extends Command {
 			}
 			$io->writeln("Export saved in $folder/$exportName.zip");
 		} catch (\Exception $e) {
+			if ($io->isDebug()) {
+				$io->error($e->getTrace());
+			}
 			$io->error($e->getMessage());
 			return $e->getCode() !== 0 ? (int)$e->getCode() : 1;
 		}

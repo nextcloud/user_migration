@@ -48,6 +48,7 @@ use OCP\Security\ISecureRandom;
 use OCP\UserMigration\IExportDestination;
 use OCP\UserMigration\IImportSource;
 use OCP\UserMigration\IMigrator;
+use OCP\UserMigration\ISizeEstimationMigrator;
 use OCP\UserMigration\TMigratorBasicVersionHandling;
 use OCP\UserMigration\UserMigrationException;
 use Psr\Container\ContainerInterface;
@@ -127,7 +128,9 @@ class UserMigrationService {
 			if ($filteredMigratorList !== null && !in_array($migrator->getId(), $filteredMigratorList)) {
 				continue;
 			}
-			$size += $migrator->getEstimatedExportSize($user);
+			if ($migrator instanceof ISizeEstimationMigrator) {
+				$size += $migrator->getEstimatedExportSize($user);
+			}
 		}
 
 		$this->internalCache->set($cacheKey, $size);

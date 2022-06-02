@@ -112,15 +112,6 @@ class UserMigrationService {
 	 * @return int Estimated size in KiB
 	 */
 	private function estimateExportSize(IUser $user, ?array $filteredMigratorList = null): int {
-		$cacheKey = $user->getUID();
-		if ($filteredMigratorList !== null) {
-			$cacheKey .= '::' . json_encode($filteredMigratorList);
-		}
-
-		if ($this->internalCache->hasKey($cacheKey)) {
-			return $this->internalCache->get($cacheKey);
-		}
-
 		// 1MiB for base user data
 		$size = 1024;
 
@@ -128,12 +119,18 @@ class UserMigrationService {
 			if ($filteredMigratorList !== null && !in_array($migrator->getId(), $filteredMigratorList)) {
 				continue;
 			}
+			$cacheKey = $user->getUID() . '::' . $migrator->getId();
+			if ($this->internalCache->hasKey($cacheKey)) {
+				$size += $this->internalCache->get($cacheKey);
+				continue;
+			}
 			if ($migrator instanceof ISizeEstimationMigrator) {
-				$size += $migrator->getEstimatedExportSize($user);
+				$migratorSize = $migrator->getEstimatedExportSize($user);
+				$this->internalCache->set($cacheKey, $migratorSize);
+				$size += $migratorSize;
 			}
 		}
 
-		$this->internalCache->set($cacheKey, $size);
 		return $size;
 	}
 

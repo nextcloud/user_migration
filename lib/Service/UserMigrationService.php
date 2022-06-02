@@ -144,11 +144,8 @@ class UserMigrationService {
 	 */
 	public function checkExportability(IUser $user, ?array $filteredMigratorList = null): void {
 		try {
-			OC_Util::tearDownFS();
-			OC_Util::setupFS($user->getUID());
-			$storageInfo = OC_Helper::getStorageInfo('/');
-			// TODO safe to cache?
-			$freeSpace = (int)ceil($storageInfo['free'] / 1024);
+			$userFolder = $this->root->getUserFolder($user->getUID());
+			$freeSpace = (int)ceil($userFolder->getFreeSpace() / 1024);
 		} catch (Throwable $e) {
 			throw new NotExportableException('Error calculating amount of free space available');
 		}

@@ -217,6 +217,28 @@ class ApiController extends OCSController {
 	 *
 	 * @throws OCSException
 	 */
+	public function estimate(?array $migrators): DataResponse {
+		$user = $this->checkJobAndGetUser();
+
+		if (!is_null($migrators)) {
+			$this->checkMigrators($migrators);
+		}
+
+		try {
+			$size = $this->migrationService->estimateExportSize($user, $migrators);
+		} catch (UserMigrationException $e) {
+			throw new OCSException($e->getMessage());
+		}
+
+		return new DataResponse(['size' => $size], Http::STATUS_OK);
+	}
+
+	/**
+	 * @NoAdminRequired
+	 * @NoSubAdminRequired
+	 *
+	 * @throws OCSException
+	 */
 	public function exportable(?array $migrators): DataResponse {
 		$user = $this->checkJobAndGetUser();
 

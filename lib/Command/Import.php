@@ -5,6 +5,7 @@ declare(strict_types=1);
 /**
  * @copyright Copyright (c) 2022 Côme Chilliet <come.chilliet@nextcloud.com>
  *
+ * @author Christopher Ng <chrng8@gmail.com>
  * @author Côme Chilliet <come.chilliet@nextcloud.com>
  *
  * @license AGPL-3.0
@@ -29,29 +30,24 @@ use OCA\UserMigration\ImportSource;
 use OCA\UserMigration\Service\UserMigrationService;
 use OCP\IUserManager;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class Import extends Command {
 	private UserMigrationService $migrationService;
 
 	private IUserManager $userManager;
 
-	private QuestionHelper $questionHelper;
-
 	public function __construct(
 		UserMigrationService $migrationService,
-		IUserManager $userManager,
-		QuestionHelper $questionHelper
+		IUserManager $userManager
 	) {
 		parent::__construct();
 		$this->migrationService = $migrationService;
 		$this->userManager = $userManager;
-		$this->questionHelper = $questionHelper;
 	}
 
 	protected function configure(): void {
@@ -72,19 +68,19 @@ class Import extends Command {
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int {
+		$io = new SymfonyStyle($input, $output);
+
 		try {
 			$uid = $input->getOption('user');
 			if (!empty($uid)) {
 				$user = $this->userManager->get($uid);
 				if ($user === null) {
-					$output->writeln("<error>User <$uid> does not exist</error>");
+					$io->error("User <$uid> does not exist");
 					return 1;
 				} else {
-					$question = new ConfirmationQuestion(
-						'Warning: A user with this uid already exists!'."\n"
-						. 'Do you really want to overwrite this user with the imported data? (y/n) ', false);
-					if (!$this->questionHelper->ask($input, $output, $question)) {
-						$output->writeln('aborted.');
+					$io->warning('A user with this uid already exists!');
+					if (!$io->confirm('Do you really want to overwrite this user with the imported data?', false)) {
+						$io->writeln('aborted.');
 						return 1;
 					}
 				}
@@ -92,13 +88,15 @@ class Import extends Command {
 				$user = null;
 			}
 			$path = $input->getArgument('archive');
-			$output->writeln("Importing from ${path}…");
+			$io->writeln("Importing from ${path}…");
 			$importSource = new ImportSource($path);
-			$this->migrationService->import($importSource, $user, $output);
-			$output->writeln("Successfully imported from ${path}");
+			$this->migrationService->import($importSource, $user, $io);
+			$io->writeln("Successfully imported from ${path}");
 		} catch (\Exception $e) {
-			$output->writeln("$e");
-			$output->writeln("<error>" . $e->getMessage() . "</error>");
+			if ($io->isDebug()) {
+				$io->error($e->getTrace());
+			}
+			$io->error($e->getMessage());
 			return $e->getCode() !== 0 ? (int)$e->getCode() : 1;
 		}
 

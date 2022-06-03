@@ -237,7 +237,8 @@ class ApiController extends OCSController {
 		}
 
 		return new DataResponse([
-			'size' => $size,
+			'size' => round($size, -2),
+			'units' => 'KiB',
 			'warning' => $warning ?? null,
 		], Http::STATUS_OK);
 	}

@@ -53,5 +53,9 @@ export const handleError = (error) => {
  * @return {string}
  */
 export const formatQueryParamArray = (name, values) => {
-	 return `?${values.map(value => `${name}[]=${value}`).join('&')}`
+	if (values.length === 0) {
+		return `?${name}[]=`
+	}
+
+	return `?${values.map(value => `${name}[]=${value}`).join('&')}`
 }

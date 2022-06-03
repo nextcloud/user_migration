@@ -221,6 +221,10 @@ class ApiController extends OCSController {
 		$user = $this->checkJobAndGetUser();
 
 		if (!is_null($migrators)) {
+			if (count($migrators) === 1 && reset($migrators) === '') {
+				$migrators = [];
+			}
+
 			$this->checkMigrators($migrators);
 		}
 

@@ -217,7 +217,7 @@ class ApiController extends OCSController {
 	 *
 	 * @throws OCSException
 	 */
-	public function estimate(?array $migrators): DataResponse {
+	public function exportable(?array $migrators): DataResponse {
 		$user = $this->checkJobAndGetUser();
 
 		if (!is_null($migrators)) {
@@ -230,29 +230,16 @@ class ApiController extends OCSController {
 			throw new OCSException($e->getMessage());
 		}
 
-		return new DataResponse(['size' => $size], Http::STATUS_OK);
-	}
-
-	/**
-	 * @NoAdminRequired
-	 * @NoSubAdminRequired
-	 *
-	 * @throws OCSException
-	 */
-	public function exportable(?array $migrators): DataResponse {
-		$user = $this->checkJobAndGetUser();
-
-		if (!is_null($migrators)) {
-			$this->checkMigrators($migrators);
-		}
-
 		try {
 			$this->migrationService->checkExportability($user, $migrators);
 		} catch (NotExportableException $e) {
-			throw new OCSException($e->getMessage());
+			$warning = $e->getMessage();
 		}
 
-		return new DataResponse([], Http::STATUS_OK);
+		return new DataResponse([
+			'size' => $size,
+			'warning' => $warning ?? null,
+		], Http::STATUS_OK);
 	}
 
 	/**

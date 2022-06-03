@@ -45,11 +45,12 @@ use OCP\SystemTag\TagNotFoundException;
 use OCP\UserMigration\IExportDestination;
 use OCP\UserMigration\IImportSource;
 use OCP\UserMigration\IMigrator;
+use OCP\UserMigration\ISizeEstimationMigrator;
 use OCP\UserMigration\TMigratorBasicVersionHandling;
 use OCP\UserMigration\UserMigrationException;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class FilesMigrator implements IMigrator {
+class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 	use TMigratorBasicVersionHandling;
 
 	protected const PATH_FILES = Application::APP_ID.'/files';
@@ -111,11 +112,10 @@ class FilesMigrator implements IMigrator {
 		try {
 			$versionsFolder = $this->root->get('/'.$uid.'/'.FilesVersionsStorage::VERSIONS_ROOT);
 			if ($versionsFolder instanceof Folder) {
-				return 0;
+				$size += $versionsFolder->getSize() / 1024;
 			}
-			$size += $versionsFolder->getSize() / 1024;
 		} catch (\Throwable $e) {
-			return 0;
+			// Skip versions folder size estimate on failure
 		}
 
 		// 1MiB for tags and system tags

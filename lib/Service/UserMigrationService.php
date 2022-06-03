@@ -27,8 +27,6 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration\Service;
 
-use OC_Helper;
-use OC_Util;
 use OC\AppFramework\Bootstrap\Coordinator;
 use OC\Cache\CappedMemoryCache;
 use OCA\UserMigration\BackgroundJob\UserExportJob;

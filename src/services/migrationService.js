@@ -66,7 +66,7 @@ export const cancelJob = async () => {
  * @return {object}
  */
 export const checkExportability = async (migrators) => {
-	const url = generateOcsUrl('/apps/{appId}/api/v{apiVersion}/exportable', { appId: APP_ID, apiVersion: API_VERSION }) + formatQueryParamArray('migrators', migrators)
+	const url = generateOcsUrl('/apps/{appId}/api/v{apiVersion}/export', { appId: APP_ID, apiVersion: API_VERSION }) + formatQueryParamArray('migrators', migrators)
 	const response = await axios.get(url)
 
 	return response.data.ocs?.data

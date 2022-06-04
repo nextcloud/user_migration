@@ -25,25 +25,39 @@ import { showWarning, showError } from '@nextcloud/dialogs'
 import logger from './logger.js'
 
 /**
- * @param {AxiosError} error Error object
+ * @param {AxiosError|string} error Error or message
  *
- * @return {void}
+ * @return {string}
  */
-export const handleWarning = (error) => {
-	const warningMessage = error.response.data.ocs?.meta?.message || 'Unknown warning'
-	logger.warn(warningMessage, { error })
-	showWarning(warningMessage)
+const parseMessage = (error) => {
+	if (typeof error === 'string') {
+		return error || 'Unknown error'
+	}
+	return error.response.data.ocs?.meta?.message || 'Unknown error'
 }
 
 /**
- * @param {AxiosError} error Error object
+ * @param {AxiosError|string} error Error or message
+ * @param {import('@nextcloud/dialogs/dist/toast').ToastOptions} toastOptions Toast options
  *
  * @return {void}
  */
-export const handleError = (error) => {
-	const errorMessage = error.response.data.ocs?.meta?.message || 'Unknown error'
-	logger.error(errorMessage, { error })
-	showError(errorMessage)
+export const handleWarning = (error, toastOptions = {}) => {
+	const message = parseMessage(error)
+	logger.warn(message, { error })
+	showWarning(message, toastOptions)
+}
+
+/**
+ * @param {AxiosError|string} error Error or message
+ * @param {import('@nextcloud/dialogs/dist/toast').ToastOptions} toastOptions Toast options
+ *
+ * @return {void}
+ */
+export const handleError = (error, toastOptions = {}) => {
+	const message = parseMessage(error)
+	logger.error(message, { error })
+	showError(message, toastOptions)
 }
 
 /**

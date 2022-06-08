@@ -81,7 +81,7 @@
 					</template>
 					{{ t('user_migration', 'Export') }}
 				</Button>
-				<span v-if="estimatedSize" class="settings-hint">{{ t('user_migration', 'Estimated size: {estimatedSize}', { estimatedSize: this.estimatedSize }) }}</span>
+				<span v-if="estimatedSizeWithUnits" class="settings-hint">{{ t('user_migration', 'Estimated size: {estimatedSizeWithUnits}', { estimatedSizeWithUnits: this.estimatedSizeWithUnits }) }}</span>
 				<div v-if="startingExport" class="icon-loading section__loading" />
 			</div>
 
@@ -167,7 +167,7 @@ export default {
 	data() {
 		return {
 			cancellingExport: false,
-			estimatedSize: null,
+			estimatedSizeWithUnits: null,
 			modalOpened: false,
 			selectedMigrators: [],
 			startingExport: false,
@@ -203,11 +203,11 @@ export default {
 			immediate: false,
 			async handler(migrators, oldMigrators) {
 				try {
-					const { size, units, warning } = await checkExportability(migrators)
+					const { estimatedSize, units, warning } = await checkExportability(migrators)
 					if (warning) {
 						handleWarning(warning)
 					}
-					this.estimatedSize = `${size} ${units}`
+					this.estimatedSizeWithUnits = `${estimatedSize} ${units}`
 				} catch (error) {
 					handleError(error)
 				}

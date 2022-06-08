@@ -239,7 +239,7 @@ class ApiController extends OCSController {
 		}
 
 		return new DataResponse([
-			'size' => $roundedSize,
+			'estimatedSize' => $roundedSize,
 			'units' => 'MiB',
 			'warning' => $warning ?? null,
 		], Http::STATUS_OK);

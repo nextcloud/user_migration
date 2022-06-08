@@ -35,10 +35,13 @@ use OCA\UserMigration\Db\UserExport;
 use OCA\UserMigration\Db\UserExportMapper;
 use OCA\UserMigration\Db\UserImport;
 use OCA\UserMigration\Db\UserImportMapper;
+use OCA\UserMigration\ExportDestination;
 use OCA\UserMigration\NotExportableException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\BackgroundJob\IJobList;
+use OCP\Files\File;
 use OCP\Files\IRootFolder;
+use OCP\Files\NotFoundException;
 use OCP\IConfig;
 use OCP\IUser;
 use OCP\IUserManager;
@@ -149,6 +152,17 @@ class UserMigrationService {
 			$freeSpace = (int)ceil($userFolder->getFreeSpace() / 1024);
 		} catch (Throwable $e) {
 			throw new NotExportableException('Error calculating amount of free space available');
+		}
+
+		try {
+			$exportFile = $userFolder->get(ExportDestination::EXPORT_FILENAME);
+			if (!($exportFile instanceof File)) {
+				throw new \InvalidArgumentException('User export is not a file');
+			}
+			// Add previous export file size to free space as it will be overwritten if existing
+			$freeSpace += $exportFile->getSize() / 1024;
+		} catch (NotFoundException $e) {
+			// No size addition needed if export file doesn't exist
 		}
 
 		try {

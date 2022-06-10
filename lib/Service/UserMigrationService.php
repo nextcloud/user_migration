@@ -28,15 +28,20 @@ declare(strict_types=1);
 namespace OCA\UserMigration\Service;
 
 use OC\AppFramework\Bootstrap\Coordinator;
+use OC\Cache\CappedMemoryCache;
 use OCA\UserMigration\BackgroundJob\UserExportJob;
 use OCA\UserMigration\BackgroundJob\UserImportJob;
 use OCA\UserMigration\Db\UserExport;
 use OCA\UserMigration\Db\UserExportMapper;
 use OCA\UserMigration\Db\UserImport;
 use OCA\UserMigration\Db\UserImportMapper;
+use OCA\UserMigration\ExportDestination;
+use OCA\UserMigration\NotExportableException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\BackgroundJob\IJobList;
+use OCP\Files\File;
 use OCP\Files\IRootFolder;
+use OCP\Files\NotFoundException;
 use OCP\IConfig;
 use OCP\IUser;
 use OCP\IUserManager;
@@ -44,6 +49,7 @@ use OCP\Security\ISecureRandom;
 use OCP\UserMigration\IExportDestination;
 use OCP\UserMigration\IImportSource;
 use OCP\UserMigration\IMigrator;
+use OCP\UserMigration\ISizeEstimationMigrator;
 use OCP\UserMigration\TMigratorBasicVersionHandling;
 use OCP\UserMigration\UserMigrationException;
 use Psr\Container\ContainerInterface;
@@ -71,6 +77,8 @@ class UserMigrationService {
 
 	protected IJobList $jobList;
 
+	protected CappedMemoryCache $internalCache;
+
 	protected const ENTITY_JOB_MAP = [
 		UserExport::class => UserExportJob::class,
 		UserImport::class => UserImportJob::class,
@@ -94,12 +102,84 @@ class UserMigrationService {
 		$this->exportMapper = $exportMapper;
 		$this->importMapper = $importMapper;
 		$this->jobList = $jobList;
+		$this->internalCache = new CappedMemoryCache();
 
 		$this->mandatory = true;
 	}
 
 	/**
 	 * @param ?string[] $filteredMigratorList If not null, only these migrators will run. If empty only the main account data will be exported.
+	 *
+	 * @return int Estimated size in KiB
+	 *
+	 * @throws UserMigrationException
+	 */
+	public function estimateExportSize(IUser $user, ?array $filteredMigratorList = null): int {
+		// 1MiB for base user data
+		$size = 1024;
+
+		foreach ($this->getMigrators() as $migrator) {
+			if ($filteredMigratorList !== null && !in_array($migrator->getId(), $filteredMigratorList)) {
+				continue;
+			}
+			$cacheKey = $user->getUID() . '::' . $migrator->getId();
+			if ($this->internalCache->hasKey($cacheKey)) {
+				$size += $this->internalCache->get($cacheKey);
+				continue;
+			}
+			if ($migrator instanceof ISizeEstimationMigrator) {
+				try {
+					$migratorSize = $migrator->getEstimatedExportSize($user);
+				} catch (Throwable $e) {
+					throw new UserMigrationException('Could not estimate export size for ' . $migrator->getDisplayName(), 0, $e);
+				}
+				$this->internalCache->set($cacheKey, $migratorSize);
+				$size += $migratorSize;
+			}
+		}
+
+		return $size;
+	}
+
+	/**
+	 * @param ?string[] $filteredMigratorList If not null, only these migrators will run. If empty only the main account data will be exported.
+	 *
+	 * @throws NotExportableException
+	 */
+	public function checkExportability(IUser $user, ?array $filteredMigratorList = null): void {
+		try {
+			$userFolder = $this->root->getUserFolder($user->getUID());
+			$freeSpace = (int)ceil($userFolder->getFreeSpace() / 1024);
+		} catch (Throwable $e) {
+			throw new NotExportableException('Error calculating amount of free space available');
+		}
+
+		try {
+			$exportFile = $userFolder->get(ExportDestination::EXPORT_FILENAME);
+			if (!($exportFile instanceof File)) {
+				throw new \InvalidArgumentException('User export is not a file');
+			}
+			// Add previous export file size to free space as it will be overwritten if existing
+			$freeSpace += $exportFile->getSize() / 1024;
+		} catch (NotFoundException $e) {
+			// No size addition needed if export file doesn't exist
+		}
+
+		try {
+			$exportSize = $this->estimateExportSize($user, $filteredMigratorList);
+		} catch (UserMigrationException $e) {
+			throw new NotExportableException('Error estimating export size');
+		}
+
+		$freeSpaceAfterExport = $freeSpace - $exportSize;
+		if ($freeSpaceAfterExport < 0) {
+			throw new NotExportableException('Insufficient storage space available to export, please free up ' . (int)abs($freeSpaceAfterExport) . ' KiB or more to be able to export your data');
+		}
+	}
+
+	/**
+	 * @param ?string[] $filteredMigratorList If not null, only these migrators will run. If empty only the main account data will be exported.
+	 *
 	 * @throws UserMigrationException
 	 */
 	public function export(IExportDestination $exportDestination, IUser $user, ?array $filteredMigratorList = null, ?OutputInterface $output = null): void {

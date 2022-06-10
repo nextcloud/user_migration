@@ -45,11 +45,12 @@ use OCP\SystemTag\TagNotFoundException;
 use OCP\UserMigration\IExportDestination;
 use OCP\UserMigration\IImportSource;
 use OCP\UserMigration\IMigrator;
+use OCP\UserMigration\ISizeEstimationMigrator;
 use OCP\UserMigration\TMigratorBasicVersionHandling;
 use OCP\UserMigration\UserMigrationException;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class FilesMigrator implements IMigrator {
+class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 	use TMigratorBasicVersionHandling;
 
 	protected const PATH_FILES = Application::APP_ID.'/files';
@@ -84,6 +85,46 @@ class FilesMigrator implements IMigrator {
 		$this->systemTagMapper = $systemTagMapper;
 		$this->commentsManager = $commentsManager;
 		$this->l10n = $l10n;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getEstimatedExportSize(IUser $user): int {
+		$uid = $user->getUID();
+
+		$userFolder = $this->root->getUserFolder($uid);
+
+		$size = $userFolder->getSize() / 1024;
+
+		// Export file itself is not exported so we subtract it if existing
+		try {
+			$exportFile = $userFolder->get(ExportDestination::EXPORT_FILENAME);
+			if (!($exportFile instanceof File)) {
+				throw new \InvalidArgumentException('User export is not a file');
+			}
+
+			$size -= $exportFile->getSize() / 1024;
+		} catch (NotFoundException $e) {
+			// No size subtraction needed if export file doesn't exist
+		}
+
+		try {
+			$versionsFolder = $this->root->get('/'.$uid.'/'.FilesVersionsStorage::VERSIONS_ROOT);
+			if ($versionsFolder instanceof Folder) {
+				$size += $versionsFolder->getSize() / 1024;
+			}
+		} catch (\Throwable $e) {
+			// Skip versions folder size estimate on failure
+		}
+
+		// 1MiB for tags and system tags
+		$size += 1024;
+
+		// 2MiB for comments
+		$size += 2048;
+
+		return (int)ceil($size);
 	}
 
 	/**

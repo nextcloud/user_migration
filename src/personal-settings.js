@@ -24,7 +24,7 @@ import Vue from 'vue'
 import { translate as t, translatePlural as n } from '@nextcloud/l10n'
 import '@nextcloud/dialogs/styles/toast.scss'
 
-import logger from './logger.js'
+import logger from './shared/logger.js'
 import PersonalSettings from './views/Personal/Settings.vue'
 
 Vue.prototype.t = t

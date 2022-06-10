@@ -151,7 +151,7 @@ class UserMigrationService {
 			$userFolder = $this->root->getUserFolder($user->getUID());
 			$freeSpace = (int)ceil($userFolder->getFreeSpace() / 1024);
 		} catch (Throwable $e) {
-			throw new NotExportableException('Error calculating amount of free space available');
+			throw new NotExportableException('Error calculating amount of free storage space available');
 		}
 
 		try {
@@ -171,9 +171,9 @@ class UserMigrationService {
 			throw new NotExportableException('Error estimating export size');
 		}
 
-		$freeSpaceAfterExport = $freeSpace - $exportSize;
+		$freeSpaceAfterExport = ($freeSpace - $exportSize) / 1024;
 		if ($freeSpaceAfterExport < 0) {
-			throw new NotExportableException('Insufficient storage space available to export, please free up ' . (int)abs($freeSpaceAfterExport) . ' KiB or more to be able to export your data');
+			throw new NotExportableException('Insufficient storage space available, please free up ' . (int)abs($freeSpaceAfterExport) . ' MiB or more to be able to export your data without running out of space');
 		}
 	}
 

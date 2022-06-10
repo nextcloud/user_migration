@@ -25,6 +25,7 @@ import confirmPassword from '@nextcloud/password-confirmation'
 import { generateOcsUrl } from '@nextcloud/router'
 
 import { APP_ID, API_VERSION } from '../shared/constants.js'
+import { formatQueryParamArray } from '../shared/utils.js'
 
 /**
  * @return {object}
@@ -55,6 +56,18 @@ export const cancelJob = async () => {
 	await confirmPassword()
 
 	const response = await axios.put(url)
+
+	return response.data.ocs?.data
+}
+
+/**
+ * @param {string[]} migrators Array of migrators
+ *
+ * @return {object}
+ */
+export const checkExportability = async (migrators) => {
+	const url = generateOcsUrl('/apps/{appId}/api/v{apiVersion}/export', { appId: APP_ID, apiVersion: API_VERSION }) + formatQueryParamArray('migrators', migrators)
+	const response = await axios.get(url)
 
 	return response.data.ocs?.data
 }

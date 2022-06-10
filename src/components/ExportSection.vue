@@ -81,6 +81,7 @@
 					</template>
 					{{ t('user_migration', 'Export') }}
 				</Button>
+				<span v-if="estimatedSizeWithUnits" class="settings-hint">{{ t('user_migration', 'Estimated size: {estimatedSizeWithUnits}', { estimatedSizeWithUnits: this.estimatedSizeWithUnits }) }}</span>
 				<div v-if="startingExport" class="icon-loading section__loading" />
 			</div>
 
@@ -120,8 +121,6 @@
 </template>
 
 <script>
-import { showError } from '@nextcloud/dialogs'
-
 import Button from '@nextcloud/vue/dist/Components/Button'
 import CheckboxRadioSwitch from '@nextcloud/vue/dist/Components/CheckboxRadioSwitch'
 import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline'
@@ -130,7 +129,8 @@ import InformationOutline from 'vue-material-design-icons/InformationOutline'
 import Modal from '@nextcloud/vue/dist/Components/Modal'
 import PackageDown from 'vue-material-design-icons/PackageDown'
 
-import { queueExportJob, cancelJob } from '../services/migrationService.js'
+import { queueExportJob, cancelJob, checkExportability } from '../services/migrationService.js'
+import { handleError, handleWarning } from '../shared/utils.js'
 
 export default {
 	name: 'ExportSection',
@@ -166,10 +166,11 @@ export default {
 
 	data() {
 		return {
-			modalOpened: false,
-			startingExport: false,
 			cancellingExport: false,
+			estimatedSizeWithUnits: null,
+			modalOpened: false,
 			selectedMigrators: [],
+			startingExport: false,
 		}
 	},
 
@@ -192,10 +193,24 @@ export default {
 
 	watch: {
 		sortedMigrators: {
-			deep: true,
 			immediate: true,
 			handler(migrators, oldMigrators) {
 				this.selectedMigrators = migrators.map(({ id }) => id)
+			},
+		},
+
+		selectedMigrators: {
+			immediate: false,
+			async handler(migrators, oldMigrators) {
+				try {
+					const { estimatedSize, units, warning } = await checkExportability(migrators)
+					if (warning) {
+						handleWarning(warning)
+					}
+					this.estimatedSizeWithUnits = `${estimatedSize} ${units}`
+				} catch (error) {
+					handleError(error)
+				}
 			},
 		},
 	},
@@ -211,9 +226,7 @@ export default {
 				})
 			} catch (error) {
 				this.startingExport = false
-				const errorMessage = error.message || 'Unknown error'
-				this.logger.error(`Error starting user export: ${errorMessage}`, { error })
-				showError(errorMessage)
+				handleError(error)
 			}
 		},
 
@@ -226,9 +239,7 @@ export default {
 				})
 			} catch (error) {
 				this.cancellingExport = false
-				const errorMessage = error.message || 'Unknown error'
-				this.logger.error(`Error cancelling user export: ${errorMessage}`, { error })
-				showError(errorMessage)
+				handleError(error)
 			}
 		},
 

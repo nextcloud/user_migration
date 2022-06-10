@@ -36,12 +36,12 @@
 
 <script>
 import { getCapabilities } from '@nextcloud/capabilities'
-import { showError } from '@nextcloud/dialogs'
 
 import { getMigrators, getStatus } from '../../services/migrationService.js'
 
 import ExportSection from '../../components/ExportSection.vue'
 import ImportSection from '../../components/ImportSection.vue'
+import { handleError } from '../../shared/utils.js'
 
 // Polling interval in seconds
 const STATUS_POLLING_INTERVAL = 30
@@ -80,9 +80,7 @@ export default {
 			try {
 				this.migrators = await getMigrators()
 			} catch (error) {
-				const errorMessage = error.message || 'Unknown error'
-				this.logger.error(`Error getting available migrators: ${errorMessage}`, { error })
-				showError(errorMessage)
+				handleError(error)
 			}
 		},
 
@@ -90,9 +88,7 @@ export default {
 			try {
 				this.status = await getStatus()
 			} catch (error) {
-				const errorMessage = error.message || 'Unknown error'
-				this.logger.error(`Error polling server for export and import status: ${errorMessage}`, { error })
-				showError(errorMessage)
+				handleError(error)
 			}
 		},
 

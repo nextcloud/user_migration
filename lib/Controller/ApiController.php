@@ -230,8 +230,8 @@ class ApiController extends OCSController {
 
 		try {
 			$size = $this->migrationService->estimateExportSize($user, $migrators);
-			// Convert to MiB and round to one significant digit after the decimal point
-			$roundedSize = round($size / 1024, 1);
+			// Round and convert to MiB
+			$roundedSize = max(1, round($size / 1024));
 		} catch (UserMigrationException $e) {
 			throw new OCSException($e->getMessage());
 		}

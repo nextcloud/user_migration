@@ -29,6 +29,7 @@ namespace OCA\UserMigration\Controller;
 use OCA\UserMigration\AppInfo\Application;
 use OCA\UserMigration\Db\UserExport;
 use OCA\UserMigration\Db\UserImport;
+use OCA\UserMigration\NotExportableException;
 use OCA\UserMigration\Service\UserMigrationService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\DataResponse;
@@ -171,19 +172,9 @@ class ApiController extends OCSController {
 	}
 
 	/**
-	 * @NoAdminRequired
-	 * @NoSubAdminRequired
-	 * @PasswordConfirmationRequired
-	 *
 	 * @throws OCSException
 	 */
-	public function export(array $migrators): DataResponse {
-		$user = $this->userSession->getUser();
-
-		if (empty($user)) {
-			throw new OCSException('No user currently logged in');
-		}
-
+	private function checkMigrators(array $migrators): void {
 		/** @var string[] $availableMigrators */
 		$availableMigrators = array_map(
 			fn (IMigrator $migrator) => $migrator->getId(),
@@ -195,6 +186,17 @@ class ApiController extends OCSController {
 				throw new OCSException("Requested migrator \"$migrator\" not available");
 			}
 		}
+	}
+
+	/**
+	 * @throws OCSException
+	 */
+	private function checkJobAndGetUser(): IUser {
+		$user = $this->userSession->getUser();
+
+		if (empty($user)) {
+			throw new OCSException('No user currently logged in');
+		}
 
 		try {
 			$job = $this->migrationService->getCurrentJob($user);
@@ -205,6 +207,54 @@ class ApiController extends OCSController {
 		if (!empty($job)) {
 			throw new OCSException('User migration operation already queued');
 		}
+
+		return $user;
+	}
+
+	/**
+	 * @NoAdminRequired
+	 * @NoSubAdminRequired
+	 *
+	 * @throws OCSException
+	 */
+	public function exportable(?array $migrators): DataResponse {
+		$user = $this->checkJobAndGetUser();
+
+		if (!is_null($migrators)) {
+			$this->checkMigrators($migrators);
+		}
+
+		try {
+			$size = $this->migrationService->estimateExportSize($user, $migrators);
+			// Convert to MiB and round to one significant digit after the decimal point
+			$roundedSize = round($size / 1024, 1);
+		} catch (UserMigrationException $e) {
+			throw new OCSException($e->getMessage());
+		}
+
+		try {
+			$this->migrationService->checkExportability($user, $migrators);
+		} catch (NotExportableException $e) {
+			$warning = $e->getMessage();
+		}
+
+		return new DataResponse([
+			'estimatedSize' => $roundedSize,
+			'units' => 'MiB',
+			'warning' => $warning ?? null,
+		], Http::STATUS_OK);
+	}
+
+	/**
+	 * @NoAdminRequired
+	 * @NoSubAdminRequired
+	 * @PasswordConfirmationRequired
+	 *
+	 * @throws OCSException
+	 */
+	public function export(array $migrators): DataResponse {
+		$user = $this->checkJobAndGetUser();
+		$this->checkMigrators($migrators);
 
 		try {
 			$this->migrationService->queueExportJob($user, $migrators);
@@ -223,23 +273,9 @@ class ApiController extends OCSController {
 	 * @throws OCSException
 	 */
 	public function import(string $path): DataResponse {
-		$author = $this->userSession->getUser();
+		$author = $this->checkJobAndGetUser();
 		// Set target user to the author as importing into another user's account is not allowed for now
 		$targetUser = $author;
-
-		if (empty($author)) {
-			throw new OCSException('No user currently logged in');
-		}
-
-		try {
-			$job = $this->migrationService->getCurrentJob($targetUser);
-		} catch (UserMigrationException $e) {
-			throw new OCSException('Error getting current user migration operation');
-		}
-
-		if (!empty($job)) {
-			throw new OCSException('User migration operation already queued');
-		}
 
 		try {
 			$this->migrationService->queueImportJob($author, $targetUser, $path);

@@ -26,13 +26,13 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration\Command;
 
+use OC\Core\Command\Base;
 use OCA\UserMigration\Service\UserMigrationService;
 use OCA\UserMigration\TempExportDestination;
 use OCP\ITempManager;
 use OCP\IUser;
 use OCP\IUserManager;
 use OCP\UserMigration\IMigrator;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\HelpCommand;
 use Symfony\Component\Console\Formatter\WrappableOutputFormatterInterface;
 use Symfony\Component\Console\Input\InputArgument;
@@ -41,7 +41,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class Export extends Command {
+class Export extends Base {
 	private IUserManager $userManager;
 	private UserMigrationService $migrationService;
 	private ITempManager $tempManager;
@@ -67,6 +67,13 @@ class Export extends Command {
 				InputOption::VALUE_OPTIONAL,
 				'List the available data types, pass <comment>--list=full</comment> to show more information',
 				false,
+			)
+			->addOption(
+				'output',
+				null,
+				InputOption::VALUE_OPTIONAL,
+				'Output format (plain, json or json_pretty, default is plain)',
+				$this->defaultOutputFormat,
 			)
 			->addOption(
 				'types',
@@ -114,12 +121,28 @@ class Export extends Command {
 		$migrators = $this->migrationService->getMigrators();
 
 		$list = $input->getOption('list');
+		$outputOption = $input->getOption('output');
 		if ($list !== false) {
 			switch (true) {
 				case $list === null:
+					if ($outputOption !== static::OUTPUT_FORMAT_PLAIN) {
+						$this->writeArrayInOutputFormat($input, $io, array_map(fn (IMigrator $migrator) => $migrator->getId(), $migrators), '');
+						return 0;
+					}
 					$io->writeln(array_map(fn (IMigrator $migrator) => $migrator->getId(), $migrators));
 					return 0;
 				case $list === 'full':
+					if ($outputOption !== static::OUTPUT_FORMAT_PLAIN) {
+						$migratorMap = [];
+						foreach ($migrators as $migrator) {
+							$migratorMap[$migrator->getId()] = [
+								'name' => $migrator->getDisplayName(),
+								'description' => $migrator->getDescription(),
+							];
+						}
+						$this->writeArrayInOutputFormat($input, $io, $migratorMap, '');
+						return 0;
+					}
 					$io->table(
 						['Name', 'Id', 'Description'],
 						array_map(

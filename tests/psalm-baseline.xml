@@ -34,4 +34,9 @@
       <code>getId</code>
     </UndefinedInterfaceMethod>
   </file>
+  <file src="lib/Command/Export.php">
+    <InvalidArgument occurrences="1">
+      <code>$this</code>
+    </InvalidArgument>
+  </file>
 </files>

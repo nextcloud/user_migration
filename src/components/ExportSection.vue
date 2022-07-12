@@ -81,7 +81,7 @@
 					</template>
 					{{ t('user_migration', 'Export') }}
 				</Button>
-				<span v-if="estimatedSizeWithUnits" class="settings-hint">{{ t('user_migration', 'Estimated size: {estimatedSizeWithUnits}', { estimatedSizeWithUnits: this.estimatedSizeWithUnits }) }}</span>
+				<span v-if="estimatedSizeWithUnits" class="settings-hint">{{ t('user_migration', 'Estimated size: {estimatedSizeWithUnits}', { estimatedSizeWithUnits }) }}</span>
 				<div v-if="startingExport" class="icon-loading section__loading" />
 			</div>
 

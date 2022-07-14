@@ -57,8 +57,14 @@ class ExportDestination implements IExportDestination {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function addFileContents(string $path, string $content): void {
+	public function addFileContents(string $path, $content): void {
 		try {
+			if (is_array($content)) {
+				$content = json_encode($content);
+				if ($content === false) {
+					throw new UserMigrationException("Failed to encode array content");
+				}
+			}
 			$stream = fopen('php://temp', 'r+');
 			fwrite($stream, $content);
 			rewind($stream);

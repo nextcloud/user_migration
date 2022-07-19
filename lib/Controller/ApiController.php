@@ -191,7 +191,7 @@ class ApiController extends OCSController {
 	/**
 	 * @throws OCSException
 	 */
-	private function checkJobAndGetUser(): IUser {
+	private function checkJobAndGetUser($throwOnJobQueued = true): IUser {
 		$user = $this->userSession->getUser();
 
 		if (empty($user)) {
@@ -205,7 +205,9 @@ class ApiController extends OCSController {
 		}
 
 		if (!empty($job)) {
-			throw new OCSException('User migration operation already queued');
+			if ($throwOnJobQueued) {
+				throw new OCSException('User migration operation already queued');
+			}
 		}
 
 		return $user;
@@ -218,7 +220,7 @@ class ApiController extends OCSController {
 	 * @throws OCSException
 	 */
 	public function exportable(?array $migrators): DataResponse {
-		$user = $this->checkJobAndGetUser();
+		$user = $this->checkJobAndGetUser(false);
 
 		if (!is_null($migrators)) {
 			if (count($migrators) === 1 && reset($migrators) === '') {

@@ -17,7 +17,7 @@ This app allows users to easily migrate from one instance to another using an ex
 - **⚙ Start the import**
 - **🎉 Enjoy your stay on your new instance** and close you old account
 	]]></description>
-	<version>1.0.4</version>
+	<version>1.1.0</version>
 	<licence>agpl</licence>
 	<author>Côme Chilliet</author>
 	<author>Christopher Ng</author>

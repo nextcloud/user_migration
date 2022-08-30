@@ -18,7 +18,7 @@
     "@nextcloud/capabilities": "^1.0.4",
     "@nextcloud/dialogs": "^3.2.0",
     "@nextcloud/l10n": "^1.6.0",
-    "@nextcloud/logger": "^2.2.1",
+    "@nextcloud/logger": "^2.3.0",
     "@nextcloud/password-confirmation": "^1.0.1",
     "@nextcloud/router": "^2.0.0",
     "@nextcloud/vue": "^5.4.0",

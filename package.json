@@ -22,7 +22,7 @@
     "@nextcloud/password-confirmation": "^1.0.1",
     "@nextcloud/router": "^2.0.0",
     "@nextcloud/vue": "^5.4.0",
-    "vue": "^2.7.9"
+    "vue": "^3.2.38"
   },
   "devDependencies": {
     "@nextcloud/babel-config": "^1.0.0",

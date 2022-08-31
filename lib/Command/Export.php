@@ -165,18 +165,16 @@ class Export extends Base {
 		$types = $input->getOption('types');
 		if ($types !== false) {
 			$types = explode(',', $types);
-			if ($types !== false) {
-				if (count($types) === 1 && reset($types) === 'none') {
-					$selectedMigrators = [];
-				} else {
-					foreach ($types as $id) {
-						if (!in_array($id, array_map(fn (IMigrator $migrator) => $migrator->getId(), $migrators), true)) {
-							$io->error("Invalid type: \"$id\"");
-							return 1;
-						}
+			if (count($types) === 1 && reset($types) === 'none') {
+				$selectedMigrators = [];
+			} else {
+				foreach ($types as $id) {
+					if (!in_array($id, array_map(fn (IMigrator $migrator) => $migrator->getId(), $migrators), true)) {
+						$io->error("Invalid type: \"$id\"");
+						return 1;
 					}
-					$selectedMigrators = $types;
 				}
+				$selectedMigrators = $types;
 			}
 		}
 

@@ -112,7 +112,7 @@ class ExportDestination implements IExportDestination {
 					throw new UserMigrationException("Failed to copy file into ".$destinationPath.'/'.$node->getName()." in archive");
 				}
 			} elseif ($node instanceof Folder) {
-				$this->copyFolder($node, $destinationPath.'/'.$node->getName());
+				$this->copyFolder($node, $destinationPath.'/'.$node->getName(), $nodeFilter);
 			} else {
 				// ignore unknown node type, shouldn't happen
 				continue;

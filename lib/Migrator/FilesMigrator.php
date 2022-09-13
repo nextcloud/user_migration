@@ -35,6 +35,7 @@ use OCP\Comments\ICommentsManager;
 use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
+use OCP\Files\Node;
 use OCP\Files\NotFoundException;
 use OCP\IL10N;
 use OCP\ITagManager;
@@ -139,9 +140,12 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 
 		$uid = $user->getUID();
 		$userFolder = $this->root->getUserFolder($uid);
+		$uidFilter = function (Node $node) use ($uid): bool {
+			return ($node->getOwner()->getUID() === $uid);
+		};
 
 		try {
-			$exportDestination->copyFolder($userFolder, static::PATH_FILES);
+			$exportDestination->copyFolder($userFolder, static::PATH_FILES, $uidFilter);
 		} catch (\Throwable $e) {
 			throw new UserMigrationException("Could not export files.", 0, $e);
 		}

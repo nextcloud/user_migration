@@ -34,6 +34,7 @@ use OCP\Comments\IComment;
 use OCP\Comments\ICommentsManager;
 use OCP\Files\File;
 use OCP\Files\Folder;
+use OCP\Files\IHomeStorage;
 use OCP\Files\IRootFolder;
 use OCP\Files\Node;
 use OCP\Files\NotFoundException;
@@ -94,11 +95,11 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 	public function getEstimatedExportSize(IUser $user): int {
 		$uid = $user->getUID();
 		$userFolder = $this->root->getUserFolder($uid);
-		$uidFilter = function (Node $node) use ($uid): bool {
-			return ($node->getOwner()->getUID() === $uid);
+		$nodeFilter = function (Node $node): bool {
+			return $node->getStorage()->instanceOfStorage(IHomeStorage::class);
 		};
 
-		$size = $this->estimateFolderSize($userFolder, $uidFilter) / 1024;
+		$size = $this->estimateFolderSize($userFolder, $nodeFilter) / 1024;
 
 		// Export file itself is not exported so we subtract it if existing
 		try {
@@ -161,12 +162,12 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 
 		$uid = $user->getUID();
 		$userFolder = $this->root->getUserFolder($uid);
-		$uidFilter = function (Node $node) use ($uid): bool {
-			return ($node->getOwner()->getUID() === $uid);
+		$nodeFilter = function (Node $node): bool {
+			return $node->getStorage()->instanceOfStorage(IHomeStorage::class);
 		};
 
 		try {
-			$exportDestination->copyFolder($userFolder, static::PATH_FILES, $uidFilter);
+			$exportDestination->copyFolder($userFolder, static::PATH_FILES, $nodeFilter);
 		} catch (\Throwable $e) {
 			throw new UserMigrationException("Could not export files.", 0, $e);
 		}

@@ -64,7 +64,8 @@ class UserImport extends Entity {
 	}
 
 	/**
-	 * Returns the migrators in an associative array
+	 * Returns the migrators in an array
+	 * @return ?string[]
 	 */
 	public function getMigratorsArray(): ?array {
 		return json_decode($this->migrators, true);
@@ -72,6 +73,7 @@ class UserImport extends Entity {
 
 	/**
 	 * Set the migrators
+	 * @param ?string[] $migrators
 	 */
 	public function setMigratorsArray(?array $migrators): void {
 		$this->setMigrators(json_encode($migrators));

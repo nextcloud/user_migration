@@ -93,10 +93,12 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 	 */
 	public function getEstimatedExportSize(IUser $user): int {
 		$uid = $user->getUID();
-
 		$userFolder = $this->root->getUserFolder($uid);
+		$uidFilter = function (Node $node) use ($uid): bool {
+			return ($node->getOwner()->getUID() === $uid);
+		};
 
-		$size = $userFolder->getSize() / 1024;
+		$size = $this->estimateFolderSize($userFolder, $uidFilter) / 1024;
 
 		// Export file itself is not exported so we subtract it if existing
 		try {
@@ -126,6 +128,25 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 		$size += 2048;
 
 		return (int)ceil($size);
+	}
+
+	/**
+	 * Estimate size of folder in bytes, applying a filter
+	 */
+	private function estimateFolderSize(Folder $folder, ?callable $nodeFilter = null): int {
+		$size = 0;
+		$nodes = $folder->getDirectoryListing();
+		foreach ($nodes as $node) {
+			if (($nodeFilter !== null) && !$nodeFilter($node)) {
+				continue;
+			}
+			if ($node instanceof File) {
+				$size += $node->getSize();
+			} elseif ($node instanceof Folder) {
+				$size += $this->estimateFolderSize($node, $nodeFilter);
+			}
+		}
+		return $size;
 	}
 
 	/**

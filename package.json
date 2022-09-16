@@ -19,10 +19,10 @@
     "@nextcloud/dialogs": "^3.2.0",
     "@nextcloud/l10n": "^1.6.0",
     "@nextcloud/logger": "^2.3.0",
-    "@nextcloud/password-confirmation": "^1.0.1",
+    "@nextcloud/password-confirmation": "^4.0.0",
     "@nextcloud/router": "^2.0.0",
     "@nextcloud/vue": "^5.4.0",
-    "vue": "^2.7.9"
+    "vue": "^2.7.10"
   },
   "devDependencies": {
     "@nextcloud/babel-config": "^1.0.0",
@@ -30,7 +30,7 @@
     "@nextcloud/eslint-config": "^8.0.0",
     "@nextcloud/stylelint-config": "^2.2.0",
     "@nextcloud/webpack-vue-config": "^5.3.0",
-    "vue-template-compiler": "^2.7.9"
+    "vue-template-compiler": "^2.7.10"
   },
   "browserslist": [
     "extends @nextcloud/browserslist-config"

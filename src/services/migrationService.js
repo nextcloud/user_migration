@@ -21,7 +21,8 @@
  */
 
 import axios from '@nextcloud/axios'
-import confirmPassword from '@nextcloud/password-confirmation'
+import { confirmPassword } from '@nextcloud/password-confirmation'
+import '@nextcloud/password-confirmation/dist/style.css'
 import { generateOcsUrl } from '@nextcloud/router'
 
 import { APP_ID, API_VERSION } from '../shared/constants.js'

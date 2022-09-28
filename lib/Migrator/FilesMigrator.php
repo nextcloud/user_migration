@@ -381,6 +381,6 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 	 * {@inheritDoc}
 	 */
 	public function getDescription(): string {
-		return $this->l10n->t('Files including versions, comments, collaborative tags, and favorites (versions may expire during export if you are low on storage space)');
+		return $this->l10n->t('Files owned by you including versions, comments, collaborative tags, and favorites (versions may expire during export if you are low on storage space)');
 	}
 }

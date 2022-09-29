@@ -34,7 +34,9 @@ use OCP\Comments\IComment;
 use OCP\Comments\ICommentsManager;
 use OCP\Files\File;
 use OCP\Files\Folder;
+use OCP\Files\IHomeStorage;
 use OCP\Files\IRootFolder;
+use OCP\Files\Node;
 use OCP\Files\NotFoundException;
 use OCP\IL10N;
 use OCP\ITagManager;
@@ -92,10 +94,12 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 	 */
 	public function getEstimatedExportSize(IUser $user): int {
 		$uid = $user->getUID();
-
 		$userFolder = $this->root->getUserFolder($uid);
+		$nodeFilter = function (Node $node): bool {
+			return $node->getStorage()->instanceOfStorage(IHomeStorage::class);
+		};
 
-		$size = $userFolder->getSize() / 1024;
+		$size = $this->estimateFolderSize($userFolder, $nodeFilter) / 1024;
 
 		// Export file itself is not exported so we subtract it if existing
 		try {
@@ -128,6 +132,25 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 	}
 
 	/**
+	 * Estimate size of folder in bytes, applying a filter
+	 */
+	private function estimateFolderSize(Folder $folder, ?callable $nodeFilter = null): int {
+		$size = 0;
+		$nodes = $folder->getDirectoryListing();
+		foreach ($nodes as $node) {
+			if (($nodeFilter !== null) && !$nodeFilter($node)) {
+				continue;
+			}
+			if ($node instanceof File) {
+				$size += $node->getSize();
+			} elseif ($node instanceof Folder) {
+				$size += $this->estimateFolderSize($node, $nodeFilter);
+			}
+		}
+		return $size;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public function export(
@@ -139,9 +162,12 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 
 		$uid = $user->getUID();
 		$userFolder = $this->root->getUserFolder($uid);
+		$nodeFilter = function (Node $node): bool {
+			return $node->getStorage()->instanceOfStorage(IHomeStorage::class);
+		};
 
 		try {
-			$exportDestination->copyFolder($userFolder, static::PATH_FILES);
+			$exportDestination->copyFolder($userFolder, static::PATH_FILES, $nodeFilter);
 		} catch (\Throwable $e) {
 			throw new UserMigrationException("Could not export files.", 0, $e);
 		}
@@ -355,6 +381,6 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 	 * {@inheritDoc}
 	 */
 	public function getDescription(): string {
-		return $this->l10n->t('Files including versions, comments, collaborative tags, and favorites (versions may expire during export if you are low on storage space)');
+		return $this->l10n->t('Files owned by you including versions, comments, collaborative tags, and favorites (versions may expire during export if you are low on storage space)');
 	}
 }

@@ -86,7 +86,7 @@ class ExportDestination implements IExportDestination {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function copyFolder(Folder $folder, string $destinationPath): void {
+	public function copyFolder(Folder $folder, string $destinationPath, ?callable $nodeFilter = null): void {
 		$success = $this->streamer->addEmptyDir($destinationPath, [
 			'timestamp' => $folder->getMTime(),
 		]);
@@ -95,6 +95,9 @@ class ExportDestination implements IExportDestination {
 		}
 		$nodes = $folder->getDirectoryListing();
 		foreach ($nodes as $node) {
+			if (($nodeFilter !== null) && !$nodeFilter($node)) {
+				continue;
+			}
 			if ($node instanceof File) {
 				if ($node->getName() === static::EXPORT_FILENAME) {
 					/* Skip previous user export file */
@@ -109,7 +112,7 @@ class ExportDestination implements IExportDestination {
 					throw new UserMigrationException("Failed to copy file into ".$destinationPath.'/'.$node->getName()." in archive");
 				}
 			} elseif ($node instanceof Folder) {
-				$this->copyFolder($node, $destinationPath.'/'.$node->getName());
+				$this->copyFolder($node, $destinationPath.'/'.$node->getName(), $nodeFilter);
 			} else {
 				// ignore unknown node type, shouldn't happen
 				continue;

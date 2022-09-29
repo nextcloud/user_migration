@@ -31,7 +31,7 @@
 
 			<div v-if="status.current === 'import'"
 				class="section__status">
-				<Button type="secondary"
+				<ButtonVue type="secondary"
 					:aria-label="t('user_migration', 'Show import status')"
 					:disabled="status.current === 'export' || cancellingImport"
 					@click.stop.prevent="openModal">
@@ -39,19 +39,19 @@
 						<InformationOutline title="" :size="20" />
 					</template>
 					{{ t('user_migration', 'Show status') }}
-				</Button>
-				<Button class="section__modal-button"
+				</ButtonVue>
+				<ButtonVue class="section__modal-button"
 					type="secondary"
 					:aria-label="t('user_migration', 'Cancel import')"
 					:disabled="status.status !== 'waiting'"
 					@click.stop.prevent="cancelImport">
 					{{ t('user_migration', 'Cancel') }}
-				</Button>
+				</ButtonVue>
 				<span class="settings-hint">{{ status.status === 'waiting' ? t('user_migration', 'Import queued') : t('user_migration', 'Import in progress…') }}</span>
 				<div v-if="cancellingImport" class="icon-loading section__loading" />
 			</div>
 			<div v-else class="section__status">
-				<Button type="secondary"
+				<ButtonVue type="secondary"
 					:aria-label="t('user_migration', 'Import your data')"
 					:disabled="status.current === 'export' || startingImport"
 					@click.stop.prevent="pickImportFile">
@@ -59,7 +59,7 @@
 						<PackageUp title="" :size="20" />
 					</template>
 					{{ t('user_migration', 'Import') }}
-				</Button>
+				</ButtonVue>
 				<div v-if="startingImport" class="icon-loading section__loading" />
 			</div>
 
@@ -86,12 +86,12 @@
 						<CheckCircleOutline class="section__icon"
 							title=""
 							:size="40" />
-						<Button class="section__modal-button"
+						<ButtonVue class="section__modal-button"
 							type="secondary"
 							:aria-label="t('user_migration', 'Close import status')"
 							@click.stop.prevent="closeModal">
 							{{ t('user_migration', 'Close') }}
-						</Button>
+						</ButtonVue>
 					</template>
 				</div>
 			</Modal>
@@ -103,12 +103,12 @@
 <script>
 // import { getFilePickerBuilder } from '@nextcloud/dialogs'
 
-import Button from '@nextcloud/vue/dist/Components/Button'
-import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline'
-import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
-import InformationOutline from 'vue-material-design-icons/InformationOutline'
-import Modal from '@nextcloud/vue/dist/Components/Modal'
-import PackageUp from 'vue-material-design-icons/PackageUp'
+import ButtonVue from '@nextcloud/vue/dist/Components/Button.js'
+import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue'
+import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent.js'
+import InformationOutline from 'vue-material-design-icons/InformationOutline.vue'
+import Modal from '@nextcloud/vue/dist/Components/Modal.js'
+import PackageUp from 'vue-material-design-icons/PackageUp.vue'
 
 import { queueImportJob, cancelJob } from '../services/migrationService.js'
 import { handleError } from '../shared/utils.js'
@@ -128,7 +128,7 @@ export default {
 	name: 'ImportSection',
 
 	components: {
-		Button,
+		ButtonVue,
 		CheckCircleOutline,
 		EmptyContent,
 		InformationOutline,

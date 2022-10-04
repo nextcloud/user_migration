@@ -83,8 +83,7 @@
 			<NcModal v-if="modalOpened"
 				@close="closeModal">
 				<div class="section__modal">
-					<NcEmptyContent
-						:title="modalMessage"
+					<NcEmptyContent :title="modalMessage"
 						:description="modalDescription">
 						<template #icon>
 							<PackageDown />
@@ -192,6 +191,7 @@ export default {
 			} else if (this.status.status === 'started') {
 				return t('user_migration', 'Please do not use your account while exporting.')
 			}
+			return ''
 		},
 	},
 

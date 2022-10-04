@@ -32,101 +32,95 @@
 			<div class="section__grid">
 				<!-- Base user data is permanently enabled -->
 				<div class="section__checkbox">
-					<CheckboxRadioSwitch :checked="true"
+					<NcCheckboxRadioSwitch :checked="true"
 						:disabled="true">
 						{{ t('user_migration', 'User information and settings') }}
-					</CheckboxRadioSwitch>
+					</NcCheckboxRadioSwitch>
 					<em class="section__description">{{ t('user_migration', 'Basic user information including user ID and display name as well as your settings') }}</em>
 				</div>
-				<div v-for="({id, displayName, description}) in sortedMigrators"
+				<div v-for="({ id, displayName, description }) in sortedMigrators"
 					:key="id"
 					class="section__checkbox">
-					<CheckboxRadioSwitch name="migrators"
+					<NcCheckboxRadioSwitch name="migrators"
 						:value="id"
 						:checked.sync="selectedMigrators">
 						{{ displayName }}
-					</CheckboxRadioSwitch>
+					</NcCheckboxRadioSwitch>
 					<em class="section__description">{{ description }}</em>
 				</div>
 			</div>
 
 			<div v-if="status.current === 'export'"
 				class="section__status">
-				<ButtonVue type="secondary"
+				<NcButton type="secondary"
 					:aria-label="t('user_migration', 'Show export status')"
 					:disabled="status.current === 'import' || cancellingExport"
 					@click.stop.prevent="openModal">
 					<template #icon>
-						<InformationOutline title="" :size="20" />
+						<InformationOutline :size="20" />
 					</template>
 					{{ t('user_migration', 'Show status') }}
-				</ButtonVue>
-				<ButtonVue class="section__modal-button"
-					type="secondary"
+				</NcButton>
+				<NcButton type="tertiary"
 					:aria-label="t('user_migration', 'Cancel export')"
 					:disabled="status.status !== 'waiting'"
 					@click.stop.prevent="cancelExport">
 					{{ t('user_migration', 'Cancel') }}
-				</ButtonVue>
+				</NcButton>
 				<span class="settings-hint">{{ status.status === 'waiting' ? t('user_migration', 'Export queued') : t('user_migration', 'Export in progress…') }}</span>
 				<div v-if="cancellingExport" class="icon-loading section__loading" />
 			</div>
 			<div v-else class="section__status">
-				<ButtonVue type="secondary"
+				<NcButton type="primary"
 					:aria-label="t('user_migration', 'Export your data')"
 					:disabled="status.current === 'import' || startingExport"
 					@click.stop.prevent="startExport">
 					<template #icon>
-						<PackageDown title="" :size="20" />
+						<PackageDown :size="20" />
 					</template>
 					{{ t('user_migration', 'Export') }}
-				</ButtonVue>
+				</NcButton>
 				<span v-if="estimatedSizeWithUnits" class="settings-hint">{{ t('user_migration', 'Estimated size: {estimatedSizeWithUnits}', { estimatedSizeWithUnits }) }}</span>
 				<div v-if="startingExport" class="icon-loading section__loading" />
 			</div>
 
-			<Modal v-if="modalOpened"
+			<NcModal v-if="modalOpened"
 				@close="closeModal">
 				<div class="section__modal">
-					<EmptyContent>
-						{{ modalMessage }}
+					<NcEmptyContent
+						:title="modalMessage"
+						:description="modalDescription">
 						<template #icon>
-							<PackageDown decorative />
+							<PackageDown />
 						</template>
-						<template v-if="status.status === 'waiting'" #desc>
-							{{ notificationsEnabled ? t('user_migration', 'You will be notified when your export has completed. This may take a while.') : t('user_migration', 'This may take a while.') }}
+						<template #action>
+							<div class="section__modal-action">
+								<div v-if="status.status === 'waiting' || status.status === 'started'"
+									class="section__icon icon-loading" />
+								<template v-else>
+									<CheckCircleOutline class="section__icon"
+										:size="40" />
+									<NcButton class="section__modal-button"
+										type="primary"
+										:aria-label="t('user_migration', 'Close export status')"
+										@click.stop.prevent="closeModal">
+										{{ t('user_migration', 'Close') }}
+									</NcButton>
+								</template>
+							</div>
 						</template>
-						<template v-else-if="status.status === 'started'" #desc>
-							{{ t('user_migration', 'Please do not use your account while exporting.') }}
-						</template>
-					</EmptyContent>
-					<div v-if="status.status === 'waiting' || status.status === 'started'"
-						class="section__icon icon-loading" />
-					<template v-else>
-						<CheckCircleOutline class="section__icon"
-							title=""
-							:size="40" />
-						<ButtonVue class="section__modal-button"
-							type="secondary"
-							:aria-label="t('user_migration', 'Close export status')"
-							@click.stop.prevent="closeModal">
-							{{ t('user_migration', 'Close') }}
-						</ButtonVue>
-					</template>
+					</NcEmptyContent>
 				</div>
-			</Modal>
+			</NcModal>
 		</template>
 		<div v-else class="icon-loading" />
 	</div>
 </template>
 
 <script>
-import ButtonVue from '@nextcloud/vue/dist/Components/Button.js'
-import CheckboxRadioSwitch from '@nextcloud/vue/dist/Components/CheckboxRadioSwitch.js'
+import { NcButton, NcCheckboxRadioSwitch, NcEmptyContent, NcModal } from '@nextcloud/vue'
 import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue'
-import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent.js'
 import InformationOutline from 'vue-material-design-icons/InformationOutline.vue'
-import Modal from '@nextcloud/vue/dist/Components/Modal.js'
 import PackageDown from 'vue-material-design-icons/PackageDown.vue'
 
 import { queueExportJob, cancelJob, checkExportability } from '../services/migrationService.js'
@@ -136,12 +130,12 @@ export default {
 	name: 'ExportSection',
 
 	components: {
-		ButtonVue,
-		CheckboxRadioSwitch,
 		CheckCircleOutline,
-		EmptyContent,
 		InformationOutline,
-		Modal,
+		NcButton,
+		NcCheckboxRadioSwitch,
+		NcEmptyContent,
+		NcModal,
 		PackageDown,
 	},
 
@@ -188,6 +182,17 @@ export default {
 				return t('user_migration', 'Export in progress…')
 			}
 			return t('user_migration', 'Export completed successfully')
+		},
+
+		modalDescription() {
+			if (this.status.status === 'waiting') {
+				if (this.notificationsEnabled) {
+					return t('user_migration', 'You will be notified when your export has completed. This may take a while.')
+				}
+				return t('user_migration', 'This may take a while.')
+			} else if (this.status.status === 'started') {
+				return t('user_migration', 'Please do not use your account while exporting.')
+			}
 		},
 	},
 
@@ -283,19 +288,17 @@ export default {
 }
 
 .section__modal {
-	margin: 80px auto 60px auto;
-
-	&::v-deep .empty-content {
-		margin-top: 0;
-	}
-
 	.section__icon {
 		height: 40px;
-		margin: 20px 0;
+	}
+
+	.section__modal-action {
+		display: flex;
+		flex-direction: column;
 	}
 
 	.section__modal-button {
-		margin: 40px auto 0 auto;
+		margin: 20px auto 0 auto;
 	}
 }
 </style>

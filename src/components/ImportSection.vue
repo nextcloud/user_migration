@@ -47,7 +47,7 @@
 					{{ t('user_migration', 'Cancel') }}
 				</NcButton>
 				<span class="settings-hint">{{ status.status === 'waiting' ? t('user_migration', 'Import queued') : t('user_migration', 'Import in progress…') }}</span>
-				<div v-if="cancellingImport" class="icon-loading section__loading" />
+				<NcLoadingIcon v-if="cancellingImport" class="section__loading" :size="34" />
 			</div>
 			<div v-else class="section__status">
 				<NcButton type="primary"
@@ -59,7 +59,7 @@
 					</template>
 					{{ t('user_migration', 'Import') }}
 				</NcButton>
-				<div v-if="startingImport" class="icon-loading section__loading" />
+				<NcLoadingIcon v-if="startingImport" class="section__loading" :size="34" />
 			</div>
 
 			<span class="section__picker-error error">{{ filePickerError }}</span>
@@ -75,8 +75,9 @@
 						</template>
 						<template #action>
 							<div class="section__modal-action">
-								<div v-if="status.status === 'waiting' || status.status === 'started'"
-									class="section__icon icon-loading" />
+								<NcLoadingIcon v-if="status.status === 'waiting' || status.status === 'started'"
+									class="section__icon"
+									:size="40" />
 								<template v-else>
 									<CheckCircleOutline class="section__icon"
 										:size="40" />
@@ -93,14 +94,14 @@
 				</div>
 			</NcModal>
 		</template>
-		<div v-else class="icon-loading" />
+		<NcLoadingIcon v-else :size="40" />
 	</div>
 </template>
 
 <script>
 // import { getFilePickerBuilder } from '@nextcloud/dialogs'
 
-import { NcButton, NcEmptyContent, NcModal } from '@nextcloud/vue'
+import { NcButton, NcEmptyContent, NcLoadingIcon, NcModal } from '@nextcloud/vue'
 import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue'
 import InformationOutline from 'vue-material-design-icons/InformationOutline.vue'
 import PackageUp from 'vue-material-design-icons/PackageUp.vue'
@@ -127,6 +128,7 @@ export default {
 		InformationOutline,
 		NcButton,
 		NcEmptyContent,
+		NcLoadingIcon,
 		NcModal,
 		PackageUp,
 	},

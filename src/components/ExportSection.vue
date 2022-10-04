@@ -68,7 +68,7 @@
 					{{ t('user_migration', 'Cancel') }}
 				</NcButton>
 				<span class="settings-hint">{{ status.status === 'waiting' ? t('user_migration', 'Export queued') : t('user_migration', 'Export in progress…') }}</span>
-				<div v-if="cancellingExport" class="icon-loading section__loading" />
+				<NcLoadingIcon v-if="cancellingExport" class="section__loading" :size="34" />
 			</div>
 			<div v-else class="section__status">
 				<NcButton type="primary"
@@ -81,7 +81,7 @@
 					{{ t('user_migration', 'Export') }}
 				</NcButton>
 				<span v-if="estimatedSizeWithUnits" class="settings-hint">{{ t('user_migration', 'Estimated size: {estimatedSizeWithUnits}', { estimatedSizeWithUnits }) }}</span>
-				<div v-if="startingExport" class="icon-loading section__loading" />
+				<NcLoadingIcon v-if="startingExport" class="section__loading" :size="34" />
 			</div>
 
 			<NcModal v-if="modalOpened"
@@ -95,8 +95,9 @@
 						</template>
 						<template #action>
 							<div class="section__modal-action">
-								<div v-if="status.status === 'waiting' || status.status === 'started'"
-									class="section__icon icon-loading" />
+								<NcLoadingIcon v-if="status.status === 'waiting' || status.status === 'started'"
+									class="section__icon"
+									:size="40" />
 								<template v-else>
 									<CheckCircleOutline class="section__icon"
 										:size="40" />
@@ -113,12 +114,12 @@
 				</div>
 			</NcModal>
 		</template>
-		<div v-else class="icon-loading" />
+		<NcLoadingIcon v-else :size="40" />
 	</div>
 </template>
 
 <script>
-import { NcButton, NcCheckboxRadioSwitch, NcEmptyContent, NcModal } from '@nextcloud/vue'
+import { NcButton, NcCheckboxRadioSwitch, NcEmptyContent, NcLoadingIcon, NcModal } from '@nextcloud/vue'
 import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue'
 import InformationOutline from 'vue-material-design-icons/InformationOutline.vue'
 import PackageDown from 'vue-material-design-icons/PackageDown.vue'
@@ -135,6 +136,7 @@ export default {
 		NcButton,
 		NcCheckboxRadioSwitch,
 		NcEmptyContent,
+		NcLoadingIcon,
 		NcModal,
 		PackageDown,
 	},

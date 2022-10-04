@@ -21,14 +21,10 @@
 -->
 
 <template>
-	<div class="section">
-		<h2>{{ t('user_migration', 'Export') }}</h2>
-
+	<NcSettingsSection :title="t('user_migration', 'Export')"
+		:description="!loading ? t('user_migration', 'Please select the data you want to export') : ''"
+		:limit-width="false">
 		<template v-if="!loading">
-			<h3 class="settings-hint">
-				{{ t('user_migration', 'Please select the data you want to export') }}
-			</h3>
-
 			<div class="section__grid">
 				<!-- Base user data is permanently enabled -->
 				<div class="section__checkbox">
@@ -115,11 +111,11 @@
 			</NcModal>
 		</template>
 		<NcLoadingIcon v-else :size="40" />
-	</div>
+	</NcSettingsSection>
 </template>
 
 <script>
-import { NcButton, NcCheckboxRadioSwitch, NcEmptyContent, NcLoadingIcon, NcModal } from '@nextcloud/vue'
+import { NcButton, NcCheckboxRadioSwitch, NcEmptyContent, NcLoadingIcon, NcModal, NcSettingsSection } from '@nextcloud/vue'
 import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue'
 import InformationOutline from 'vue-material-design-icons/InformationOutline.vue'
 import PackageDown from 'vue-material-design-icons/PackageDown.vue'
@@ -138,6 +134,7 @@ export default {
 		NcEmptyContent,
 		NcLoadingIcon,
 		NcModal,
+		NcSettingsSection,
 		PackageDown,
 	},
 

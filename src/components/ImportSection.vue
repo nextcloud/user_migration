@@ -21,14 +21,10 @@
 -->
 
 <template>
-	<div class="section">
-		<h2>{{ t('user_migration', 'Import') }}</h2>
-
+	<NcSettingsSection :title="t('user_migration', 'Import')"
+		:description="!loading ? t('user_migration', 'Please note that existing data may be overwritten') : ''"
+		:limit-width="false">
 		<template v-if="!loading">
-			<h3 class="section__hint settings-hint">
-				{{ t('user_migration', 'Please note that existing data may be overwritten') }}
-			</h3>
-
 			<div v-if="status.current === 'import'"
 				class="section__status">
 				<NcButton type="secondary"
@@ -95,13 +91,13 @@
 			</NcModal>
 		</template>
 		<NcLoadingIcon v-else :size="40" />
-	</div>
+	</NcSettingsSection>
 </template>
 
 <script>
 // import { getFilePickerBuilder } from '@nextcloud/dialogs'
 
-import { NcButton, NcEmptyContent, NcLoadingIcon, NcModal } from '@nextcloud/vue'
+import { NcButton, NcEmptyContent, NcLoadingIcon, NcModal, NcSettingsSection } from '@nextcloud/vue'
 import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue'
 import InformationOutline from 'vue-material-design-icons/InformationOutline.vue'
 import PackageUp from 'vue-material-design-icons/PackageUp.vue'
@@ -130,6 +126,7 @@ export default {
 		NcEmptyContent,
 		NcLoadingIcon,
 		NcModal,
+		NcSettingsSection,
 		PackageUp,
 	},
 
@@ -255,13 +252,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.section__hint {
-	margin-bottom: 20px;
-}
-
 .section__status {
 	display: flex;
 	gap: 0 14px;
+	margin-top: 20px;
 
 	.section__loading {
 		margin-left: 6px;

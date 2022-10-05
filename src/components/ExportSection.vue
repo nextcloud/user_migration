@@ -52,7 +52,7 @@
 
 			<div v-if="status.current === 'export'"
 				class="section__status">
-				<Button type="secondary"
+				<ButtonVue type="secondary"
 					:aria-label="t('user_migration', 'Show export status')"
 					:disabled="status.current === 'import' || cancellingExport"
 					@click.stop.prevent="openModal">
@@ -60,19 +60,19 @@
 						<InformationOutline title="" :size="20" />
 					</template>
 					{{ t('user_migration', 'Show status') }}
-				</Button>
-				<Button class="section__modal-button"
+				</ButtonVue>
+				<ButtonVue class="section__modal-button"
 					type="secondary"
 					:aria-label="t('user_migration', 'Cancel export')"
 					:disabled="status.status !== 'waiting'"
 					@click.stop.prevent="cancelExport">
 					{{ t('user_migration', 'Cancel') }}
-				</Button>
+				</ButtonVue>
 				<span class="settings-hint">{{ status.status === 'waiting' ? t('user_migration', 'Export queued') : t('user_migration', 'Export in progress…') }}</span>
 				<div v-if="cancellingExport" class="icon-loading section__loading" />
 			</div>
 			<div v-else class="section__status">
-				<Button type="secondary"
+				<ButtonVue type="secondary"
 					:aria-label="t('user_migration', 'Export your data')"
 					:disabled="status.current === 'import' || startingExport"
 					@click.stop.prevent="startExport">
@@ -80,7 +80,7 @@
 						<PackageDown title="" :size="20" />
 					</template>
 					{{ t('user_migration', 'Export') }}
-				</Button>
+				</ButtonVue>
 				<span v-if="estimatedSizeWithUnits" class="settings-hint">{{ t('user_migration', 'Estimated size: {estimatedSizeWithUnits}', { estimatedSizeWithUnits }) }}</span>
 				<div v-if="startingExport" class="icon-loading section__loading" />
 			</div>
@@ -106,12 +106,12 @@
 						<CheckCircleOutline class="section__icon"
 							title=""
 							:size="40" />
-						<Button class="section__modal-button"
+						<ButtonVue class="section__modal-button"
 							type="secondary"
 							:aria-label="t('user_migration', 'Close export status')"
 							@click.stop.prevent="closeModal">
 							{{ t('user_migration', 'Close') }}
-						</Button>
+						</ButtonVue>
 					</template>
 				</div>
 			</Modal>
@@ -121,13 +121,13 @@
 </template>
 
 <script>
-import Button from '@nextcloud/vue/dist/Components/Button'
-import CheckboxRadioSwitch from '@nextcloud/vue/dist/Components/CheckboxRadioSwitch'
-import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline'
-import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent'
-import InformationOutline from 'vue-material-design-icons/InformationOutline'
-import Modal from '@nextcloud/vue/dist/Components/Modal'
-import PackageDown from 'vue-material-design-icons/PackageDown'
+import ButtonVue from '@nextcloud/vue/dist/Components/Button.js'
+import CheckboxRadioSwitch from '@nextcloud/vue/dist/Components/CheckboxRadioSwitch.js'
+import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue'
+import EmptyContent from '@nextcloud/vue/dist/Components/EmptyContent.js'
+import InformationOutline from 'vue-material-design-icons/InformationOutline.vue'
+import Modal from '@nextcloud/vue/dist/Components/Modal.js'
+import PackageDown from 'vue-material-design-icons/PackageDown.vue'
 
 import { queueExportJob, cancelJob, checkExportability } from '../services/migrationService.js'
 import { handleError, handleWarning } from '../shared/utils.js'
@@ -136,7 +136,7 @@ export default {
 	name: 'ExportSection',
 
 	components: {
-		Button,
+		ButtonVue,
 		CheckboxRadioSwitch,
 		CheckCircleOutline,
 		EmptyContent,

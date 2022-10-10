@@ -91,18 +91,18 @@ class FilesMigratorTest extends TestCase {
 	}
 
 	public function testExport(): void {
-		// TODO
-		/*export(
-		IUser $user,
-		IExportDestination $exportDestination,
-		OutputInterface $output)*/
+		$user = $this->createMock(IUser::class);
+		$user->expects($this->once())->method('getUID')->willReturn('testuser');
+		$exportDestination = $this->createMock(IExportDestination::class);
+		$output = $this->createMock(OutputInterface::class);
+		$this->filesMigrator->export($user, $exportDestination, $output);
 	}
 
 	public function testImport(): void {
-		// TODO
-		/*import(
-		IUser $user,
-		IImportSource $importSource,
-		OutputInterface $output*/
+		$user = $this->createMock(IUser::class);
+		$user->expects($this->once())->method('getUID')->willReturn('testuser');
+		$importSource = $this->createMock(IImportSource::class);
+		$output = $this->createMock(OutputInterface::class);
+		$this->filesMigrator->import($user, $importSource, $output);
 	}
 }

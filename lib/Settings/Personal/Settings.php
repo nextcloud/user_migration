@@ -37,7 +37,6 @@ use OCP\IUserSession;
 use OCP\Settings\ISettings;
 
 class Settings implements ISettings {
-
 	/** @var IConfig */
 	private $serverConfig;
 	/** @var IInitialState */

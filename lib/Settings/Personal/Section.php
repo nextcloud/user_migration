@@ -32,7 +32,6 @@ use OCP\IURLGenerator;
 use OCP\Settings\IIconSection;
 
 class Section implements IIconSection {
-
 	/** @var IURLGenerator */
 	private $url;
 	/** @var IL10N */

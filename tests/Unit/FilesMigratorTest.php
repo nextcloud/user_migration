@@ -27,35 +27,23 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration\Tests\Unit;
 
-use OCA\Files\AppInfo\Application;
-use OCA\Files_Versions\Storage as FilesVersionsStorage;
-use OCA\UserMigration\ExportDestination;
 use OCA\UserMigration\Migrator\FilesMigrator;
-use OCP\Comments\IComment;
 use OCP\Comments\ICommentsManager;
-use OCP\Files\File;
 use OCP\Files\Folder;
-use OCP\Files\IHomeStorage;
 use OCP\Files\IRootFolder;
-use OCP\Files\Node;
-use OCP\Files\NotFoundException;
 use OCP\IL10N;
 use OCP\ITagManager;
 use OCP\IUser;
 use OCP\SystemTag\ISystemTagManager;
 use OCP\SystemTag\ISystemTagObjectMapper;
-use OCP\SystemTag\TagNotFoundException;
 use OCP\UserMigration\IExportDestination;
 use OCP\UserMigration\IImportSource;
-use OCP\UserMigration\IMigrator;
-use OCP\UserMigration\ISizeEstimationMigrator;
-use OCP\UserMigration\TMigratorBasicVersionHandling;
-use OCP\UserMigration\UserMigrationException;
 use Symfony\Component\Console\Output\OutputInterface;
 use Test\TestCase;
 
 class FilesMigratorTest extends TestCase {
 	private IRootFolder $rootFolder;
+	private Folder $userFolder;
 	private ITagManager $tagManager;
 	private ISystemTagManager $systemTagManager;
 	private ISystemTagObjectMapper $systemTagMapper;
@@ -71,6 +59,12 @@ class FilesMigratorTest extends TestCase {
 		$this->systemTagMapper = $this->createMock(ISystemTagObjectMapper::class);
 		$this->commentsManager = $this->createMock(ICommentsManager::class);
 		$this->l10n = $this->createMock(IL10N::class);
+
+		$this->userFolder = $this->createMock(Folder::class);
+
+		$this->rootFolder
+			->method('getUserFolder')
+			->willReturn($this->userFolder);
 
 		$this->filesMigrator = new FilesMigrator(
 			$this->rootFolder,

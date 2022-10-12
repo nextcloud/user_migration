@@ -21,7 +21,7 @@
     "@nextcloud/logger": "^2.3.0",
     "@nextcloud/password-confirmation": "^4.0.0",
     "@nextcloud/router": "^2.0.0",
-    "@nextcloud/vue": "^5.4.0",
+    "@nextcloud/vue": "^7.0.0-beta.7",
     "vue": "^2.7.10",
     "vue-material-design-icons": "^5.1.2"
   },

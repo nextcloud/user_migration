@@ -1,0 +1,9 @@
+{ "translations": {
+    "Files" : "ফাইল",
+    "Export" : "রপ্তানি",
+    "Cancel" : "বাতির",
+    "Close" : "বন্ধ",
+    "Import" : "আমদানি",
+    "Settings" : "সেটিংস"
+},"pluralForm" :"nplurals=2; plural=(n != 1);"
+}

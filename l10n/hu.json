@@ -1,0 +1,10 @@
+{ "translations": {
+    "Files" : "Fájlok",
+    "Data migration" : "Adatköltöztetés",
+    "Export" : "Exportálás",
+    "Cancel" : "Mégse",
+    "Close" : "Bezárás",
+    "Import" : "Importálás",
+    "Settings" : "Beállítások"
+},"pluralForm" :"nplurals=2; plural=(n != 1);"
+}

@@ -1,7 +1,10 @@
 { "translations": {
     "Files" : "Dateien",
+    "Data migration" : "Datenmigration",
+    "Export" : "Exportieren",
     "Cancel" : "Abbrechen",
     "Close" : "Schließen",
+    "Import" : "Importieren",
     "Settings" : "Einstellungen"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

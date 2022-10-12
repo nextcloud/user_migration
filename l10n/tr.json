@@ -1,0 +1,10 @@
+{ "translations": {
+    "Files" : "Dosyalar",
+    "Data migration" : "Veri aktarma",
+    "Export" : "Dışa aktar",
+    "Cancel" : "İptal",
+    "Close" : "Kapat",
+    "Import" : "İçe aktar",
+    "Settings" : "Ayarlar"
+},"pluralForm" :"nplurals=2; plural=(n > 1);"
+}

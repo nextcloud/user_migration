@@ -1,0 +1,9 @@
+{ "translations": {
+    "Files" : "Dosieroj",
+    "Export" : "Eksporti",
+    "Cancel" : "Nuligi",
+    "Close" : "Malfermi",
+    "Import" : "Importi",
+    "Settings" : "Agordoj"
+},"pluralForm" :"nplurals=2; plural=(n != 1);"
+}

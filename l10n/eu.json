@@ -1,0 +1,10 @@
+{ "translations": {
+    "Files" : "Fitxategiak",
+    "Data migration" : "Datu migrazioa",
+    "Export" : "Esportatu",
+    "Cancel" : "Utzi",
+    "Close" : "Itxi",
+    "Import" : "Inportatu",
+    "Settings" : "Ezarpenak"
+},"pluralForm" :"nplurals=2; plural=(n != 1);"
+}

@@ -1,0 +1,10 @@
+{ "translations": {
+    "Files" : "Файлове",
+    "Data migration" : "Миграция на данни",
+    "Export" : "Експорт /изнасям/",
+    "Cancel" : "Отказ",
+    "Close" : "Затваряне",
+    "Import" : "Импортиране",
+    "Settings" : "Настройки"
+},"pluralForm" :"nplurals=2; plural=(n != 1);"
+}

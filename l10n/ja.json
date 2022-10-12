@@ -1,0 +1,9 @@
+{ "translations": {
+    "Files" : "ファイル",
+    "Export" : "エクスポート",
+    "Cancel" : "キャンセル",
+    "Close" : "閉じる",
+    "Import" : "インポート",
+    "Settings" : "設定"
+},"pluralForm" :"nplurals=1; plural=0;"
+}

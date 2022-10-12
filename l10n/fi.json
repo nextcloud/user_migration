@@ -1,0 +1,10 @@
+{ "translations": {
+    "Files" : "Tiedostot",
+    "Data migration" : "Tietojen migraatio",
+    "Export" : "Vie",
+    "Cancel" : "Peruuta",
+    "Close" : "Sulje",
+    "Import" : "Tuo",
+    "Settings" : "Asetukset"
+},"pluralForm" :"nplurals=2; plural=(n != 1);"
+}

@@ -38,6 +38,11 @@
     "Import in progress…" : "İçe aktarılıyor…",
     "Import your data" : "Verilerinizi içe aktarın",
     "Close import status" : "İçe aktarma durumunu kapat ",
+    "Choose a file to import" : "İçe aktarılacak bir dosya seçin",
+    "Import completed successfully" : "İçe aktarma tamamlandı",
+    "You will be notified when your import has completed. This may take a while." : "İçe aktarma işlemi tamamlandığında bildirim alacaksınız. Bu işlemin tamamlanması biraz zaman alabilir.",
+    "Please do not use your account while importing." : "Lütfen içe aktarma işlemi tamamlanana kadar hesabınızı kullanmayın.",
+    "Files including versions, comments, collaborative tags, and favorites (versions may expire during export if you are low on storage space)" : "Sürümler, yorumlar, iş birliği etiketleri ve sık kullanılanlar (depolama alanınız azsa dışa aktarma sırasında sürümler kaldırılabilir)",
     "Settings" : "Ayarlar"
 },"pluralForm" :"nplurals=2; plural=(n > 1);"
 }

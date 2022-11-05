@@ -1,0 +1,9 @@
+{ "translations": {
+    "Files" : "ფაილები",
+    "Export" : "ექსპორტი",
+    "Cancel" : "უარყოფა",
+    "Close" : "დახურვა",
+    "Import" : "იმპორტი",
+    "Settings" : "პარამეტრები"
+},"pluralForm" :"nplurals=2; plural=(n!=1);"
+}

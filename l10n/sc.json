@@ -1,0 +1,10 @@
+{ "translations": {
+    "Files" : "Archìvios",
+    "Data migration" : "Tramudadura de datos",
+    "Export" : "Esporta",
+    "Cancel" : "Annulla",
+    "Close" : "Serra",
+    "Import" : "Importa",
+    "Settings" : "Impostatziones"
+},"pluralForm" :"nplurals=2; plural=(n != 1);"
+}

@@ -1,0 +1,9 @@
+{ "translations": {
+    "Files" : "Tệp",
+    "Export" : "Xuất ra",
+    "Cancel" : "Hủy",
+    "Close" : "Đóng",
+    "Import" : "Nhập vào",
+    "Settings" : "Cài đặt"
+},"pluralForm" :"nplurals=1; plural=0;"
+}

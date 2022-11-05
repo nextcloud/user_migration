@@ -1,0 +1,10 @@
+{ "translations": {
+    "Files" : "Ficheiros",
+    "Data migration" : "Migración de datos",
+    "Export" : "Exportar",
+    "Cancel" : "Cancelar",
+    "Close" : "Pechar",
+    "Import" : "Importar",
+    "Settings" : "Axustes"
+},"pluralForm" :"nplurals=2; plural=(n != 1);"
+}

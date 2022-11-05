@@ -1,0 +1,9 @@
+{ "translations": {
+    "Files" : "Filer",
+    "Export" : "Exportera",
+    "Cancel" : "Avbryt",
+    "Close" : "Stäng",
+    "Import" : "Importera",
+    "Settings" : "Inställningar"
+},"pluralForm" :"nplurals=2; plural=(n != 1);"
+}

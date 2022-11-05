@@ -1,0 +1,9 @@
+{ "translations": {
+    "Files" : " Lêers",
+    "Export" : "Voer uit",
+    "Cancel" : "Kanselleer",
+    "Close" : "Sluit",
+    "Import" : "Voer In",
+    "Settings" : "Instellings"
+},"pluralForm" :"nplurals=2; plural=(n != 1);"
+}

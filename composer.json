@@ -11,13 +11,15 @@
 		"lint": "find . -name \\*.php -not -path './vendor/*' -not -path './build/*' -not -path './node_modules/*' -print0 | xargs -0 -n1 php -l",
 		"psalm": "psalm",
 		"psalm:fix": "psalm --alter --issues=InvalidReturnType,InvalidNullableReturnType,MissingParamType,InvalidFalsableReturnType",
-		"psalm:update-baseline": "psalm --threads=1 --update-baseline"
+		"psalm:update-baseline": "psalm --threads=1 --update-baseline",
+		"test:unit": "vendor/bin/phpunit -c phpunit.xml",
+		"test:integration": "vendor/bin/phpunit -c phpunit.integration.xml"
 	},
 	"config": {
 		"optimize-autoloader": true,
 		"classmap-authoritative": true,
 		"platform": {
-			"php": "7.4"
+			"php": "8.0"
 		}
 	},
 	"require-dev": {

@@ -16,14 +16,18 @@ OC.L10N.register(
     "Export queued" : "Esportazioa ilaran jarri da",
     "Export in progress…" : "Esportatzen...",
     "Export your data" : "Esportatu zure datuak",
+    "Close export status" : "Itxi esportazioaren egoera",
     "Close" : "Itxi",
+    "Export completed successfully" : "Esportazioa ongi bukatu da",
     "Import" : "Inportatu",
+    "Show import status" : "Erakutsi inportazioaren egoera",
     "Cancel import" : "Utzi inportazioa",
     "Import queued" : "Inportatu ilara",
     "Import in progress…" : "Inportatzen...",
     "Import your data" : "Inportatu zure datuak",
     "Close import status" : "Itxi inportazioaren egoera",
     "Choose a file to import" : "Aukeratu inportatzeko fitxategia",
+    "Import completed successfully" : "Inportazioa ongi bukatu da",
     "Settings" : "Ezarpenak"
 },
 "nplurals=2; plural=(n != 1);");

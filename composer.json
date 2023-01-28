@@ -25,7 +25,7 @@
 	"require-dev": {
 		"nextcloud/coding-standard": "^1.0.0",
 		"phpunit/phpunit": "^9.5",
-		"vimeo/psalm": "^4.19",
+		"vimeo/psalm": "^5.6",
 		"doctrine/dbal": "^3",
 		"deepdiver/zipstreamer": "^2.0",
 		"nextcloud/ocp": "dev-master"

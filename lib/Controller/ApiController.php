@@ -191,7 +191,7 @@ class ApiController extends OCSController {
 	/**
 	 * @throws OCSException
 	 */
-	private function checkJobAndGetUser($throwOnJobQueued = true): IUser {
+	private function checkJobAndGetUser(bool $throwOnJobQueued = true): IUser {
 		$user = $this->userSession->getUser();
 
 		if (empty($user)) {

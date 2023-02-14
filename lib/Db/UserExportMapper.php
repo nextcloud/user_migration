@@ -31,6 +31,9 @@ namespace OCA\UserMigration\Db;
 use OCP\AppFramework\Db\QBMapper;
 use OCP\IDBConnection;
 
+/**
+ * @template-extends QBMapper<UserExport>
+ */
 class UserExportMapper extends QBMapper {
 	public const TABLE_NAME = 'user_export_jobs';
 

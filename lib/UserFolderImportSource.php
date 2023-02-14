@@ -36,10 +36,11 @@ class UserFolderImportSource extends ImportSource {
 
 	public function __construct(Folder $userFolder, string $path) {
 		try {
-			$this->file = $userFolder->get($path);
-			if (!$this->file instanceof File) {
+			$file = $userFolder->get($path);
+			if (!$file instanceof File) {
 				throw new UserMigrationException("$path is not a valid file");
 			}
+			$this->file = $file;
 		} catch (NotFoundException $e) {
 			throw new UserMigrationException("$path not found", 0, $e);
 		}

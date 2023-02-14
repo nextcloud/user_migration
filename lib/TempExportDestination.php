@@ -30,8 +30,8 @@ use OCP\ITempManager;
 
 class TempExportDestination extends ExportDestination {
 	public function __construct(ITempManager $tempManager) {
-		$this->path = $tempManager->getTemporaryFile('.zip');
-		$r = fopen($this->path, 'w');
-		parent::__construct($r);
+		$path = $tempManager->getTemporaryFile('.zip');
+		$r = fopen($path, 'w');
+		parent::__construct($r, $path);
 	}
 }

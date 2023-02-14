@@ -43,7 +43,7 @@ class ExportDestination implements IExportDestination {
 	/**
 	 * @param resource $r resource to write the export into
 	 */
-	public function __construct($r) {
+	public function __construct($r, string $path) {
 		$this->streamer = new ZipStreamer(
 			[
 				'outstream' => $r,
@@ -52,6 +52,7 @@ class ExportDestination implements IExportDestination {
 				'level' => COMPR::NONE,
 			]
 		);
+		$this->path = $path;
 	}
 
 	/**

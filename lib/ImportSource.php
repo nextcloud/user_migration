@@ -63,6 +63,7 @@ class ImportSource implements IImportSource {
 
 	/**
 	 * {@inheritDoc}
+	 * @psalm-suppress MethodSignatureMustProvideReturnType false-positive
 	 */
 	public function getFileAsStream(string $path) {
 		$stream = $this->archive->getStream($path, 'r');

@@ -59,7 +59,7 @@
 				</NcButton>
 				<NcButton type="tertiary"
 					:aria-label="t('user_migration', 'Cancel export')"
-					:disabled="status.status !== 'waiting'"
+					:disabled="status.status !== 'waiting' || cancellingExport"
 					@click.stop.prevent="cancelExport">
 					{{ t('user_migration', 'Cancel') }}
 				</NcButton>

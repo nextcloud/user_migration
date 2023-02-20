@@ -212,9 +212,10 @@ class Export extends Base {
 			$io->writeln("Export saved in $folder/$exportName.zip");
 		} catch (\Exception $e) {
 			if ($io->isDebug()) {
-				$io->error($e->getTraceAsString());
+				$io->error("$e");
+			} else {
+				$io->error($e->getMessage());
 			}
-			$io->error($e->getMessage());
 			return $e->getCode() !== 0 ? (int)$e->getCode() : 1;
 		}
 

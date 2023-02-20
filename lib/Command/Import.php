@@ -94,9 +94,10 @@ class Import extends Command {
 			$io->writeln("Successfully imported from ${path}");
 		} catch (\Exception $e) {
 			if ($io->isDebug()) {
-				$io->error($e->getTrace());
+				$io->error("$e");
+			} else {
+				$io->error($e->getMessage());
 			}
-			$io->error($e->getMessage());
 			return $e->getCode() !== 0 ? (int)$e->getCode() : 1;
 		}
 

@@ -188,7 +188,7 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 			$output->writeln("No file versions to export…");
 		}
 
-		$objectIds = $this->collectIds($userFolder, $userFolder->getPath());
+		$objectIds = $this->collectIds($userFolder, $userFolder->getPath(), $nodeFilter);
 		unset($objectIds[ExportDestination::EXPORT_FILENAME]);
 
 		$output->writeln("Exporting file tags…");
@@ -248,12 +248,19 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 		// TODO other files metadata should be exported as well if relevant.
 	}
 
-	private function collectIds(Folder $folder, string $rootPath, array &$objectIds = []): array {
+	/**
+	 * @param ?callable(\OCP\Files\Node):bool $nodeFilter Callback to filter nodes to copy
+	 * @throws UserMigrationException
+	 */
+	private function collectIds(Folder $folder, string $rootPath, ?callable $nodeFilter = null, array &$objectIds = []): array {
 		$nodes = $folder->getDirectoryListing();
 		foreach ($nodes as $node) {
+			if (($nodeFilter !== null) && !$nodeFilter($node)) {
+				continue;
+			}
 			$objectIds[preg_replace('/^'.preg_quote($rootPath, '/').'/', '', $node->getPath())] = $node->getId();
 			if ($node instanceof Folder) {
-				$this->collectIds($node, $rootPath, $objectIds);
+				$this->collectIds($node, $rootPath, $nodeFilter, $objectIds);
 			} elseif (!($node instanceof File)) {
 				throw new UserMigrationException("Unsupported node type: ".get_class($node));
 			}

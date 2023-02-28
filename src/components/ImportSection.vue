@@ -94,7 +94,7 @@
 </template>
 
 <script>
-// import { getFilePickerBuilder } from '@nextcloud/dialogs'
+import { getFilePickerBuilder, FilePickerType } from '@nextcloud/dialogs'
 
 import { NcButton, NcEmptyContent, NcLoadingIcon, NcModal, NcSettingsSection } from '@nextcloud/vue'
 import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue'
@@ -104,16 +104,20 @@ import PackageUp from 'vue-material-design-icons/PackageUp.vue'
 import { queueImportJob, cancelJob } from '../services/migrationService.js'
 import { handleError } from '../shared/utils.js'
 
-/*
+const filterEntry = (entry) => {
+	if (entry.mimetype === 'httpd/unix-directory') {
+		return true
+	}
+	return entry.name.endsWith('.nextcloud_export')
+}
+
 const picker = getFilePickerBuilder(t('user_migration', 'Choose a file to import'))
 	.setMultiSelect(false)
-	// TODO add custom mime type for user_migration files?
-	// .setMimeTypeFilter([])
 	.setModal(true)
-	.setType(1)
+	.setType(FilePickerType.Choose)
 	.allowDirectories(false)
+	.setFilter(filterEntry)
 	.build()
-*/
 
 export default {
 	name: 'ImportSection',
@@ -181,28 +185,7 @@ export default {
 			this.filePickerError = null
 
 			try {
-				// TODO: bring this back once nextcloud-dialogs is updated to support the filter function
-				// const filePath = await picker.pick()
-				const filePath = await new Promise((resolve, reject) => {
-					OC.dialogs.filepicker(
-						t('user_migration', 'Choose a file to import'),
-						resolve,
-						false,
-						null,
-						true,
-						1,
-						null,
-						{
-							allowDirectoryChooser: false,
-							filter: entry => {
-								if (entry.mimetype === 'httpd/unix-directory') {
-									return true
-								}
-								return entry.name.endsWith('.nextcloud_export')
-							},
-						}
-					)
-				})
+				const filePath = await picker.pick()
 
 				this.logger.debug(`Path "${filePath}" selected for import`)
 				if (!filePath.startsWith('/')) {

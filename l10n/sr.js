@@ -2,6 +2,7 @@ OC.L10N.register(
     "user_migration",
     {
     "Files" : "Фајлови",
+    "Data migration" : "Миграција података",
     "Export" : "Извези",
     "Cancel" : "Поништи",
     "Close" : "Затвори",

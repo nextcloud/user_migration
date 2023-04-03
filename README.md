@@ -30,3 +30,21 @@ This app allows users to easily migrate from one instance to another using an ex
 
 ### Import into your new instance
 ![Import file selection](screenshots/import.png)
+
+---
+
+## occ Commands
+
+The following [`occ`](https://docs.nextcloud.com/server/latest/admin_manual/configuration_server/occ_command.html) commands are available. For a full description of command usage please pass the `--help` flag.
+
+### Export
+
+```
+occ user:export [options] [--] [<user> [<folder>]]
+```
+
+### Import
+
+```
+occ user:import [options] [--] <archive>
+```

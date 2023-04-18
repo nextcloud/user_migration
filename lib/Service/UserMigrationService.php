@@ -261,8 +261,8 @@ class UserMigrationService {
 	 * @throws UserMigrationException
 	 */
 	protected function exportUserInformation(IUser $user,
-									 IExportDestination $exportDestination,
-									 OutputInterface $output): void {
+		IExportDestination $exportDestination,
+		OutputInterface $output): void {
 		$output->writeln("Exporting user information in ".IImportSource::PATH_USER."…");
 
 		// TODO store backend? email? cloud id? quota?
@@ -284,8 +284,8 @@ class UserMigrationService {
 	 * @throws UserMigrationException
 	 */
 	protected function importUser(?IUser $user,
-								  IImportSource $importSource,
-									OutputInterface $output): IUser {
+		IImportSource $importSource,
+		OutputInterface $output): IUser {
 		$output->writeln("Importing user information from ".IImportSource::PATH_USER."…");
 
 		$data = json_decode($importSource->getFileContents(IImportSource::PATH_USER), true, 512, JSON_THROW_ON_ERROR);
@@ -311,8 +311,8 @@ class UserMigrationService {
 	 * @throws UserMigrationException
 	 */
 	protected function exportVersions(string $uid,
-									 IExportDestination $exportDestination,
-									 OutputInterface $output): void {
+		IExportDestination $exportDestination,
+		OutputInterface $output): void {
 		$output->writeln("Exporting versions in versions.json…");
 
 		$versions = array_merge(
@@ -331,8 +331,8 @@ class UserMigrationService {
 	 * @throws UserMigrationException
 	 */
 	protected function exportAppsSettings(string $uid,
-									 IExportDestination $exportDestination,
-									 OutputInterface $output): void {
+		IExportDestination $exportDestination,
+		OutputInterface $output): void {
 		$output->writeln("Exporting settings in settings.json…");
 
 		$data = $this->config->getAllUserValues($uid);
@@ -348,8 +348,8 @@ class UserMigrationService {
 	 * @throws UserMigrationException
 	 */
 	protected function importAppsSettings(IUser $user,
-									 IImportSource $importSource,
-									 OutputInterface $output): void {
+		IImportSource $importSource,
+		OutputInterface $output): void {
 		$output->writeln("Importing settings from settings.json…");
 
 		$data = json_decode($importSource->getFileContents("settings.json"), true, 512, JSON_THROW_ON_ERROR);

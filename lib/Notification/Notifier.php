@@ -45,9 +45,9 @@ class Notifier implements INotifier {
 	private IRootFolder $root;
 
 	public function __construct(IFactory $l10nFactory,
-								IURLGenerator $urlGenerator,
-								IUserManager $userManager,
-								IRootFolder $root) {
+		IURLGenerator $urlGenerator,
+		IUserManager $userManager,
+		IRootFolder $root) {
 		$this->l10nFactory = $l10nFactory;
 		$this->urlGenerator = $urlGenerator;
 		$this->userManager = $userManager;

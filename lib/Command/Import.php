@@ -37,17 +37,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class Import extends Command {
-	private UserMigrationService $migrationService;
-
-	private IUserManager $userManager;
-
 	public function __construct(
-		UserMigrationService $migrationService,
-		IUserManager $userManager
+		private IUserManager $userManager,
+		private UserMigrationService $migrationService,
 	) {
 		parent::__construct();
-		$this->migrationService = $migrationService;
-		$this->userManager = $userManager;
 	}
 
 	protected function configure(): void {

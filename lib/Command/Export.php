@@ -27,9 +27,8 @@ declare(strict_types=1);
 namespace OCA\UserMigration\Command;
 
 use OC\Core\Command\Base;
+use OCA\UserMigration\ExportDestination;
 use OCA\UserMigration\Service\UserMigrationService;
-use OCA\UserMigration\TempExportDestination;
-use OCP\ITempManager;
 use OCP\IUser;
 use OCP\IUserManager;
 use OCP\UserMigration\IMigrator;
@@ -42,19 +41,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class Export extends Base {
-	private IUserManager $userManager;
-	private UserMigrationService $migrationService;
-	private ITempManager $tempManager;
-
 	public function __construct(
-		IUserManager $userManager,
-		UserMigrationService $migrationService,
-		ITempManager $tempManager
+		private IUserManager $userManager,
+		private UserMigrationService $migrationService,
 	) {
 		parent::__construct();
-		$this->userManager = $userManager;
-		$this->migrationService = $migrationService;
-		$this->tempManager = $tempManager;
 	}
 
 	protected function configure(): void {
@@ -202,14 +193,21 @@ class Export extends Base {
 				return 1;
 			}
 			$folder = realpath($folder);
-			$exportDestination = new TempExportDestination($this->tempManager);
-			$this->migrationService->export($exportDestination, $user, $selectedMigrators, $io);
-			$path = $exportDestination->getPath();
+
 			$exportName = $user->getUID().'_'.date('Y-m-d_H-i-s');
-			if (rename($path, $folder.'/'.$exportName.'.zip') === false) {
-				throw new \Exception("Failed to move $path to $folder/$exportName.zip");
+			$partSuffix = '.part';
+			$exportPath = "$folder/$exportName.zip$partSuffix";
+
+			$resource = fopen($exportPath, 'w');
+			$exportDestination = new ExportDestination($resource, $exportPath);
+			$this->migrationService->export($exportDestination, $user, $selectedMigrators, $io);
+
+			$path = $exportDestination->getPath();
+			$finalPath = substr($path, 0, -mb_strlen($partSuffix));
+			if (rename($path, $finalPath) === false) {
+				throw new \Exception('Failed to rename '.basename($path).' to '.basename($finalPath));
 			}
-			$io->writeln("Export saved in $folder/$exportName.zip");
+			$io->writeln("Export saved in $finalPath");
 		} catch (\Exception $e) {
 			if ($io->isDebug()) {
 				$io->error("$e");

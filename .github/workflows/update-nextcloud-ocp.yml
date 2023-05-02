@@ -8,7 +8,7 @@ name: Update nextcloud/ocp
 on:
   workflow_dispatch:
   schedule:
-    - cron: "5 2 * * 0"
+    - cron: "5 12 * * 2"
 
 jobs:
   update-nextcloud-ocp:
@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        branches: ["master", "stable26", "stable25", "stable24"]
+        branches: ["main", "stable26", "stable25", "stable24"]
 
     name: update-nextcloud-ocp-${{ matrix.branches }}
 
@@ -40,8 +40,12 @@ jobs:
         run: composer install
 
       - name: Composer update nextcloud/ocp
+        if: matrix.branches != 'main'
         run: composer require --dev nextcloud/ocp:dev-${{ matrix.branches }}
-        continue-on-error: true
+
+      - name: Composer update nextcloud/ocp
+        if: matrix.branches == 'main'
+        run: composer require --dev nextcloud/ocp:dev-master
 
       - name: Reset checkout dirs
         run: |

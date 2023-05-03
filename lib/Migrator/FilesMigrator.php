@@ -147,7 +147,7 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 				$size += $this->estimateFolderSize($node, $nodeFilter);
 			}
 		}
-		return $size;
+		return (int)$size;
 	}
 
 	/**

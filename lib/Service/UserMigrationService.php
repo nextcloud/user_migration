@@ -124,6 +124,7 @@ class UserMigrationService {
 			}
 			$cacheKey = $user->getUID() . '::' . $migrator->getId();
 			if ($this->internalCache->hasKey($cacheKey)) {
+				/** @var int|float $size */
 				$size += $this->internalCache->get($cacheKey);
 				continue;
 			}
@@ -134,6 +135,7 @@ class UserMigrationService {
 					throw new UserMigrationException('Could not estimate export size for ' . $migrator->getDisplayName(), 0, $e);
 				}
 				$this->internalCache->set($cacheKey, $migratorSize);
+				/** @var int|float $size */
 				$size += $migratorSize;
 			}
 		}

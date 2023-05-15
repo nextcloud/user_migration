@@ -110,11 +110,11 @@ class UserMigrationService {
 	/**
 	 * @param ?string[] $filteredMigratorList If not null, only these migrators will run. If empty only the main account data will be exported.
 	 *
-	 * @return int Estimated size in KiB
+	 * @return int|float Estimated size in KiB
 	 *
 	 * @throws UserMigrationException
 	 */
-	public function estimateExportSize(IUser $user, ?array $filteredMigratorList = null): int {
+	public function estimateExportSize(IUser $user, ?array $filteredMigratorList = null): int|float {
 		// 1MiB for base user data
 		$size = 1024;
 
@@ -124,6 +124,7 @@ class UserMigrationService {
 			}
 			$cacheKey = $user->getUID() . '::' . $migrator->getId();
 			if ($this->internalCache->hasKey($cacheKey)) {
+				/** @var int|float $size */
 				$size += $this->internalCache->get($cacheKey);
 				continue;
 			}
@@ -134,6 +135,7 @@ class UserMigrationService {
 					throw new UserMigrationException('Could not estimate export size for ' . $migrator->getDisplayName(), 0, $e);
 				}
 				$this->internalCache->set($cacheKey, $migratorSize);
+				/** @var int|float $size */
 				$size += $migratorSize;
 			}
 		}
@@ -149,7 +151,7 @@ class UserMigrationService {
 	public function checkExportability(IUser $user, ?array $filteredMigratorList = null): void {
 		try {
 			$userFolder = $this->root->getUserFolder($user->getUID());
-			$freeSpace = (int)ceil($userFolder->getFreeSpace() / 1024);
+			$freeSpace = ceil($userFolder->getFreeSpace() / 1024);
 		} catch (Throwable $e) {
 			throw new NotExportableException('Error calculating amount of free storage space available');
 		}
@@ -173,7 +175,7 @@ class UserMigrationService {
 
 		$freeSpaceAfterExport = ($freeSpace - $exportSize) / 1024;
 		if ($freeSpaceAfterExport < 0) {
-			throw new NotExportableException('Insufficient storage space available, please free up ' . (int)abs($freeSpaceAfterExport) . ' MiB or more to be able to export your data without running out of space');
+			throw new NotExportableException('Insufficient storage space available, please free up ' . abs($freeSpaceAfterExport) . ' MiB or more to be able to export your data without running out of space');
 		}
 	}
 

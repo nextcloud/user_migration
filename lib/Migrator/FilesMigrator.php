@@ -91,8 +91,9 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 
 	/**
 	 * {@inheritDoc}
+	 * @return int|float
 	 */
-	public function getEstimatedExportSize(IUser $user): int|float {
+	public function getEstimatedExportSize(IUser $user) {
 		$uid = $user->getUID();
 		$userFolder = $this->root->getUserFolder($uid);
 		$nodeFilter = function (Node $node): bool {
@@ -133,8 +134,9 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 
 	/**
 	 * Estimate size of folder in bytes, applying a filter
+	 * @return int|float
 	 */
-	private function estimateFolderSize(Folder $folder, ?callable $nodeFilter = null): int|float {
+	private function estimateFolderSize(Folder $folder, ?callable $nodeFilter = null) {
 		$size = 0;
 		$nodes = $folder->getDirectoryListing();
 		foreach ($nodes as $node) {

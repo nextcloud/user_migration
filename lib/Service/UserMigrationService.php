@@ -114,7 +114,7 @@ class UserMigrationService {
 	 *
 	 * @throws UserMigrationException
 	 */
-	public function estimateExportSize(IUser $user, ?array $filteredMigratorList = null): int|float {
+	public function estimateExportSize(IUser $user, ?array $filteredMigratorList = null) {
 		// 1MiB for base user data
 		$size = 1024;
 

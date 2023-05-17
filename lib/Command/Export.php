@@ -41,10 +41,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class Export extends Base {
-	public function __construct(
-		private IUserManager $userManager,
-		private UserMigrationService $migrationService,
-	) {
+	private IUserManager $userManager;
+	private UserMigrationService $migrationService;
+
+	public function __construct($userManager, $migrationService) {
+		$this->userManager = $userManager;
+		$this->migrationService = $migrationService;
 		parent::__construct();
 	}
 

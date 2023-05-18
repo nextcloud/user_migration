@@ -18,7 +18,7 @@ This app allows users to easily migrate from one instance to another using an ex
 - **⚙ Go into `Personal settings` > `Data migration` and start the import**
 - **🎉 Enjoy your stay on your new instance** and close you old account
 	]]></description>
-	<version>4.0.0</version>
+	<version>4.0.1</version>
 	<licence>agpl</licence>
 	<author>Côme Chilliet</author>
 	<author>Christopher Ng</author>
@@ -38,7 +38,7 @@ This app allows users to easily migrate from one instance to another using an ex
 	<screenshot>https://raw.githubusercontent.com/nextcloud/user_migration/main/screenshots/import.png</screenshot>
 
 	<dependencies>
-		<nextcloud min-version="25" max-version="27"/>
+		<nextcloud min-version="27" max-version="27"/>
 	</dependencies>
 
 	<commands>

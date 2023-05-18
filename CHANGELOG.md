@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [4.0.1] - 2023-05-17
+
+### Breaking
+
+* Drop support for Nextcloud 25 + 26
+
+### Changes
+
+* Nextcloud 27 compatibility
+* Improved 32bit compatibility https://github.com/nextcloud/user_migration/pull/408
+* CLI command exports directly to final folder instead of a temporary folder https://github.com/nextcloud/user_migration/pull/402
+* Various dependencies bump
+
 ## [4.0.0] - 2023-05-16
 
 * Nextcloud 27 compatibility

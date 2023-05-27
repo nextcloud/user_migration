@@ -44,9 +44,6 @@ OC.L10N.register(
     "Choose a file to import" : "Choose a file to import",
     "Import completed successfully" : "Import completed successfully",
     "You will be notified when your import has completed. This may take a while." : "You will be notified when your import has completed. This may take a while.",
-    "Please do not use your account while importing." : "Please do not use your account while importing.",
-    "Files including versions, comments, collaborative tags, and favorites (versions may expire during export if you are low on storage space)" : "Files including versions, comments, collaborative tags, and favorites (versions may expire during export if you are low on storage space)",
-    "**👤➡ User migration app for Nextcloud**\n\nThis app allows users to easily migrate from one instance to another using an export of their account.\n\n- **🐱 Log in to cat.example.com/nextcloud**\n- **☑ Select what you want to export** (settings, files, profile information, profile picture, calendars, contacts…)\n- **⚙ Start the export** and wait for the server to process it\n- **📁 Download the resulting archive**\n- **🐶 Open an account on dog.example.com/nextcloud**\n- **🡅 Upload the archive into your files**\n- **⚙ Start the import**\n- **🎉 Enjoy your stay on your new instance** and close you old account" : "**👤➡ User migration app for Nextcloud**\n\nThis app allows users to easily migrate from one instance to another using an export of their account.\n\n- **🐱 Log in to cat.example.com/nextcloud**\n- **☑ Select what you want to export** (settings, files, profile information, profile picture, calendars, contacts…)\n- **⚙ Start the export** and wait for the server to process it\n- **📁 Download the resulting archive**\n- **🐶 Open an account on dog.example.com/nextcloud**\n- **🡅 Upload the archive into your files**\n- **⚙ Start the import**\n- **🎉 Enjoy your stay on your new instance** and close you old account",
-    "Settings" : "Settings"
+    "Please do not use your account while importing." : "Please do not use your account while importing."
 },
 "nplurals=2; plural=(n != 1);");

@@ -5,7 +5,6 @@ OC.L10N.register(
     "Export" : "ஏற்றுமதி",
     "Cancel" : "இரத்து செய்க",
     "Close" : "மூடுக",
-    "Import" : "இறக்குமதி",
-    "Settings" : "அமைப்புகள்"
+    "Import" : "இறக்குமதி"
 },
 "nplurals=2; plural=(n != 1);");

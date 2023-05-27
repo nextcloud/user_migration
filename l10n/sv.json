@@ -10,7 +10,6 @@
     "Export" : "Exportera",
     "Cancel" : "Avbryt",
     "Close" : "Stäng",
-    "Import" : "Importera",
-    "Settings" : "Inställningar"
+    "Import" : "Importera"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

@@ -4,7 +4,6 @@
     "Export" : "Exporteren",
     "Cancel" : "Annuleren",
     "Close" : "Sluit",
-    "Import" : "Import",
-    "Settings" : "Instellingen"
+    "Import" : "Import"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

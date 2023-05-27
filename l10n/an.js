@@ -3,7 +3,6 @@ OC.L10N.register(
     {
     "Files" : "Archivos",
     "Cancel" : "Canzelar",
-    "Close" : "Zarrar",
-    "Settings" : "Configurazión"
+    "Close" : "Zarrar"
 },
 "nplurals=2; plural=(n != 1);");

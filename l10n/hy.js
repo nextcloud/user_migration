@@ -5,7 +5,6 @@ OC.L10N.register(
     "Export" : "Արտահանում",
     "Cancel" : "ընդհատել",
     "Close" : "Փակել",
-    "Import" : "Ներմուծում",
-    "Settings" : "կարգավորումներ"
+    "Import" : "Ներմուծում"
 },
 "nplurals=2; plural=(n != 1);");

@@ -3,7 +3,6 @@
     "Export" : "Exportar",
     "Cancel" : "Cancellar",
     "Close" : "Clauder",
-    "Import" : "Importar",
-    "Settings" : "Configurationes"
+    "Import" : "Importar"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

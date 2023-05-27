@@ -5,7 +5,6 @@ OC.L10N.register(
     "Export" : "នាំចេញ",
     "Cancel" : "បោះបង់",
     "Close" : "បិទ",
-    "Import" : "នាំយកចូល",
-    "Settings" : "ការកំណត់"
+    "Import" : "នាំយកចូល"
 },
 "nplurals=1; plural=0;");

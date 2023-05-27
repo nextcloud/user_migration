@@ -1,7 +1,6 @@
 { "translations": {
     "Files" : "فایلونه",
     "Cancel" : "پرېښول",
-    "Close" : "بندول",
-    "Settings" : "سمونې"
+    "Close" : "بندول"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

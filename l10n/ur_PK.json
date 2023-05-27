@@ -1,6 +1,5 @@
 { "translations": {
     "Cancel" : "منسوخ کریں",
-    "Close" : "بند ",
-    "Settings" : "سیٹینگز"
+    "Close" : "بند "
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

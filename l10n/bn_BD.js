@@ -5,7 +5,6 @@ OC.L10N.register(
     "Export" : "রপ্তানি",
     "Cancel" : "বাতির",
     "Close" : "বন্ধ",
-    "Import" : "আমদানি",
-    "Settings" : "সেটিংস"
+    "Import" : "আমদানি"
 },
 "nplurals=2; plural=(n != 1);");

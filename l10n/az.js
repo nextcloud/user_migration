@@ -5,7 +5,6 @@ OC.L10N.register(
     "Export" : "Çıxarış",
     "Cancel" : "Dayandır",
     "Close" : "Bağla",
-    "Import" : "Əlavə et",
-    "Settings" : "Quraşdırmalar"
+    "Import" : "Əlavə et"
 },
 "nplurals=2; plural=(n != 1);");

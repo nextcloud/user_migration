@@ -5,7 +5,6 @@ OC.L10N.register(
     "Export" : "Eksport",
     "Cancel" : "Batal",
     "Close" : "Tutup",
-    "Import" : "Import",
-    "Settings" : "Tetapan"
+    "Import" : "Import"
 },
 "nplurals=1; plural=0;");

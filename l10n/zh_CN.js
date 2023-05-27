@@ -17,7 +17,6 @@ OC.L10N.register(
     "Import your data" : "导入你的数据",
     "Close import status" : "关闭导入状态",
     "Choose a file to import" : "选择要导入的文件",
-    "Import completed successfully" : "导入成功",
-    "Settings" : "设置"
+    "Import completed successfully" : "导入成功"
 },
 "nplurals=1; plural=0;");

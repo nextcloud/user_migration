@@ -5,7 +5,6 @@ OC.L10N.register(
     "Export" : "Eksporter",
     "Cancel" : "Avbryt",
     "Close" : "Lat att",
-    "Import" : "Importer",
-    "Settings" : "Innstillingar"
+    "Import" : "Importer"
 },
 "nplurals=2; plural=(n != 1);");

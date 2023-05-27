@@ -5,7 +5,6 @@ OC.L10N.register(
     "Export" : "ექსპორტი",
     "Cancel" : "უარყოფა",
     "Close" : "დახურვა",
-    "Import" : "იმპორტი",
-    "Settings" : "პარამეტრები"
+    "Import" : "იმპორტი"
 },
 "nplurals=2; plural=(n!=1);");

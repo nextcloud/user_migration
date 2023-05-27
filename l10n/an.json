@@ -1,7 +1,6 @@
 { "translations": {
     "Files" : "Archivos",
     "Cancel" : "Canzelar",
-    "Close" : "Zarrar",
-    "Settings" : "Configurazión"
+    "Close" : "Zarrar"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

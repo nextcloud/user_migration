@@ -5,7 +5,6 @@ OC.L10N.register(
     "Export" : "Eksportér",
     "Cancel" : "Annuller",
     "Close" : "Luk",
-    "Import" : "Importér",
-    "Settings" : "Indstillinger"
+    "Import" : "Importér"
 },
 "nplurals=2; plural=(n != 1);");

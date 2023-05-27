@@ -3,7 +3,6 @@ OC.L10N.register(
     {
     "Files" : "Ifuyla",
     "Cancel" : "Sefsex",
-    "Close" : "Mdel",
-    "Settings" : "Iɣewwaṛen"
+    "Close" : "Mdel"
 },
 "nplurals=2; plural=(n != 1);");

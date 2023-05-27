@@ -5,7 +5,6 @@ OC.L10N.register(
     "Export" : "Flytja út",
     "Cancel" : "Hætta við",
     "Close" : "Loka",
-    "Import" : "Flytja inn",
-    "Settings" : "Stillingar"
+    "Import" : "Flytja inn"
 },
 "nplurals=2; plural=(n % 10 != 1 || n % 100 == 11);");

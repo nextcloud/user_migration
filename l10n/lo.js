@@ -3,7 +3,6 @@ OC.L10N.register(
     {
     "Files" : "ຟາຍ",
     "Cancel" : "ຍົກເລີກ",
-    "Close" : "ປິດ",
-    "Settings" : "ການຕັ້ງຄ່າ"
+    "Close" : "ປິດ"
 },
 "nplurals=1; plural=0;");

@@ -3,7 +3,6 @@ OC.L10N.register(
     {
     "Files" : "فایلونه",
     "Cancel" : "پرېښول",
-    "Close" : "بندول",
-    "Settings" : "سمونې"
+    "Close" : "بندول"
 },
 "nplurals=2; plural=(n != 1);");

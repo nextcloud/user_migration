@@ -5,7 +5,6 @@ OC.L10N.register(
     "Export" : "Xuất ra",
     "Cancel" : "Hủy",
     "Close" : "Đóng",
-    "Import" : "Nhập vào",
-    "Settings" : "Cài đặt"
+    "Import" : "Nhập vào"
 },
 "nplurals=1; plural=0;");

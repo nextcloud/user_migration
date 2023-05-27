@@ -12,7 +12,6 @@ OC.L10N.register(
     "Export" : "Exportera",
     "Cancel" : "Avbryt",
     "Close" : "Stäng",
-    "Import" : "Importera",
-    "Settings" : "Inställningar"
+    "Import" : "Importera"
 },
 "nplurals=2; plural=(n != 1);");

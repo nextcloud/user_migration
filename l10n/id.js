@@ -5,7 +5,6 @@ OC.L10N.register(
     "Export" : "Ekspor",
     "Cancel" : "Membatalkan",
     "Close" : "Tutup",
-    "Import" : "Impor",
-    "Settings" : "Setelan"
+    "Import" : "Impor"
 },
 "nplurals=1; plural=0;");

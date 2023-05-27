@@ -6,7 +6,6 @@ OC.L10N.register(
     "Export" : "Εξαγωγή",
     "Cancel" : "Ακύρωση",
     "Close" : "Κλείσιμο",
-    "Import" : "Εισαγωγή",
-    "Settings" : "Ρυθμίσεις"
+    "Import" : "Εισαγωγή"
 },
 "nplurals=2; plural=(n != 1);");

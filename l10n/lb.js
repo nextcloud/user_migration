@@ -5,7 +5,6 @@ OC.L10N.register(
     "Export" : "Exportéieren",
     "Cancel" : "Ofbriechen",
     "Close" : "Zoumaachen",
-    "Import" : "Importéieren",
-    "Settings" : "Astellungen"
+    "Import" : "Importéieren"
 },
 "nplurals=2; plural=(n != 1);");

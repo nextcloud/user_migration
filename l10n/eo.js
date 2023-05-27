@@ -5,7 +5,6 @@ OC.L10N.register(
     "Export" : "Eksporti",
     "Cancel" : "Nuligi",
     "Close" : "Malfermi",
-    "Import" : "Importi",
-    "Settings" : "Agordoj"
+    "Import" : "Importi"
 },
 "nplurals=2; plural=(n != 1);");

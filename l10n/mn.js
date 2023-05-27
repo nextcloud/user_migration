@@ -5,7 +5,6 @@ OC.L10N.register(
     "Export" : "Экспорт",
     "Cancel" : "болиулах",
     "Close" : "Хаах",
-    "Import" : "Импорт",
-    "Settings" : "Тохиргоо"
+    "Import" : "Импорт"
 },
 "nplurals=2; plural=(n != 1);");

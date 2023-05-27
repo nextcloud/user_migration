@@ -3,7 +3,6 @@ OC.L10N.register(
     {
     "Files" : "Files",
     "Cancel" : "Cancel",
-    "Close" : "Close",
-    "Settings" : "Sozlamalar"
+    "Close" : "Close"
 },
 "nplurals=1; plural=0;");

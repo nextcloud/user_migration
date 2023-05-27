@@ -3,7 +3,6 @@
     "Export" : "Eksporter",
     "Cancel" : "Avbryt",
     "Close" : "Lukk",
-    "Import" : "Importer",
-    "Settings" : "Innstillinger"
+    "Import" : "Importer"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

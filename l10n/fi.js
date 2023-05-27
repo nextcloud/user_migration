@@ -6,7 +6,6 @@ OC.L10N.register(
     "Export" : "Vie",
     "Cancel" : "Peruuta",
     "Close" : "Sulje",
-    "Import" : "Tuo",
-    "Settings" : "Asetukset"
+    "Import" : "Tuo"
 },
 "nplurals=2; plural=(n != 1);");

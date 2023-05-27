@@ -5,7 +5,6 @@ OC.L10N.register(
     "Export" : "ರಫ್ತು",
     "Cancel" : "﻿ರದ್ದು",
     "Close" : "ಮುಚ್ಚು",
-    "Import" : "ಆಮದು",
-    "Settings" : "ಆಯ್ಕೆ"
+    "Import" : "ಆಮದು"
 },
 "nplurals=2; plural=(n > 1);");

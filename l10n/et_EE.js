@@ -5,7 +5,6 @@ OC.L10N.register(
     "Export" : "Ekspordi",
     "Cancel" : "Loobu",
     "Close" : "Sulge",
-    "Import" : "Impordi",
-    "Settings" : "Seaded"
+    "Import" : "Impordi"
 },
 "nplurals=2; plural=(n != 1);");

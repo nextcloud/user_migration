@@ -3,7 +3,6 @@ OC.L10N.register(
     {
     "Files" : "Faýllar",
     "Cancel" : "ýatyrmak",
-    "Close" : "Ýap",
-    "Settings" : "Sazlamalar"
+    "Close" : "Ýap"
 },
 "nplurals=2; plural=(n != 1);");

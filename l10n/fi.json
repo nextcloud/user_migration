@@ -4,7 +4,6 @@
     "Export" : "Vie",
     "Cancel" : "Peruuta",
     "Close" : "Sulje",
-    "Import" : "Tuo",
-    "Settings" : "Asetukset"
+    "Import" : "Tuo"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

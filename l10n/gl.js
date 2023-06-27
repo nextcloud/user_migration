@@ -4,6 +4,7 @@ OC.L10N.register(
     "Files" : "Ficheiros",
     "Data migration" : "Migración de datos",
     "Export" : "Exportar",
+    "Please select the data you want to export" : "Seleccione os datos que quere exportar",
     "Cancel" : "Cancelar",
     "Close" : "Pechar",
     "Import" : "Importar"

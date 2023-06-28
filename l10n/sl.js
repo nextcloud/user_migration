@@ -2,7 +2,7 @@ OC.L10N.register(
     "user_migration",
     {
     "Files" : "Datoteke",
-    "Data migration" : "Selitev podatkov",
+    "Data migration" : "Preselitev podatkov",
     "Export" : "Izvozi",
     "Cancel" : "Prekliči",
     "Close" : "Zapri",

@@ -2,6 +2,10 @@ OC.L10N.register(
     "user_migration",
     {
     "Files" : "Файли",
+    "Files owned by you including versions, comments, collaborative tags, and favorites (versions may expire during export if you are low on storage space)" : "Ваші файли, включаючи версії, коментарі, спільні позначки та улюблене (термін дії версій може закінчитися під час експорту, якщо у вас мало місця для зберігання)",
+    "User migration" : "Міграція користувачів",
+    "User export failed" : "Експорт користувача не вдався",
+    "Your export of {user} failed." : "Не вдалося експортувати {user}.",
     "Export" : "Експорт",
     "Cancel" : "Скасувати",
     "Close" : "Закрити",

@@ -1,6 +1,6 @@
 { "translations": {
     "Files" : "Файли",
-    "Files owned by you including versions, comments, collaborative tags, and favorites (versions may expire during export if you are low on storage space)" : "Ваші файли, включаючи версії, коментарі, спільні позначки та улюблене (термін дії версій може закінчитися під час експорту, якщо у вас мало місця для зберігання)",
+    "Files owned by you including versions, comments, collaborative tags, and favorites (versions may expire during export if you are low on storage space)" : "Ваші файли, включно версії, коментарі, спільні мітки та вподобане (термін дії версій може закінчитися під час експорту, якщо у вас мало місця для зберігання даних)",
     "User migration" : "Міграція користувачів",
     "User export failed" : "Експорт користувача не вдався",
     "Your export of {user} failed." : "Не вдалося експортувати {user}.",

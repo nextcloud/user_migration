@@ -2,6 +2,7 @@ OC.L10N.register(
     "user_migration",
     {
     "Files" : "Archivos",
+    "Data migration" : "Migración de datos",
     "Export" : "Exportar",
     "Cancel" : "Cancelar",
     "Close" : "Cerrar",

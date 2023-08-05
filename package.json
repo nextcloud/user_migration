@@ -22,7 +22,7 @@
     "@nextcloud/password-confirmation": "^4.0.4",
     "@nextcloud/router": "^2.1.2",
     "@nextcloud/vue": "^7.12.1",
-    "vue": "^2.7.14",
+    "vue": "^3.3.4",
     "vue-material-design-icons": "^5.2.0"
   },
   "devDependencies": {

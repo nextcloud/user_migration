@@ -231,10 +231,8 @@ class UserMigrationService {
 		$output = $output ?? new NullOutput();
 
 		try {
-			$migratorVersions = $importSource->getMigratorVersions();
-
 			if (!$this->canImport($importSource)) {
-				throw new UserMigrationException("Version ${$migratorVersions[$this->getId()]} for main class ".static::class." is not compatible");
+				throw new UserMigrationException("Version ".($importSource->getMigratorVersion($this->getId()) ?? 'null')." for main class ".static::class." is not compatible");
 			}
 
 			// Check versions

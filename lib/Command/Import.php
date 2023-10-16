@@ -82,10 +82,10 @@ class Import extends Command {
 				$user = null;
 			}
 			$path = $input->getArgument('archive');
-			$io->writeln("Importing from ${path}…");
+			$io->writeln("Importing from {$path}…");
 			$importSource = new ImportSource($path);
 			$this->migrationService->import($importSource, $user, $io);
-			$io->writeln("Successfully imported from ${path}");
+			$io->writeln("Successfully imported from {$path}");
 		} catch (\Exception $e) {
 			if ($io->isDebug()) {
 				$io->error("$e");

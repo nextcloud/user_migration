@@ -21,10 +21,14 @@
  */
 
 import Vue from 'vue'
+import { getRequestToken } from '@nextcloud/auth'
 import { translate as t, translatePlural as n } from '@nextcloud/l10n'
 
 import logger from './shared/logger.js'
 import PersonalSettings from './views/Personal/Settings.vue'
+
+// eslint-disable-next-line camelcase, no-undef
+__webpack_nonce__ = btoa(getRequestToken())
 
 Vue.prototype.t = t
 Vue.prototype.n = n

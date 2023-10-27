@@ -104,16 +104,16 @@ import PackageUp from 'vue-material-design-icons/PackageUp.vue'
 import { queueImportJob, cancelJob } from '../services/migrationService.js'
 import { handleError } from '../shared/utils.js'
 
+/** @type {import('@nextcloud/dialogs').IFilePickerFilter} */
 const filterEntry = (entry) => {
-	if (entry.mimetype === 'httpd/unix-directory') {
+	if (entry.mime === 'httpd/unix-directory') {
 		return true
 	}
-	return entry.name.endsWith('.nextcloud_export')
+	return entry.basename.endsWith('.nextcloud_export')
 }
 
 const picker = getFilePickerBuilder(t('user_migration', 'Choose a file to import'))
 	.setMultiSelect(false)
-	.setModal(true)
 	.setType(FilePickerType.Choose)
 	.allowDirectories(false)
 	.setFilter(filterEntry)

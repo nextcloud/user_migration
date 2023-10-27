@@ -21,7 +21,7 @@
 -->
 
 <template>
-	<NcSettingsSection :title="t('user_migration', 'Import')"
+	<NcSettingsSection :name="t('user_migration', 'Import')"
 		:description="!loading ? t('user_migration', 'Please note that existing data may be overwritten') : ''"
 		:limit-width="false">
 		<template v-if="!loading">
@@ -63,7 +63,7 @@
 			<NcModal v-if="modalOpened"
 				@close="closeModal">
 				<div class="section__modal">
-					<NcEmptyContent :title="modalMessage"
+					<NcEmptyContent :name="modalMessage"
 						:description="modalDescription">
 						<template #icon>
 							<PackageUp />

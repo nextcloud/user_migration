@@ -21,7 +21,7 @@
 -->
 
 <template>
-	<NcSettingsSection :title="t('user_migration', 'Export')"
+	<NcSettingsSection :name="t('user_migration', 'Export')"
 		:description="!loading ? t('user_migration', 'Please select the data you want to export') : ''"
 		:limit-width="false">
 		<template v-if="!loading">
@@ -83,7 +83,7 @@
 			<NcModal v-if="modalOpened"
 				@close="closeModal">
 				<div class="section__modal">
-					<NcEmptyContent :title="modalMessage"
+					<NcEmptyContent :name="modalMessage"
 						:description="modalDescription">
 						<template #icon>
 							<PackageDown />

@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [5.0.0] - 2023-12-01
+
+### Breaking
+
+* Drop support for Nextcloud 27
+
+### Changes
+
+* Nextcloud 28 compatibility
+* Remove deprecated ${var} syntax https://github.com/nextcloud/user_migration/pull/519
+* Fix hidden password confirmation dialog with new global search https://github.com/nextcloud/user_migration/pull/551
+* Various dependencies bump
+
 ## [4.0.1] - 2023-05-17
 
 ### Breaking

@@ -18,7 +18,7 @@ OC.L10N.register(
     "Export" : "Dışa aktar",
     "Please select the data you want to export" : "Lütfen dışa aktarmak istediğiniz verileri seçin",
     "User information and settings" : "Kullanıcı bilgileri ve ayarlar",
-    "Basic user information including user ID and display name as well as your settings" : "Kullanıcı kodu ve görüntülenecek ad ile ayarlarınızı içeren temel kullanıcı bilgileri",
+    "Basic user information including user ID and display name as well as your settings" : "Kullanıcı kimliği ve görüntülenecek ad ile ayarlarınızı içeren temel kullanıcı bilgileri",
     "Show export status" : "Dışa aktarma durumunu görüntüle",
     "Show status" : "Durumu görüntüle",
     "Cancel export" : "Dışa aktarmayı iptal et",

@@ -1,0 +1,8 @@
+{ "translations": {
+    "Files" : "ფაილები",
+    "Export" : "Export",
+    "Cancel" : "Cancel",
+    "Close" : "Close",
+    "Import" : "Import"
+},"pluralForm" :"nplurals=2; plural=(n!=1);"
+}

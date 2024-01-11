@@ -1,6 +1,6 @@
 { "translations": {
     "Files" : "Dateien",
-    "Files owned by you including versions, comments, collaborative tags, and favorites (versions may expire during export if you are low on storage space)" : "Dateien, die Ihnen gehören, einschließlich Versionen, Kommentare, kollaborativen Tags und Favoriten (Versionen können während des Exports ablaufen, wenn Sie wenig Speicherplatz haben)",
+    "Files owned by you including versions, comments, collaborative tags, and favorites (versions may expire during export if you are low on storage space)" : "Dateien, die Ihnen gehören, einschließlich Versionen, Kommentare, kollaborative Schlagworte und Favoriten (Versionen können während des Exports ablaufen, wenn Sie wenig Speicherplatz haben)",
     "User migration" : "Benutzermigration",
     "User export failed" : "Benutzerexport fehlgeschlagen",
     "Your export of {user} failed." : "Ihr Export von {user} ist fehlgeschlagen.",

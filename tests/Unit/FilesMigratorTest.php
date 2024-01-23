@@ -49,6 +49,7 @@ class FilesMigratorTest extends TestCase {
 	private ISystemTagObjectMapper $systemTagMapper;
 	private ICommentsManager $commentsManager;
 	private IL10N $l10n;
+	private FilesMigrator $filesMigrator;
 
 	protected function setUp(): void {
 		parent::setUp();

@@ -27,12 +27,18 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration\Tests\Unit;
 
+use OCA\UserMigration\ExportDestination;
 use OCA\UserMigration\Migrator\FilesMigrator;
+use OCA\Files\AppInfo\Application;
+use OCA\Files_Versions\Storage as FilesVersionsStorage;
 use OCP\Comments\ICommentsManager;
+use OCP\Files\File;
 use OCP\Files\Folder;
+use OCP\Files\IHomeStorage;
 use OCP\Files\IRootFolder;
 use OCP\IL10N;
 use OCP\ITagManager;
+use OCP\ITags;
 use OCP\IUser;
 use OCP\SystemTag\ISystemTagManager;
 use OCP\SystemTag\ISystemTagObjectMapper;
@@ -62,6 +68,9 @@ class FilesMigratorTest extends TestCase {
 		$this->l10n = $this->createMock(IL10N::class);
 
 		$this->userFolder = $this->createMock(Folder::class);
+		$this->userFolder
+			->method('getPath')
+			->willReturn('/tmp/testuser');
 
 		$this->rootFolder
 			->method('getUserFolder')
@@ -79,8 +88,38 @@ class FilesMigratorTest extends TestCase {
 
 	public function testGetEstimatedExportSize(): void {
 		$user = $this->createMock(IUser::class);
+		$userExport = $this->createMock(File::class);
+
+		$expectedSize = 0;
+		// 1MiB for tags and system tags
+		$expectedSize += 1024;
+		// 2MiB for comments
+		$expectedSize += 2048;
+
+		$userExport
+			->method('getSize')
+			->willReturn(50);
+
+		$userExportStorage = $this->createMock(IHomeStorage::class);
+		$userExportStorage
+			->method('instanceOfStorage')
+			->with(IHomeStorage::class)
+			->willReturn(true);
+
+		$userExport
+			->method('getStorage')
+			->willReturn($userExportStorage);
+
+		$this->userFolder
+			->method('get')
+			->with(ExportDestination::EXPORT_FILENAME)
+			->willReturn($userExport);
+		$this->userFolder
+			->method('getDirectoryListing')
+			->willReturn([$userExport]);
+
 		$this->assertEquals(
-			100,
+			$expectedSize,
 			$this->filesMigrator->getEstimatedExportSize($user)
 		);
 	}
@@ -90,6 +129,26 @@ class FilesMigratorTest extends TestCase {
 		$user->expects($this->once())->method('getUID')->willReturn('testuser');
 		$exportDestination = $this->createMock(IExportDestination::class);
 		$output = $this->createMock(OutputInterface::class);
+
+		$versionsFolder = $this->createMock(Folder::class);
+		$versionsFolder
+			->method('getDirectoryListing')
+			->willReturn([]);
+
+		$this->rootFolder
+			->method('get')
+			->with('/testuser/'.FilesVersionsStorage::VERSIONS_ROOT)
+			->willReturn($versionsFolder);
+
+		$this->userFolder
+			->method('getDirectoryListing')
+			->willReturn([]);
+
+		$this->tagManager
+			->method('load')
+			->with(Application::APP_ID, [], false, 'testuser')
+			->willReturn($this->createMock(ITags::class));
+
 		$this->filesMigrator->export($user, $exportDestination, $output);
 	}
 
@@ -98,6 +157,29 @@ class FilesMigratorTest extends TestCase {
 		$user->expects($this->once())->method('getUID')->willReturn('testuser');
 		$importSource = $this->createMock(IImportSource::class);
 		$output = $this->createMock(OutputInterface::class);
+
+		$importSource
+			->method('getMigratorVersion')
+			->with('files')
+			->willReturn(1);
+
+		$importSource
+			->method('getFileContents')
+			->willReturnMap(
+				[
+					[Application::APP_ID.'/tags.json', '{}'],
+					[Application::APP_ID.'/systemtags.json', '{}'],
+					[Application::APP_ID.'/comments.json', '{}'],
+				]
+			);
+
+		$userExport = $this->createMock(File::class);
+
+		$this->userFolder
+			->method('get')
+			->with(ExportDestination::EXPORT_FILENAME)
+			->willReturn($userExport);
+
 		$this->filesMigrator->import($user, $importSource, $output);
 	}
 }

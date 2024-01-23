@@ -27,10 +27,10 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration\Tests\Unit;
 
-use OCA\UserMigration\ExportDestination;
-use OCA\UserMigration\Migrator\FilesMigrator;
 use OCA\Files\AppInfo\Application;
 use OCA\Files_Versions\Storage as FilesVersionsStorage;
+use OCA\UserMigration\ExportDestination;
+use OCA\UserMigration\Migrator\FilesMigrator;
 use OCP\Comments\ICommentsManager;
 use OCP\Files\File;
 use OCP\Files\Folder;

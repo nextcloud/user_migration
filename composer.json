@@ -12,8 +12,8 @@
 		"psalm": "psalm",
 		"psalm:fix": "psalm --alter --issues=InvalidReturnType,InvalidNullableReturnType,MissingParamType,InvalidFalsableReturnType",
 		"psalm:update-baseline": "psalm --threads=1 --update-baseline",
-		"test:unit": "vendor/bin/phpunit -c phpunit.xml",
-		"test:integration": "vendor/bin/phpunit -c phpunit.integration.xml"
+		"test:unit": "vendor/bin/phpunit -c tests/phpunit.xml",
+		"test:integration": "vendor/bin/phpunit -c tests/phpunit.integration.xml"
 	},
 	"config": {
 		"optimize-autoloader": true,

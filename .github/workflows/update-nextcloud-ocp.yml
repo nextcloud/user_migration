@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        branches: ['main', 'master', 'stable28', 'stable27', 'stable26']
+        branches: ['main', 'stable28', 'stable27', 'stable26']
 
     name: update-nextcloud-ocp-${{ matrix.branches }}
 
@@ -67,7 +67,7 @@ jobs:
       - name: Composer update nextcloud/ocp
         id: update_main
         if: ${{ steps.checkout.outcome == 'success' && matrix.branches == 'main' }}
-        run: composer require --dev nextcloud/ocp:dev-master
+        run: composer require --dev nextcloud/ocp:dev-stable28
 
       - name: Raise on issue on failure
         uses: dacbd/create-issue-action@ba4d1c45cccf9c483f2720cefb40e437f0ee6f7d # v1.2.1

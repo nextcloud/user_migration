@@ -3,6 +3,7 @@ OC.L10N.register(
     {
     "Files" : "Ficheros",
     "Export" : "Esportar",
-    "Cancel" : "Encaboxar"
+    "Cancel" : "Encaboxar",
+    "Close" : "Zarrar"
 },
 "nplurals=2; plural=(n != 1);");

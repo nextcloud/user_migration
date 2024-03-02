@@ -4,6 +4,7 @@ OC.L10N.register(
     "Files" : "Ficheros",
     "Export" : "Esportar",
     "Cancel" : "Encaboxar",
-    "Close" : "Zarrar"
+    "Close" : "Zarrar",
+    "Import" : "Importar"
 },
 "nplurals=2; plural=(n != 1);");

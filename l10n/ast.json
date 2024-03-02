@@ -2,6 +2,7 @@
     "Files" : "Ficheros",
     "Export" : "Esportar",
     "Cancel" : "Encaboxar",
-    "Close" : "Zarrar"
+    "Close" : "Zarrar",
+    "Import" : "Importar"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

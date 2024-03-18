@@ -214,7 +214,7 @@ class Notifier implements INotifier {
 	}
 
 	/**
-	 * @return array{'type':'user'}
+	 * @return array{type: 'user'}
 	 */
 	protected function getUserRichObject(IL10N $l, string $userId): array {
 		try {

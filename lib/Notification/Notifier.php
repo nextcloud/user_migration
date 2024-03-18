@@ -31,6 +31,8 @@ use OCA\UserMigration\AppInfo\Application;
 use OCA\UserMigration\ExportDestination;
 use OCP\Files\File;
 use OCP\Files\IRootFolder;
+use OCP\Files\NotFoundException;
+use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\IUser;
 use OCP\IUserManager;
@@ -91,25 +93,12 @@ class Notifier implements INotifier {
 		$l = $this->l10nFactory->get(Application::APP_ID, $languageCode);
 		$param = $notification->getSubjectParameters();
 
-		$sourceUser = $this->getUser($param['sourceUser']);
 		$notification->setRichSubject($l->t('User export failed'))
-			->setParsedSubject($l->t('User export failed'))
 			->setRichMessage(
 				$l->t('Your export of {user} failed.'),
 				[
-					'user' => [
-						'type' => 'user',
-						'id' => $sourceUser->getUID(),
-						'name' => $sourceUser->getDisplayName(),
-					],
-				])
-			->setParsedMessage(
-				str_replace(
-					['{user}'],
-					[$sourceUser->getDisplayName()],
-					$l->t('Your export of {user} failed.')
-				)
-			);
+					'user' => $this->getUserRichObject($l, $param['sourceUser']),
+				]);
 		return $notification;
 	}
 
@@ -117,39 +106,34 @@ class Notifier implements INotifier {
 		$l = $this->l10nFactory->get(Application::APP_ID, $languageCode);
 		$param = $notification->getSubjectParameters();
 
-		$sourceUser = $this->getUser($param['sourceUser']);
-		$exportFile = $this->getExportFile($sourceUser);
-
-		$path = rtrim($exportFile->getPath(), '/');
-		if (strpos($path, '/' . $notification->getUser() . '/files/') === 0) {
-			// Remove /user/files/...
-			$fullPath = $path;
-			[,,, $path] = explode('/', $fullPath, 4);
+		$richObjects = [];
+		try {
+			$sourceUser = $this->getUser($param['sourceUser']);
+			$richObjects['user'] = $this->userToRichObject($sourceUser);
+		} catch (\InvalidArgumentException $e) {
+			$richObjects['user'] = $this->missingUserToRichObject($l, $param['sourceUser']);
 		}
+		if (isset($sourceUser)) {
+			try {
+				$exportFile = $this->getExportFile($sourceUser);
+				$path = rtrim($exportFile->getPath(), '/');
+				if (strpos($path, '/' . $notification->getUser() . '/files/') === 0) {
+					// Remove /user/files/...
+					$fullPath = $path;
+					[,,, $path] = explode('/', $fullPath, 4);
+				}
+				$richObjects['file'] = $this->fileToRichObject($exportFile, $path);
+			} catch (\InvalidArgumentException|NotFoundException $e) {
+				$richObjects['file'] = $this->missingFileToRichObject($l, ExportDestination::EXPORT_FILENAME);
+			}
+		} else {
+			$richObjects['file'] = $this->missingFileToRichObject($l, ExportDestination::EXPORT_FILENAME);
+		}
+
 		$notification->setRichSubject($l->t('User export done'))
-			->setParsedSubject($l->t('User export done'))
 			->setRichMessage(
 				$l->t('Your export of {user} has completed: {file}'),
-				[
-					'user' => [
-						'type' => 'user',
-						'id' => $sourceUser->getUID(),
-						'name' => $sourceUser->getDisplayName(),
-					],
-					'file' => [
-						'type' => 'file',
-						'id' => $exportFile->getId(),
-						'name' => $exportFile->getName(),
-						'path' => $path,
-						'link' => $this->urlGenerator->linkToRouteAbsolute('files.viewcontroller.showFile', ['fileid' => $exportFile->getId()]),
-					],
-				])
-			->setParsedMessage(
-				str_replace(
-					['{user}', '{file}'],
-					[$sourceUser->getDisplayName(), $path],
-					$l->t('Your export of {user} has completed: {file}')
-				)
+				$richObjects
 			);
 
 		return $notification;
@@ -159,25 +143,12 @@ class Notifier implements INotifier {
 		$l = $this->l10nFactory->get(Application::APP_ID, $languageCode);
 		$param = $notification->getSubjectParameters();
 
-		$targetUser = $this->getUser($param['targetUser']);
 		$notification->setRichSubject($l->t('User import failed'))
-			->setParsedSubject($l->t('User import failed'))
 			->setRichMessage(
 				$l->t('Your import to {user} failed.'),
 				[
-					'user' => [
-						'type' => 'user',
-						'id' => $targetUser->getUID(),
-						'name' => $targetUser->getDisplayName(),
-					],
-				])
-			->setParsedMessage(
-				str_replace(
-					['{user}'],
-					[$targetUser->getDisplayName()],
-					$l->t('Your import to {user} failed.')
-				)
-			);
+					'user' => $this->getUserRichObject($l, $param['targetUser']),
+				]);
 		return $notification;
 	}
 
@@ -185,40 +156,29 @@ class Notifier implements INotifier {
 		$l = $this->l10nFactory->get(Application::APP_ID, $languageCode);
 		$param = $notification->getSubjectParameters();
 
-		$author = $this->getUser($param['author']);
-		$targetUser = $this->getUser($param['targetUser']);
 		$path = $param['path'];
-		$importFile = $this->getImportFile($author, $path);
+		try {
+			$author = $this->getUser($param['author']);
+			$importFile = $this->getImportFile($author, $path);
+			$fileRichObject = $this->fileToRichObject($importFile, $path);
+		} catch (\InvalidArgumentException|NotFoundException $e) {
+			$fileRichObject = $this->missingFileToRichObject($l, $path);
+		}
 
 		$notification->setRichSubject($l->t('User import done'))
-			->setParsedSubject($l->t('User import done'))
 			->setRichMessage(
 				$l->t('Your import of {file} into {user} has completed.'),
 				[
-					'user' => [
-						'type' => 'user',
-						'id' => $targetUser->getUID(),
-						'name' => $targetUser->getDisplayName(),
-					],
-					'file' => [
-						'type' => 'file',
-						'id' => $importFile->getId(),
-						'name' => $importFile->getName(),
-						'path' => $path,
-						'link' => $this->urlGenerator->linkToRouteAbsolute('files.viewcontroller.showFile', ['fileid' => $importFile->getId(), 'openfile' => 0]),
-					],
-				])
-			->setParsedMessage(
-				str_replace(
-					['{user}', '{file}'],
-					[$targetUser->getDisplayName(), $path],
-					$l->t('Your import of {file} into {user} has completed.')
-				)
-			);
+					'user' => $this->getUserRichObject($l, $param['targetUser']),
+					'file' => $fileRichObject,
+				]);
 
 		return $notification;
 	}
 
+	/**
+	 * @throws \InvalidArgumentException
+	 */
 	protected function getUser(string $userId): IUser {
 		$user = $this->userManager->get($userId);
 		if ($user instanceof IUser) {
@@ -227,6 +187,10 @@ class Notifier implements INotifier {
 		throw new \InvalidArgumentException('User not found');
 	}
 
+	/**
+	 * @throws \InvalidArgumentException
+	 * @throws NotFoundException
+	 */
 	protected function getExportFile(IUser $user): File {
 		$userFolder = $this->root->getUserFolder($user->getUID());
 		$file = $userFolder->get(ExportDestination::EXPORT_FILENAME);
@@ -236,12 +200,62 @@ class Notifier implements INotifier {
 		return $file;
 	}
 
+	/**
+	 * @throws \InvalidArgumentException
+	 * @throws NotFoundException
+	 */
 	protected function getImportFile(IUser $user, string $path): File {
 		$userFolder = $this->root->getUserFolder($user->getUID());
 		$file = $userFolder->get($path);
 		if (!$file instanceof File) {
-			throw new \InvalidArgumentException("Import file \"$path\" does not exist");
+			throw new \InvalidArgumentException("Import file \"$path\" is not a file");
 		}
 		return $file;
+	}
+
+	/**
+	 * @return array{type: 'user'}
+	 */
+	protected function getUserRichObject(IL10N $l, string $userId): array {
+		try {
+			$user = $this->getUser($userId);
+			return $this->userToRichObject($user);
+		} catch (\InvalidArgumentException $e) {
+			return $this->missingUserToRichObject($l, $userId);
+		}
+	}
+
+	private function userToRichObject(IUser $user): array {
+		return [
+			'type' => 'user',
+			'id' => $user->getUID(),
+			'name' => $user->getDisplayName(),
+		];
+	}
+
+	private function missingUserToRichObject(IL10N $l, string $userId): array {
+		return [
+			'type' => 'user',
+			'id' => $userId,
+			'name' => $l->t('%s (missing)', [$userId]),
+		];
+	}
+
+	private function fileToRichObject(File $file, string $path): array {
+		return [
+			'type' => 'file',
+			'id' => $file->getId(),
+			'name' => $file->getName(),
+			'path' => $path,
+			'link' => $this->urlGenerator->linkToRouteAbsolute('files.viewcontroller.showFile', ['fileid' => $file->getId()]),
+		];
+	}
+
+	private function missingFileToRichObject(IL10N $l, string $path): array {
+		return [
+			'type' => 'highlight',
+			'id' => basename($path),
+			'name' => $l->t('%s (missing)', [$path]),
+		];
 	}
 }

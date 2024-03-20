@@ -10,6 +10,7 @@
     "Your import to {user} failed." : "您對 {user} 匯入失敗。",
     "User import done" : "使用者匯入完成",
     "Your import of {file} into {user} has completed." : "您將 {file} 匯入 {user} 已完成。",
+    "%s (missing)" : "%s（缺少）",
     "Data migration" : "資料遷移",
     "Migrate user data" : "遷移使用者資料",
     "**👤➡ User migration app for Nextcloud**\n\nThis app allows users to easily migrate from one instance to another using an export of their account.\n\n- **🐱 Log in to cat.example.com/nextcloud**\n- **⚙ Go into `Personal settings` > `Data migration`**\n- **☑ Select what you want to export** (settings, files, profile information, profile picture, calendars, contacts…)\n- **⚙ Start the export** and wait for the server to process it\n- **📁 Download the resulting file called `user.nextcloud_export`**\n- **🐶 Open an account on dog.example.com/nextcloud**\n- **🡅 Upload `user.nextcloud_export` into your files**\n- **⚙ Go into `Personal settings` > `Data migration` and start the import**\n- **🎉 Enjoy your stay on your new instance** and close you old account" : "**👤➡ Nextcloud 的使用者遷移應用程式**\n\n此應用程式讓使用者可以輕鬆地使用其帳號的匯出功能從一個站台遷移至另一個站台。\n\n- **🐱 登入 cat.example.com/nextcloud**\n- **⚙ 到 `個人設定` > `資料遷移`**\n- **☑ 選取您要匯出的東西**（設定、檔案、個人檔案資訊、個人檔案圖片、行事曆、聯絡人等等）\n- **⚙ 開始匯出**並等待伺服器處理\n- **📁 下載名為 `user.nextcloud_export` 的結果檔案**\n- **🐶 在 dog.example.com/nextcloud 上開啟帳號**\n- **🡅 上傳 `user.nextcloud_export` 到您的檔案中**\n- **⚙ 到 `個人設定` > `資料遷移` 並開始匯入**\n- **🎉 享受您的新站台**並關閉您的舊帳號",

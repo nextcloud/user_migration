@@ -12,6 +12,7 @@ OC.L10N.register(
     "Your import to {user} failed." : "Din import av {user} misslyckades.",
     "User import done" : "Import av användare klar",
     "Your import of {file} into {user} has completed." : "Din import av {file} till {user} har slutförts.",
+    "%s (missing)" : "%s (saknas)",
     "Data migration" : "Datamigrering",
     "Migrate user data" : "Migrera användardata",
     "Export" : "Exportera",

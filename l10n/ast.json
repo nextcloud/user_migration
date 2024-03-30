@@ -1,8 +1,27 @@
 { "translations": {
     "Files" : "Ficheros",
+    "%s (missing)" : "%s (falta)",
+    "Data migration" : "Migración de los datos",
     "Export" : "Esportar",
+    "Please select the data you want to export" : "Seleiciona los datos que quies esportar",
+    "User information and settings" : "Información y configuración d'usuariu",
+    "Show export status" : "Amosar l'estáu de la importación",
+    "Show status" : "Amosar l'estáu",
     "Cancel" : "Encaboxar",
+    "Export queued" : "La esportación púnxose na cola",
+    "Export in progress…" : "Esportación en cursu…",
+    "Estimated size: {estimatedSizeWithUnits}" : "Tamañu estimáu: {estimatedSizeWithUnits}",
+    "Close export status" : "Zarrar l'estáu de la importación",
     "Close" : "Zarrar",
-    "Import" : "Importar"
+    "You will be notified when your export has completed. This may take a while." : "Avisámoste cuando se complete la importación. Esta aición pue tardar un tiempu.",
+    "This may take a while." : "Esta aición pue tardar un tiempu",
+    "Please do not use your account while exporting." : "Nun uses la cuenta mentanto s'importa",
+    "Import" : "Importar",
+    "Show import status" : "Amosar l'estáu de la importación",
+    "Import queued" : "La importación púnxose na cola",
+    "Import in progress…" : "Importación en cursu…",
+    "Close import status" : "Zarrar l'estáu de la importación",
+    "Import completed successfully" : "La importación completóse correutamente",
+    "Please do not use your account while importing." : "Nun uses la cuenta mentanto s'importa."
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

@@ -2,7 +2,7 @@ OC.L10N.register(
     "user_migration",
     {
     "Files" : "Files",
-    "Files owned by you including versions, comments, collaborative tags, and favorites (versions may expire during export if you are low on storage space)" : "Files owned by you including versions, comments, collaborative tags, and favorites (versions may expire during export if you are low on storage space)",
+    "Files owned by you including versions, comments, collaborative tags, and favorites (versions may expire during export if you are low on storage space)" : "Files owned by you including versions, comments, collaborative tags, and favourites (versions may expire during export if you are low on storage space)",
     "User migration" : "User migration",
     "User export failed" : "User export failed",
     "Your export of {user} failed." : "Your export of {user} failed.",

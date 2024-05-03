@@ -22,7 +22,7 @@ OC.L10N.register(
     "Close export status" : "Itxi esportazioaren egoera",
     "Close" : "Itxi",
     "Export completed successfully" : "Esportazioa ongi bukatu da",
-    "This may take a while." : "Agian prozesu honek luze joko du.",
+    "This may take a while." : "Honek luze jo dezake.",
     "Import" : "Inportatu",
     "Show import status" : "Erakutsi inportazioaren egoera",
     "Cancel import" : "Utzi inportazioa",

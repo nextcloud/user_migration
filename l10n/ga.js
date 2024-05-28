@@ -2,6 +2,7 @@ OC.L10N.register(
     "user_migration",
     {
     "Files" : "Comhaid",
+    "Export" : "Easpórtáil",
     "Cancel" : "Cealaigh",
     "Close" : "Dún"
 },

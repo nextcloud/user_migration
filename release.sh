@@ -91,7 +91,7 @@ case $input in
 
         # Draft GitHub releases
         gh release create --repo nextcloud/user_migration --draft --generate-notes --target $target --title $tag --verify-tag $tag
-        gh release create --repo nextcloud-releases/user_migration --draft --generate-notes --target $target --title $tag --verify-tag $tag
+        gh release create --repo nextcloud-releases/user_migration --draft --generate-notes --title $tag --verify-tag $tag
         ;;
     *)
         echo "You say No"

@@ -212,7 +212,7 @@ class UserMigrationService {
 		];
 		foreach ($this->getMigrators() as $migrator) {
 			if ($filteredMigratorList !== null && !in_array($migrator->getId(), $filteredMigratorList)) {
-				$output->writeln("Skip non-selected migrator: ".$migrator->getId(), OutputInterface::VERBOSITY_VERBOSE);
+				$output->writeln('Skip non-selected migrator: '.$migrator->getId(), OutputInterface::VERBOSITY_VERBOSE);
 				continue;
 			}
 			$migrator->export($user, $exportDestination, $output);
@@ -221,7 +221,7 @@ class UserMigrationService {
 		try {
 			$exportDestination->setMigratorVersions($migratorVersions);
 		} catch (Throwable $e) {
-			throw new UserMigrationException("Could not export user information.", 0, $e);
+			throw new UserMigrationException('Could not export user information.', 0, $e);
 		}
 
 		$exportDestination->close();
@@ -232,13 +232,13 @@ class UserMigrationService {
 
 		try {
 			if (!$this->canImport($importSource)) {
-				throw new UserMigrationException("Version ".($importSource->getMigratorVersion($this->getId()) ?? 'null')." for main class ".static::class." is not compatible");
+				throw new UserMigrationException('Version '.($importSource->getMigratorVersion($this->getId()) ?? 'null').' for main class '.static::class.' is not compatible');
 			}
 
 			// Check versions
 			foreach ($this->getMigrators() as $migrator) {
 				if (!$migrator->canImport($importSource)) {
-					throw new UserMigrationException("Version ".($importSource->getMigratorVersion($migrator->getId()) ?? 'null')." for migrator ".get_class($migrator)." is not supported");
+					throw new UserMigrationException('Version '.($importSource->getMigratorVersion($migrator->getId()) ?? 'null').' for migrator '.get_class($migrator).' is not supported');
 				}
 			}
 
@@ -263,7 +263,7 @@ class UserMigrationService {
 	protected function exportUserInformation(IUser $user,
 		IExportDestination $exportDestination,
 		OutputInterface $output): void {
-		$output->writeln("Exporting user information in ".IImportSource::PATH_USER."…");
+		$output->writeln('Exporting user information in '.IImportSource::PATH_USER.'…');
 
 		// TODO store backend? email? cloud id? quota?
 		$userinfo = [
@@ -276,7 +276,7 @@ class UserMigrationService {
 		try {
 			$exportDestination->addFileContents(IImportSource::PATH_USER, json_encode($userinfo));
 		} catch (Throwable $e) {
-			throw new UserMigrationException("Could not export user information.", 0, $e);
+			throw new UserMigrationException('Could not export user information.', 0, $e);
 		}
 	}
 
@@ -286,7 +286,7 @@ class UserMigrationService {
 	protected function importUser(?IUser $user,
 		IImportSource $importSource,
 		OutputInterface $output): IUser {
-		$output->writeln("Importing user information from ".IImportSource::PATH_USER."…");
+		$output->writeln('Importing user information from '.IImportSource::PATH_USER.'…');
 
 		$data = json_decode($importSource->getFileContents(IImportSource::PATH_USER), true, 512, JSON_THROW_ON_ERROR);
 
@@ -298,7 +298,7 @@ class UserMigrationService {
 		}
 
 		if (!($user instanceof IUser)) {
-			throw new UserMigrationException("Failed to create user.");
+			throw new UserMigrationException('Failed to create user.');
 		}
 
 		$user->setEnabled($data['enabled']);
@@ -313,7 +313,7 @@ class UserMigrationService {
 	protected function exportVersions(string $uid,
 		IExportDestination $exportDestination,
 		OutputInterface $output): void {
-		$output->writeln("Exporting versions in versions.json…");
+		$output->writeln('Exporting versions in versions.json…');
 
 		$versions = array_merge(
 			['core' => $this->config->getSystemValue('version')],
@@ -321,9 +321,9 @@ class UserMigrationService {
 		);
 
 		try {
-			$exportDestination->addFileContents("versions.json", json_encode($versions));
+			$exportDestination->addFileContents('versions.json', json_encode($versions));
 		} catch (Throwable $e) {
-			throw new UserMigrationException("Could not export versions.", 0, $e);
+			throw new UserMigrationException('Could not export versions.', 0, $e);
 		}
 	}
 
@@ -333,14 +333,14 @@ class UserMigrationService {
 	protected function exportAppsSettings(string $uid,
 		IExportDestination $exportDestination,
 		OutputInterface $output): void {
-		$output->writeln("Exporting settings in settings.json…");
+		$output->writeln('Exporting settings in settings.json…');
 
 		$data = $this->config->getAllUserValues($uid);
 
 		try {
-			$exportDestination->addFileContents("settings.json", json_encode($data));
+			$exportDestination->addFileContents('settings.json', json_encode($data));
 		} catch (Throwable $e) {
-			throw new UserMigrationException("Could not export settings.", 0, $e);
+			throw new UserMigrationException('Could not export settings.', 0, $e);
 		}
 	}
 
@@ -350,9 +350,9 @@ class UserMigrationService {
 	protected function importAppsSettings(IUser $user,
 		IImportSource $importSource,
 		OutputInterface $output): void {
-		$output->writeln("Importing settings from settings.json…");
+		$output->writeln('Importing settings from settings.json…');
 
-		$data = json_decode($importSource->getFileContents("settings.json"), true, 512, JSON_THROW_ON_ERROR);
+		$data = json_decode($importSource->getFileContents('settings.json'), true, 512, JSON_THROW_ON_ERROR);
 		foreach ($data as $app => $values) {
 			foreach ($values as $key => $value) {
 				$this->config->setUserValue($user->getUID(), $app, $key, $value);

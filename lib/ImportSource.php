@@ -99,7 +99,7 @@ class ImportSource implements IImportSource {
 			foreach ($files as $path) {
 				$stat = $this->archive->getStat($sourcePath . $path);
 				if ($stat === null) {
-					throw new UserMigrationException("Failed to get stat information from archive for \"" . $sourcePath . $path . "\"");
+					throw new UserMigrationException('Failed to get stat information from archive for "' . $sourcePath . $path . '"');
 				}
 				if (str_ends_with($path, '/')) {
 					try {
@@ -116,7 +116,7 @@ class ImportSource implements IImportSource {
 				} else {
 					$stream = $this->archive->getStream($sourcePath.$path, 'r');
 					if ($stream === false) {
-						throw new UserMigrationException("Failed to get \"" . $sourcePath . $path . "\" from archive");
+						throw new UserMigrationException('Failed to get "' . $sourcePath . $path . '" from archive');
 					}
 					try {
 						$file = $destination->get($path);
@@ -133,9 +133,9 @@ class ImportSource implements IImportSource {
 				}
 			}
 		} catch (NotPermittedException $e) {
-			throw new UserMigrationException("Could not import files due to permission issue", 0, $e);
+			throw new UserMigrationException('Could not import files due to permission issue', 0, $e);
 		} catch (\Throwable $e) {
-			throw new UserMigrationException("Could not import files", 0, $e);
+			throw new UserMigrationException('Could not import files', 0, $e);
 		}
 	}
 
@@ -145,11 +145,11 @@ class ImportSource implements IImportSource {
 	public function getMigratorVersions(): array {
 		try {
 			if ($this->migratorVersions === null) {
-				$this->migratorVersions = json_decode($this->getFileContents("migrator_versions.json"), true, 512, JSON_THROW_ON_ERROR);
+				$this->migratorVersions = json_decode($this->getFileContents('migrator_versions.json'), true, 512, JSON_THROW_ON_ERROR);
 			}
 			return $this->migratorVersions;
 		} catch (\Exception $e) {
-			throw new UserMigrationException("Failed to get migrators versions", 0, $e);
+			throw new UserMigrationException('Failed to get migrators versions', 0, $e);
 		}
 	}
 
@@ -174,7 +174,7 @@ class ImportSource implements IImportSource {
 				throw new UserMigrationException('No uid found in '.static::PATH_USER);
 			}
 		} catch (\Exception $e) {
-			throw new UserMigrationException("Failed to original uid", 0, $e);
+			throw new UserMigrationException('Failed to original uid', 0, $e);
 		}
 	}
 

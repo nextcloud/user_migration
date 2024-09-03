@@ -189,7 +189,7 @@ class Export extends Base {
 
 		try {
 			if (!is_writable($folder)) {
-				$io->error("The target folder must exist and be writable by the web server user");
+				$io->error('The target folder must exist and be writable by the web server user');
 				return 1;
 			}
 			$folder = realpath($folder);

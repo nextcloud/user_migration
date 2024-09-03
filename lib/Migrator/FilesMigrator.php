@@ -158,7 +158,7 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 		IExportDestination $exportDestination,
 		OutputInterface $output
 	): void {
-		$output->writeln("Exporting files…");
+		$output->writeln('Exporting files…');
 
 		$uid = $user->getUID();
 		$userFolder = $this->root->getUserFolder($uid);
@@ -169,29 +169,29 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 		try {
 			$exportDestination->copyFolder($userFolder, static::PATH_FILES, $nodeFilter);
 		} catch (\Throwable $e) {
-			throw new UserMigrationException("Could not export files.", 0, $e);
+			throw new UserMigrationException('Could not export files.', 0, $e);
 		}
 
 		try {
 			if (class_exists(FilesVersionsStorage::class)) {
 				$versionsFolder = $this->root->get('/'.$uid.'/'.FilesVersionsStorage::VERSIONS_ROOT);
-				$output->writeln("Exporting file versions…");
+				$output->writeln('Exporting file versions…');
 				try {
 					$exportDestination->copyFolder($versionsFolder, static::PATH_VERSIONS);
 				} catch (\Throwable $e) {
-					throw new UserMigrationException("Could not export files versions.", 0, $e);
+					throw new UserMigrationException('Could not export files versions.', 0, $e);
 				}
 			} else {
-				$output->writeln("Skip disabled app files_versions…");
+				$output->writeln('Skip disabled app files_versions…');
 			}
 		} catch (NotFoundException $e) {
-			$output->writeln("No file versions to export…");
+			$output->writeln('No file versions to export…');
 		}
 
 		$objectIds = $this->collectIds($userFolder, $userFolder->getPath(), $nodeFilter);
 		unset($objectIds[ExportDestination::EXPORT_FILENAME]);
 
-		$output->writeln("Exporting file tags…");
+		$output->writeln('Exporting file tags…');
 
 		$tagger = $this->tagManager->load(Application::APP_ID, [], false, $uid);
 		$tags = $tagger->getTagsForObjects(array_values($objectIds));
@@ -199,10 +199,10 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 		try {
 			$exportDestination->addFileContents(static::PATH_TAGS, json_encode($taggedFiles));
 		} catch (\Throwable $e) {
-			throw new UserMigrationException("Could not export tagged files information.", 0, $e);
+			throw new UserMigrationException('Could not export tagged files information.', 0, $e);
 		}
 
-		$output->writeln("Exporting file systemtags…");
+		$output->writeln('Exporting file systemtags…');
 
 		$systemTags = $this->systemTagMapper->getTagIdsForObjects(array_values($objectIds), 'files');
 		$systemTags = array_map(
@@ -216,10 +216,10 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 		try {
 			$exportDestination->addFileContents(static::PATH_SYSTEMTAGS, json_encode($systemTaggedFiles));
 		} catch (\Throwable $e) {
-			throw new UserMigrationException("Could not export systemtagged files information.", 0, $e);
+			throw new UserMigrationException('Could not export systemtagged files information.', 0, $e);
 		}
 
-		$output->writeln("Exporting file comments…");
+		$output->writeln('Exporting file comments…');
 
 		$comments = [];
 		foreach ($objectIds as $path => $objectId) {
@@ -242,7 +242,7 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 		try {
 			$exportDestination->addFileContents(static::PATH_COMMENTS, json_encode($comments));
 		} catch (\Throwable $e) {
-			throw new UserMigrationException("Could not export file comments.", 0, $e);
+			throw new UserMigrationException('Could not export file comments.', 0, $e);
 		}
 
 		// TODO other files metadata should be exported as well if relevant.
@@ -262,7 +262,7 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 			if ($node instanceof Folder) {
 				$this->collectIds($node, $rootPath, $nodeFilter, $objectIds);
 			} elseif (!($node instanceof File)) {
-				throw new UserMigrationException("Unsupported node type: ".get_class($node));
+				throw new UserMigrationException('Unsupported node type: '.get_class($node));
 			}
 		}
 
@@ -278,17 +278,17 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 		OutputInterface $output
 	): void {
 		if ($importSource->getMigratorVersion($this->getId()) === null) {
-			$output->writeln("No version for migrator ".$this->getId()." (".static::class."), skipping import…");
+			$output->writeln('No version for migrator '.$this->getId().' ('.static::class.'), skipping import…');
 			return;
 		}
-		$output->writeln("Importing files…");
+		$output->writeln('Importing files…');
 
 		$uid = $user->getUID();
 
 		try {
 			$importSource->copyToFolder($this->root->getUserFolder($uid), static::PATH_FILES);
 		} catch (\Throwable $e) {
-			throw new UserMigrationException("Could not import files.", 0, $e);
+			throw new UserMigrationException('Could not import files.', 0, $e);
 		}
 
 		$userFolder = $this->root->getUserFolder($uid);
@@ -300,20 +300,20 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 				} catch (NotFoundException $e) {
 					$versionsFolder = $this->root->newFolder('/'.$uid.'/'.FilesVersionsStorage::VERSIONS_ROOT);
 				}
-				$output->writeln("Importing file versions…");
+				$output->writeln('Importing file versions…');
 				try {
 					$importSource->copyToFolder($versionsFolder, static::PATH_VERSIONS);
 				} catch (\Throwable $e) {
-					throw new UserMigrationException("Could not import files versions.", 0, $e);
+					throw new UserMigrationException('Could not import files versions.', 0, $e);
 				}
 			} else {
-				$output->writeln("Skip disabled app files_versions…");
+				$output->writeln('Skip disabled app files_versions…');
 			}
 		} else {
-			$output->writeln("No file versions to import…");
+			$output->writeln('No file versions to import…');
 		}
 
-		$output->writeln("Importing file tags…");
+		$output->writeln('Importing file tags…');
 
 		$taggedFiles = json_decode($importSource->getFileContents(static::PATH_TAGS), true, 512, JSON_THROW_ON_ERROR);
 		$tagger = $this->tagManager->load(Application::APP_ID, [], false, $uid);
@@ -325,7 +325,7 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 			}
 		}
 
-		$output->writeln("Importing file systemtags…");
+		$output->writeln('Importing file systemtags…');
 
 		$systemTaggedFiles = json_decode($importSource->getFileContents(static::PATH_SYSTEMTAGS), true, 512, JSON_THROW_ON_ERROR);
 		foreach ($systemTaggedFiles as $path => $systemTags) {
@@ -343,7 +343,7 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 			}
 		}
 
-		$output->writeln("Importing file comments…");
+		$output->writeln('Importing file comments…');
 
 		$comments = json_decode($importSource->getFileContents(static::PATH_COMMENTS), true, 512, JSON_THROW_ON_ERROR);
 		foreach ($comments as $path => $fileComments) {

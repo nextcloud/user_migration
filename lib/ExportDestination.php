@@ -110,7 +110,7 @@ class ExportDestination implements IExportDestination {
 					'timestamp' => $node->getMTime(),
 				]);
 				if (!$success) {
-					throw new UserMigrationException("Failed to copy file into ".$destinationPath.'/'.$node->getName()." in archive");
+					throw new UserMigrationException('Failed to copy file into '.$destinationPath.'/'.$node->getName().' in archive');
 				}
 			} elseif ($node instanceof Folder) {
 				$this->copyFolder($node, $destinationPath.'/'.$node->getName(), $nodeFilter);
@@ -125,7 +125,7 @@ class ExportDestination implements IExportDestination {
 	 * {@inheritDoc}
 	 */
 	public function setMigratorVersions(array $versions): void {
-		$this->addFileContents("migrator_versions.json", json_encode($versions));
+		$this->addFileContents('migrator_versions.json', json_encode($versions));
 	}
 
 	/**
@@ -134,7 +134,7 @@ class ExportDestination implements IExportDestination {
 	public function close(): void {
 		$success = $this->streamer->finalize();
 		if (!$success) {
-			throw new UserMigrationException("Failed to close zip streamer");
+			throw new UserMigrationException('Failed to close zip streamer');
 		}
 	}
 

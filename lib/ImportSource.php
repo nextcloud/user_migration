@@ -57,7 +57,7 @@ class ImportSource implements IImportSource {
 		if (is_string($string)) {
 			return $string;
 		} else {
-			throw new UserMigrationException('Failed to get '.$path.' from archive');
+			throw new UserMigrationException('Failed to get ' . $path . ' from archive');
 		}
 	}
 
@@ -70,7 +70,7 @@ class ImportSource implements IImportSource {
 		if ($stream !== false) {
 			return $stream;
 		} else {
-			throw new UserMigrationException('Failed to get '.$path.' from archive');
+			throw new UserMigrationException('Failed to get ' . $path . ' from archive');
 		}
 	}
 
@@ -92,7 +92,7 @@ class ImportSource implements IImportSource {
 	 * {@inheritDoc}
 	 */
 	public function copyToFolder(Folder $destination, string $sourcePath): void {
-		$sourcePath = rtrim($sourcePath, '/').'/';
+		$sourcePath = rtrim($sourcePath, '/') . '/';
 		$files = $this->archive->getFolder($sourcePath);
 
 		try {
@@ -111,10 +111,10 @@ class ImportSource implements IImportSource {
 					} catch (NotFoundException $e) {
 						$folder = $destination->newFolder($path);
 					}
-					$this->copyToFolder($folder, $sourcePath.$path);
+					$this->copyToFolder($folder, $sourcePath . $path);
 					$folder->touch($stat['mtime']);
 				} else {
-					$stream = $this->archive->getStream($sourcePath.$path, 'r');
+					$stream = $this->archive->getStream($sourcePath . $path, 'r');
 					if ($stream === false) {
 						throw new UserMigrationException('Failed to get "' . $sourcePath . $path . '" from archive');
 					}
@@ -171,7 +171,7 @@ class ImportSource implements IImportSource {
 			if (isset($data['uid'])) {
 				return $data['uid'];
 			} else {
-				throw new UserMigrationException('No uid found in '.static::PATH_USER);
+				throw new UserMigrationException('No uid found in ' . static::PATH_USER);
 			}
 		} catch (\Exception $e) {
 			throw new UserMigrationException('Failed to original uid', 0, $e);

@@ -106,14 +106,14 @@ class ExportDestination implements IExportDestination {
 					continue;
 				}
 				$read = $node->fopen('rb');
-				$success = $this->streamer->addFileFromStream($read, $destinationPath.'/'.$node->getName(), [
+				$success = $this->streamer->addFileFromStream($read, $destinationPath . '/' . $node->getName(), [
 					'timestamp' => $node->getMTime(),
 				]);
 				if (!$success) {
-					throw new UserMigrationException('Failed to copy file into '.$destinationPath.'/'.$node->getName().' in archive');
+					throw new UserMigrationException('Failed to copy file into ' . $destinationPath . '/' . $node->getName() . ' in archive');
 				}
 			} elseif ($node instanceof Folder) {
-				$this->copyFolder($node, $destinationPath.'/'.$node->getName(), $nodeFilter);
+				$this->copyFolder($node, $destinationPath . '/' . $node->getName(), $nodeFilter);
 			} else {
 				// ignore unknown node type, shouldn't happen
 				continue;

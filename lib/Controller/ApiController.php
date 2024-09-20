@@ -49,7 +49,7 @@ class ApiController extends OCSController {
 	public function __construct(
 		IRequest $request,
 		IUserSession $userSession,
-		UserMigrationService $migrationService
+		UserMigrationService $migrationService,
 	) {
 		parent::__construct(Application::APP_ID, $request);
 		$this->userSession = $userSession;

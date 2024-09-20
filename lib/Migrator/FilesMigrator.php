@@ -55,11 +55,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 	use TMigratorBasicVersionHandling;
 
-	protected const PATH_FILES = Application::APP_ID.'/files';
-	protected const PATH_VERSIONS = Application::APP_ID.'/files_versions';
-	protected const PATH_TAGS = Application::APP_ID.'/tags.json';
-	protected const PATH_SYSTEMTAGS = Application::APP_ID.'/systemtags.json';
-	protected const PATH_COMMENTS = Application::APP_ID.'/comments.json';
+	protected const PATH_FILES = Application::APP_ID . '/files';
+	protected const PATH_VERSIONS = Application::APP_ID . '/files_versions';
+	protected const PATH_TAGS = Application::APP_ID . '/tags.json';
+	protected const PATH_SYSTEMTAGS = Application::APP_ID . '/systemtags.json';
+	protected const PATH_COMMENTS = Application::APP_ID . '/comments.json';
 
 	protected IRootFolder $root;
 
@@ -79,7 +79,7 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 		ISystemTagManager $systemTagManager,
 		ISystemTagObjectMapper $systemTagMapper,
 		ICommentsManager $commentsManager,
-		IL10N $l10n
+		IL10N $l10n,
 	) {
 		$this->root = $rootFolder;
 		$this->tagManager = $tagManager;
@@ -114,7 +114,7 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 		}
 
 		try {
-			$versionsFolder = $this->root->get('/'.$uid.'/'.FilesVersionsStorage::VERSIONS_ROOT);
+			$versionsFolder = $this->root->get('/' . $uid . '/' . FilesVersionsStorage::VERSIONS_ROOT);
 			if ($versionsFolder instanceof Folder) {
 				$size += $versionsFolder->getSize() / 1024;
 			}
@@ -156,7 +156,7 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 	public function export(
 		IUser $user,
 		IExportDestination $exportDestination,
-		OutputInterface $output
+		OutputInterface $output,
 	): void {
 		$output->writeln('Exporting files…');
 
@@ -174,7 +174,7 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 
 		try {
 			if (class_exists(FilesVersionsStorage::class)) {
-				$versionsFolder = $this->root->get('/'.$uid.'/'.FilesVersionsStorage::VERSIONS_ROOT);
+				$versionsFolder = $this->root->get('/' . $uid . '/' . FilesVersionsStorage::VERSIONS_ROOT);
 				$output->writeln('Exporting file versions…');
 				try {
 					$exportDestination->copyFolder($versionsFolder, static::PATH_VERSIONS);
@@ -258,11 +258,11 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 			if (($nodeFilter !== null) && !$nodeFilter($node)) {
 				continue;
 			}
-			$objectIds[preg_replace('/^'.preg_quote($rootPath, '/').'/', '', $node->getPath())] = $node->getId();
+			$objectIds[preg_replace('/^' . preg_quote($rootPath, '/') . '/', '', $node->getPath())] = $node->getId();
 			if ($node instanceof Folder) {
 				$this->collectIds($node, $rootPath, $nodeFilter, $objectIds);
 			} elseif (!($node instanceof File)) {
-				throw new UserMigrationException('Unsupported node type: '.get_class($node));
+				throw new UserMigrationException('Unsupported node type: ' . get_class($node));
 			}
 		}
 
@@ -275,10 +275,10 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 	public function import(
 		IUser $user,
 		IImportSource $importSource,
-		OutputInterface $output
+		OutputInterface $output,
 	): void {
 		if ($importSource->getMigratorVersion($this->getId()) === null) {
-			$output->writeln('No version for migrator '.$this->getId().' ('.static::class.'), skipping import…');
+			$output->writeln('No version for migrator ' . $this->getId() . ' (' . static::class . '), skipping import…');
 			return;
 		}
 		$output->writeln('Importing files…');
@@ -296,9 +296,9 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 		if ($importSource->pathExists(static::PATH_VERSIONS)) {
 			if (class_exists(FilesVersionsStorage::class)) {
 				try {
-					$versionsFolder = $this->root->get('/'.$uid.'/'.FilesVersionsStorage::VERSIONS_ROOT);
+					$versionsFolder = $this->root->get('/' . $uid . '/' . FilesVersionsStorage::VERSIONS_ROOT);
 				} catch (NotFoundException $e) {
-					$versionsFolder = $this->root->newFolder('/'.$uid.'/'.FilesVersionsStorage::VERSIONS_ROOT);
+					$versionsFolder = $this->root->newFolder('/' . $uid . '/' . FilesVersionsStorage::VERSIONS_ROOT);
 				}
 				$output->writeln('Importing file versions…');
 				try {

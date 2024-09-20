@@ -53,7 +53,7 @@ class Settings implements ISettings {
 		IInitialState $initialState,
 		ICacheFactory $memcacheFactory,
 		IUserSession $userSession,
-		IL10N $l10n
+		IL10N $l10n,
 	) {
 		$this->serverConfig = $serverConfig;
 		$this->initialState = $initialState;

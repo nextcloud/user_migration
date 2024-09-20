@@ -137,7 +137,7 @@ class FilesMigratorTest extends TestCase {
 
 		$this->rootFolder
 			->method('get')
-			->with('/testuser/'.FilesVersionsStorage::VERSIONS_ROOT)
+			->with('/testuser/' . FilesVersionsStorage::VERSIONS_ROOT)
 			->willReturn($versionsFolder);
 
 		$this->userFolder
@@ -167,9 +167,9 @@ class FilesMigratorTest extends TestCase {
 			->method('getFileContents')
 			->willReturnMap(
 				[
-					[Application::APP_ID.'/tags.json', '{}'],
-					[Application::APP_ID.'/systemtags.json', '{}'],
-					[Application::APP_ID.'/comments.json', '{}'],
+					[Application::APP_ID . '/tags.json', '{}'],
+					[Application::APP_ID . '/systemtags.json', '{}'],
+					[Application::APP_ID . '/comments.json', '{}'],
 				]
 			);
 

@@ -194,7 +194,7 @@ class Export extends Base {
 			}
 			$folder = realpath($folder);
 
-			$exportName = $user->getUID().'_'.date('Y-m-d_H-i-s');
+			$exportName = $user->getUID() . '_' . date('Y-m-d_H-i-s');
 			$partSuffix = '.part';
 			$exportPath = "$folder/$exportName.zip$partSuffix";
 
@@ -205,7 +205,7 @@ class Export extends Base {
 			$path = $exportDestination->getPath();
 			$finalPath = substr($path, 0, -mb_strlen($partSuffix));
 			if (rename($path, $finalPath) === false) {
-				throw new \Exception('Failed to rename '.basename($path).' to '.basename($finalPath));
+				throw new \Exception('Failed to rename ' . basename($path) . ' to ' . basename($finalPath));
 			}
 			$io->writeln("Export saved in $finalPath");
 		} catch (\Exception $e) {

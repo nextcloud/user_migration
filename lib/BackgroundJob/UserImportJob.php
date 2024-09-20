@@ -57,7 +57,7 @@ class UserImportJob extends QueuedJob {
 		NotificationManager $notificationManager,
 		UserImportMapper $mapper,
 		IConfig $config,
-		IRootFolder $root
+		IRootFolder $root,
 	) {
 		parent::__construct($timeFactory);
 

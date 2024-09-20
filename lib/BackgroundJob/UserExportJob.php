@@ -53,7 +53,7 @@ class UserExportJob extends QueuedJob {
 		LoggerInterface $logger,
 		NotificationManager $notificationManager,
 		UserExportMapper $mapper,
-		IRootFolder $root
+		IRootFolder $root,
 	) {
 		parent::__construct($timeFactory);
 

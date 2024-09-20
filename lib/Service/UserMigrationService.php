@@ -92,7 +92,7 @@ class UserMigrationService {
 		Coordinator $coordinator,
 		UserExportMapper $exportMapper,
 		UserImportMapper $importMapper,
-		IJobList $jobList
+		IJobList $jobList,
 	) {
 		$this->root = $rootFolder;
 		$this->config = $config;
@@ -212,7 +212,7 @@ class UserMigrationService {
 		];
 		foreach ($this->getMigrators() as $migrator) {
 			if ($filteredMigratorList !== null && !in_array($migrator->getId(), $filteredMigratorList)) {
-				$output->writeln('Skip non-selected migrator: '.$migrator->getId(), OutputInterface::VERBOSITY_VERBOSE);
+				$output->writeln('Skip non-selected migrator: ' . $migrator->getId(), OutputInterface::VERBOSITY_VERBOSE);
 				continue;
 			}
 			$migrator->export($user, $exportDestination, $output);
@@ -232,13 +232,13 @@ class UserMigrationService {
 
 		try {
 			if (!$this->canImport($importSource)) {
-				throw new UserMigrationException('Version '.($importSource->getMigratorVersion($this->getId()) ?? 'null').' for main class '.static::class.' is not compatible');
+				throw new UserMigrationException('Version ' . ($importSource->getMigratorVersion($this->getId()) ?? 'null') . ' for main class ' . static::class . ' is not compatible');
 			}
 
 			// Check versions
 			foreach ($this->getMigrators() as $migrator) {
 				if (!$migrator->canImport($importSource)) {
-					throw new UserMigrationException('Version '.($importSource->getMigratorVersion($migrator->getId()) ?? 'null').' for migrator '.get_class($migrator).' is not supported');
+					throw new UserMigrationException('Version ' . ($importSource->getMigratorVersion($migrator->getId()) ?? 'null') . ' for migrator ' . get_class($migrator) . ' is not supported');
 				}
 			}
 
@@ -263,7 +263,7 @@ class UserMigrationService {
 	protected function exportUserInformation(IUser $user,
 		IExportDestination $exportDestination,
 		OutputInterface $output): void {
-		$output->writeln('Exporting user information in '.IImportSource::PATH_USER.'…');
+		$output->writeln('Exporting user information in ' . IImportSource::PATH_USER . '…');
 
 		// TODO store backend? email? cloud id? quota?
 		$userinfo = [
@@ -286,7 +286,7 @@ class UserMigrationService {
 	protected function importUser(?IUser $user,
 		IImportSource $importSource,
 		OutputInterface $output): IUser {
-		$output->writeln('Importing user information from '.IImportSource::PATH_USER.'…');
+		$output->writeln('Importing user information from ' . IImportSource::PATH_USER . '…');
 
 		$data = json_decode($importSource->getFileContents(IImportSource::PATH_USER), true, 512, JSON_THROW_ON_ERROR);
 

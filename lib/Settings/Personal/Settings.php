@@ -28,39 +28,9 @@ namespace OCA\UserMigration\Settings\Personal;
 
 use OCA\UserMigration\AppInfo\Application;
 use OCP\AppFramework\Http\TemplateResponse;
-use OCP\AppFramework\Services\IInitialState;
-use OCP\ICacheFactory;
-use OCP\IConfig;
-use OCP\IL10N;
-use OCP\IUser;
-use OCP\IUserSession;
 use OCP\Settings\ISettings;
 
 class Settings implements ISettings {
-	/** @var IConfig */
-	private $serverConfig;
-	/** @var IInitialState */
-	private $initialState;
-	/** @var ICacheFactory */
-	private $memcacheFactory;
-	/** @var IUser */
-	private $currentUser;
-	/** @var IL10N */
-	private $l10n;
-
-	public function __construct(
-		IConfig $serverConfig,
-		IInitialState $initialState,
-		ICacheFactory $memcacheFactory,
-		IUserSession $userSession,
-		IL10N $l10n,
-	) {
-		$this->serverConfig = $serverConfig;
-		$this->initialState = $initialState;
-		$this->memcacheFactory = $memcacheFactory;
-		$this->currentUser = $userSession->getUser();
-		$this->l10n = $l10n;
-	}
 
 	public function getForm(): TemplateResponse {
 		return new TemplateResponse(Application::APP_ID, 'settings/personal/settings');

@@ -71,6 +71,6 @@ class Settings implements ISettings {
 	}
 
 	public function getPriority(): int {
-		return 100;
+		return 20;
 	}
 }

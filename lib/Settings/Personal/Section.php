@@ -50,7 +50,7 @@ class Section implements IIconSection {
 	}
 
 	public function getID(): string {
-		return Application::APP_ID;
+		return 'migration';
 	}
 
 	public function getName(): string {

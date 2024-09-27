@@ -67,7 +67,7 @@ class Settings implements ISettings {
 	}
 
 	public function getSection(): string {
-		return Application::APP_ID;
+		return 'migration';
 	}
 
 	public function getPriority(): int {

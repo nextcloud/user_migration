@@ -32,29 +32,23 @@ use OCP\IURLGenerator;
 use OCP\Settings\IIconSection;
 
 class Section implements IIconSection {
-	/** @var IURLGenerator */
-	private $url;
-	/** @var IL10N */
-	private $l;
 
 	public function __construct(
-		IURLGenerator $url,
-		IL10N $l,
+		private IURLGenerator $urlGenerator,
+		private IL10N $l10n,
 	) {
-		$this->url = $url;
-		$this->l = $l;
 	}
 
 	public function getIcon(): string {
-		return $this->url->imagePath(Application::APP_ID, 'app-dark.svg');
+		return $this->urlGenerator->imagePath(Application::APP_ID, 'app-dark.svg');
 	}
 
 	public function getID(): string {
-		return Application::APP_ID;
+		return 'migration';
 	}
 
 	public function getName(): string {
-		return $this->l->t('Data migration');
+		return $this->l10n->t('Data migration');
 	}
 
 	public function getPriority(): int {

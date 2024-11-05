@@ -3,6 +3,7 @@ OC.L10N.register(
     {
     "Files" : "Datnes",
     "Export" : "Eksportēt",
+    "Basic user information including user ID and display name as well as your settings" : "Pamata lietotāja informācija, tajā skaitā lietotāja Id un attēlojamais vārds, kā arī iestatījumi",
     "Cancel" : "Atcelt",
     "Close" : "Aizvērt",
     "Import" : "Importēt"

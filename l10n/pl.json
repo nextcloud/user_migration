@@ -1,9 +1,28 @@
 { "translations": {
     "Files" : "Pliki",
+    "Files owned by you including versions, comments, collaborative tags, and favorites (versions may expire during export if you are low on storage space)" : "Pliki należące do Ciebie, w tym wersje, komentarze, wspólne znaczniki i ulubione (wersje mogą wygasnąć podczas eksportu, jeśli masz mało miejsca na dysku)",
+    "User migration" : "Migracja użytkownika",
+    "User export failed" : "Eksport użytkownika nie powiódł się",
+    "Your export of {user} failed." : "Twój eksport użytkownika {user} nie powiódł się.",
+    "User export done" : "Eksport użytkownika został zakończony",
+    "User import failed" : "Import użytkownika nie powiódł się",
+    "User import done" : "Import użytkownika został zakończony",
     "Data migration" : "Migracja danych",
     "Export" : "Eksportuj",
+    "Cancel export" : "Anuluj eksport",
     "Cancel" : "Anuluj",
+    "Export queued" : "Eksport w kolejce",
+    "Export in progress…" : "Eksport w toku…",
+    "Export your data" : "Eksportuj swoje dane",
+    "Close export status" : "Zamknij status eksportu",
     "Close" : "Zamknij",
-    "Import" : "Importuj"
+    "Export completed successfully" : "Eksport zakończony pomyślnie",
+    "You will be notified when your export has completed. This may take a while." : "Po zakończeniu eksportu zostaniesz powiadomiony. To może chwilę potrwać.",
+    "This may take a while." : "To może chwilę potrwać.",
+    "Please do not use your account while exporting." : "Proszę nie używać swojego konta podczas eksportu.",
+    "Import" : "Importuj",
+    "Import completed successfully" : "Importowanie zakończone pomyślnie",
+    "You will be notified when your import has completed. This may take a while." : "Po zakończeniu importu zostaniesz powiadomiony. To może chwilę potrwać.",
+    "Please do not use your account while importing." : "Proszę nie korzystać ze swojego konta podczas importowania."
 },"pluralForm" :"nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);"
 }

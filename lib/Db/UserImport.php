@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace OCA\UserMigration\Db;
 
 use OCP\AppFramework\Db\Entity;
+use OCP\DB\Types;
 
 /**
  * @method void setAuthor(string $uid)
@@ -56,11 +57,11 @@ class UserImport extends Entity {
 	protected $status;
 
 	public function __construct() {
-		$this->addType('author', 'string');
-		$this->addType('targetUser', 'string');
-		$this->addType('path', 'string');
-		$this->addType('migrators', 'string');
-		$this->addType('status', 'int');
+		$this->addType('author', Types::STRING);
+		$this->addType('targetUser', Types::STRING);
+		$this->addType('path', Types::STRING);
+		$this->addType('migrators', Types::STRING);
+		$this->addType('status', Types::INTEGER);
 	}
 
 	/**

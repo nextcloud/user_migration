@@ -7,6 +7,7 @@ OC.L10N.register(
     "User export done" : "Erabiltzailea ongi esportatu da",
     "User import failed" : "Erabiltzailearen inportazioak huts egin du",
     "User import done" : "Erabiltzailea ongi inportatu da",
+    "%s (missing)" : "%s (faltan)",
     "Data migration" : "Datu migrazioa",
     "Migrate user data" : "Migratu erabiltzailearen datuak",
     "Export" : "Esportatu",

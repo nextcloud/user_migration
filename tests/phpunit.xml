@@ -1,4 +1,8 @@
 <phpunit bootstrap="bootstrap.php" colors="true" convertDeprecationsToExceptions="true">
+<!--
+  - SPDX-FileCopyrightText: 2022 Nextcloud GmbH and Nextcloud contributors
+  - SPDX-License-Identifier: AGPL-3.0-or-later
+-->
     <testsuites>
         <testsuite name="unit">
             <directory>./Unit</directory>

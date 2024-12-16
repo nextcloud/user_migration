@@ -1,5 +1,8 @@
 #!/usr/bin/env sh
-
+#
+# SPDX-FileCopyrightText: 2024 Nextcloud GmbH and Nextcloud contributors
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
 # This script exports a user, deletes it and imports it again, and searches for missing data
 # It is designed to work with docker setup from https://github.com/juliushaertl/nextcloud-docker-dev
 

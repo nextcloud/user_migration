@@ -1,3 +1,7 @@
+<!--
+  - SPDX-FileCopyrightText: 2022 Nextcloud GmbH and Nextcloud contributors
+  - SPDX-License-Identifier: AGPL-3.0-or-later
+-->
 # Nextcloud User migration
 
 [![PHPUnit GitHub Action](https://github.com/nextcloud/user_migration/workflows/PHPUnit/badge.svg)](https://github.com/nextcloud/user_migration/actions?query=workflow%3APHPUnit)

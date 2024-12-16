@@ -1,5 +1,5 @@
-# This file is licensed under the Affero General Public License version 3 or
-# later. See the COPYING file.
+# SPDX-FileCopyrightText: 2022 Nextcloud GmbH and Nextcloud contributors
+# SPDX-License-Identifier: AGPL-3.0-or-later
 app_name=$(notdir $(CURDIR))
 build_tools_directory=$(CURDIR)/build/tools
 composer=$(shell which composer 2> /dev/null)

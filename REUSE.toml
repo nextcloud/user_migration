@@ -1,9 +1,9 @@
 # SPDX-FileCopyrightText: 2024 Nextcloud GmbH and Nextcloud contributors
 # SPDX-License-Identifier: AGPL-3.0-or-later
 version = 1
-SPDX-PackageName = "flow_notifications"
+SPDX-PackageName = "user_migration"
 SPDX-PackageSupplier = "Nextcloud <info@nextcloud.com>"
-SPDX-PackageDownloadLocation = "https://github.com/nextcloud/flow_notifications"
+SPDX-PackageDownloadLocation = "https://github.com/nextcloud/user_migration"
 
 [[annotations]]
 path = ["l10n/**.js", "l10n/**.json"]

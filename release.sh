@@ -12,14 +12,14 @@ if ! command -v gh > /dev/null; then
 fi
 
 # Use version from changelog
-# version=$(head -n1 CHANGELOG.md|cut -d"v" -f2);
-version=$1
+version=$(grep '^## \[' CHANGELOG.md|head -n1|cut -d'[' -f2|cut -d']' -f1);
+# version=$1
 # The target branch, defaults to the current branch
 target=${2:-$(git branch --show-current)}
 # The tag
 tag=v$version
 
-if ! [[ $version =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+if ! [[ $version =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-z]+\.[0-9]+)?$ ]]; then
     echo "Invalid version, please enter a valid semantic version"
     exit 1
 fi

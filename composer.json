@@ -36,7 +36,7 @@
 		"vimeo/psalm": "^5.6",
 		"doctrine/dbal": "^3",
 		"deepdiver/zipstreamer": "^2.0",
-		"nextcloud/ocp": "dev-master",
+		"nextcloud/ocp": "dev-stable31",
 		"bamarni/composer-bin-plugin": "^1.8"
 	}
 }

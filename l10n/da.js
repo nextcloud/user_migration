@@ -2,9 +2,9 @@ OC.L10N.register(
     "user_migration",
     {
     "Files" : "Filer",
-    "Export" : "Eksportér",
+    "Export" : "Eksporter",
     "Cancel" : "Annuller",
     "Close" : "Luk",
-    "Import" : "Importér"
+    "Import" : "Importer"
 },
 "nplurals=2; plural=(n != 1);");

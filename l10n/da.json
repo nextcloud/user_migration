@@ -1,8 +1,8 @@
 { "translations": {
     "Files" : "Filer",
-    "Export" : "Eksportér",
+    "Export" : "Eksporter",
     "Cancel" : "Annuller",
     "Close" : "Luk",
-    "Import" : "Importér"
+    "Import" : "Importer"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

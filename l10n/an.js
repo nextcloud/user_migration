@@ -2,7 +2,7 @@ OC.L10N.register(
     "user_migration",
     {
     "Files" : "Archivos",
-    "Cancel" : "Canzelar",
+    "Cancel" : "Cancelar",
     "Close" : "Zarrar"
 },
 "nplurals=2; plural=(n != 1);");

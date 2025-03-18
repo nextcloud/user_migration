@@ -4,6 +4,7 @@ OC.L10N.register(
     "Files" : "Files",
     "Export" : "Eksport",
     "Cancel" : "Cancel",
-    "Close" : "Close"
+    "Close" : "Close",
+    "Import" : "Import"
 },
 "nplurals=1; plural=0;");

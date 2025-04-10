@@ -2,7 +2,7 @@ OC.L10N.register(
     "user_migration",
     {
     "Files" : "Restroù",
-    "Cancel" : "Arrest",
+    "Cancel" : "Nullañ",
     "Close" : "Seriñ",
     "Import" : "Emporzhiañ "
 },

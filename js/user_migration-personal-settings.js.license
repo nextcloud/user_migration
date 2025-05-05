@@ -30,6 +30,7 @@ SPDX-FileCopyrightText: Mapbox
 SPDX-FileCopyrightText: John Molakvoæ (skjnldsv) <skjnldsv@protonmail.com>
 SPDX-FileCopyrightText: Jeff Sagal <sagalbot@gmail.com>
 SPDX-FileCopyrightText: James Halliday
+SPDX-FileCopyrightText: Jacob Clevenger<https://github.com/wheatjs>
 SPDX-FileCopyrightText: Hiroki Osame
 SPDX-FileCopyrightText: Guillaume Chau <guillaume.b.chau@gmail.com>
 SPDX-FileCopyrightText: GitHub Inc.
@@ -73,13 +74,13 @@ This file is generated from multiple sources. Included packages:
 	- version: 1.2.0
 	- license: GPL-3.0-or-later
 - @nextcloud/dialogs
-	- version: 6.1.1
+	- version: 6.2.0
 	- license: AGPL-3.0-or-later
 - semver
-	- version: 7.6.2
+	- version: 7.7.1
 	- license: ISC
 - @nextcloud/event-bus
-	- version: 3.3.1
+	- version: 3.3.2
 	- license: GPL-3.0-or-later
 - @nextcloud/initial-state
 	- version: 2.2.0
@@ -123,6 +124,9 @@ This file is generated from multiple sources. Included packages:
 - @ungap/structured-clone
 	- version: 1.2.0
 	- license: ISC
+- @vueuse/components
+	- version: 11.0.3
+	- license: MIT
 - @vueuse/core
 	- version: 11.0.3
 	- license: MIT

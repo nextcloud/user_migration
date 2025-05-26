@@ -226,7 +226,7 @@ class Notifier implements INotifier {
 	private function fileToRichObject(File $file, string $path): array {
 		return [
 			'type' => 'file',
-			'id' => $file->getId(),
+			'id' => (string)$file->getId(),
 			'name' => $file->getName(),
 			'path' => $path,
 			'link' => $this->urlGenerator->linkToRouteAbsolute('files.viewcontroller.showFile', ['fileid' => $file->getId()]),

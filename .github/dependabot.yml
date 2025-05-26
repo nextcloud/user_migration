@@ -6,6 +6,7 @@ updates:
   directories:
   - /
   - /vendor-bin/cs-fixer
+  - /vendor-bin/phpunit
   - /vendor-bin/psalm
   schedule:
     interval: weekly

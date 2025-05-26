@@ -1,46 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  - SPDX-FileCopyrightText: 2022 Nextcloud GmbH and Nextcloud contributors
-  - SPDX-License-Identifier: AGPL-3.0-or-later
--->
-<files psalm-version="4.22.0@fc2c6ab4d5fa5d644d8617089f012f3bb84b8703">
-  <file src="lib/Controller/ApiController.php">
-    <UndefinedInterfaceMethod occurrences="4">
-      <code>getDescription</code>
-      <code>getDisplayName</code>
-      <code>getId</code>
-      <code>getId</code>
-    </UndefinedInterfaceMethod>
-  </file>
+<files psalm-version="5.26.1@d747f6500b38ac4f7dfc5edbcae6e4b637d7add0">
   <file src="lib/ExportDestination.php">
-    <InvalidArgument occurrences="3">
-      <code>$read</code>
-      <code>$stream</code>
-      <code>$stream</code>
-    </InvalidArgument>
-    <MethodSignatureMismatch occurrences="1">
-      <code>$versions</code>
+    <MethodSignatureMismatch>
+      <code><![CDATA[$versions]]></code>
     </MethodSignatureMismatch>
   </file>
-  <file src="lib/ImportSource.php">
-    <UndefinedMethod occurrences="1">
-      <code>getStat</code>
-    </UndefinedMethod>
-  </file>
-  <file src="lib/Service/UserMigrationService.php">
-    <InvalidArgument occurrences="1">
-      <code>$migratorVersions</code>
-    </InvalidArgument>
-    <UndefinedInterfaceMethod occurrences="4">
-      <code>getId</code>
-      <code>getId</code>
-      <code>getId</code>
-      <code>getId</code>
-    </UndefinedInterfaceMethod>
-  </file>
   <file src="lib/Command/Export.php">
-    <InvalidArgument occurrences="1">
-      <code>$this</code>
+    <InvalidArgument>
+      <code><![CDATA[$this]]></code>
     </InvalidArgument>
   </file>
 </files>

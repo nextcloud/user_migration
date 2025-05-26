@@ -3,7 +3,10 @@
 version: 2
 updates:
 - package-ecosystem: composer
-  directory: "/"
+  directories:
+  - /
+  - /vendor-bin/cs-fixer
+  - /vendor-bin/psalm
   schedule:
     interval: weekly
     day: saturday

@@ -17,8 +17,6 @@ updates:
   labels:
     - 3. to review
     - dependencies
-  reviewers:
-    - nextcloud/server-dependabot
 - package-ecosystem: npm
   directory: "/"
   schedule:
@@ -30,8 +28,6 @@ updates:
   labels:
     - 3. to review
     - dependencies
-  reviewers:
-    - nextcloud/server-dependabot
 
 # stable31
 - package-ecosystem: composer
@@ -50,8 +46,6 @@ updates:
   labels:
     - 3. to review
     - dependencies
-  reviewers:
-    - nextcloud/server-dependabot
   ignore:
     # do not do breaking changes on stable branches
     - dependency-name: "*"
@@ -67,8 +61,6 @@ updates:
   labels:
     - 3. to review
     - dependencies
-  reviewers:
-    - nextcloud/server-dependabot
   ignore:
     # do not do breaking changes on stable branches
     - dependency-name: "*"

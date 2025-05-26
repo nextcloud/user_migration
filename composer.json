@@ -32,7 +32,7 @@
 		}
 	},
 	"require-dev": {
-		"doctrine/dbal": "^3",
+		"doctrine/dbal": "^4",
 		"deepdiver/zipstreamer": "^2.0",
 		"nextcloud/ocp": "dev-master",
 		"bamarni/composer-bin-plugin": "^1.8"

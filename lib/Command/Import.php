@@ -48,6 +48,12 @@ class Import extends Command {
 		$io = new SymfonyStyle($input, $output);
 
 		try {
+			$path = $input->getArgument('archive');
+			if (!file_exists($path)) {
+				$io->error("File {$path} could not be found");
+				$io->writeln('aborted.');
+				return self::FAILURE;
+			}
 			$uid = $input->getOption('user');
 			if (!empty($uid)) {
 				$user = $this->userManager->get($uid);
@@ -64,7 +70,6 @@ class Import extends Command {
 			} else {
 				$user = null;
 			}
-			$path = $input->getArgument('archive');
 			$io->writeln("Importing from {$path}…");
 			$importSource = new ImportSource($path);
 			$this->migrationService->import($importSource, $user, $io);

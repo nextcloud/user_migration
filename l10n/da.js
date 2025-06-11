@@ -5,6 +5,6 @@ OC.L10N.register(
     "Export" : "Eksporter",
     "Cancel" : "Annuller",
     "Close" : "Luk",
-    "Import" : "Importer"
+    "Import" : "Importér"
 },
 "nplurals=2; plural=(n != 1);");

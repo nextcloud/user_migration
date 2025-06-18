@@ -46,7 +46,7 @@
     "url": "https://github.com/nextcloud/user_migration/issues"
   },
   "engines": {
-    "node": "^20.0.0",
+    "node": "^22.0.0",
     "npm": "^10.0.0"
   },
   "version": "9.0.0-dev.0"

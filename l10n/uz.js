@@ -1,10 +1,10 @@
 OC.L10N.register(
     "user_migration",
     {
-    "Files" : "Files",
+    "Files" : "Fayllar",
     "Export" : "Eksport",
-    "Cancel" : "Cancel",
-    "Close" : "Close",
+    "Cancel" : "Bekor qilish",
+    "Close" : "Yopish",
     "Import" : "Import"
 },
 "nplurals=1; plural=0;");

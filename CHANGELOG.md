@@ -9,12 +9,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [8.0.0-alpha.1] - 2025-01-09
+## [9.0.0] - 2025-08-21
+
+### Changes
+
+* Nextcloud 32 compatibility
+* Dependency bumps
+* Fix fileid type in notification rich object
+* fix(cli): Abort early if file does not exist
+
+## [8.0.0] - 2025-05-26
 
 ### Changes
 
 * Nextcloud 31 compatibility
 * Dependency bumps
+* Fill changelog file with missing releases
+* Move into migration settings section
+* Fix fileid type in notification rich object
 
 ## [7.0.1] - 2024-08-22
 

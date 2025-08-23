@@ -2,6 +2,7 @@ OC.L10N.register(
     "user_migration",
     {
     "Files" : "Файлы",
+    "Export" : "Экспарт",
     "Cancel" : "Скасаваць",
     "Close" : "Закрыць",
     "Import" : "Імпарт",

@@ -3,6 +3,7 @@ OC.L10N.register(
     {
     "Files" : "Файлы",
     "Export" : "Экспарт",
+    "Cancel export" : "Скасаваць экспарт",
     "Cancel" : "Скасаваць",
     "Close" : "Закрыць",
     "Import" : "Імпарт",

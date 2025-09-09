@@ -385,5 +385,5 @@ This file is generated from multiple sources. Included packages:
 	- version: 5.94.0
 	- license: MIT
 - user_migration
-	- version: 9.0.0-dev.0
+	- version: 9.1.0-dev.0
 	- license: AGPL-3.0-or-later

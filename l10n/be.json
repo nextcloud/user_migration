@@ -1,6 +1,7 @@
 { "translations": {
     "Files" : "Файлы",
     "Export" : "Экспарт",
+    "Basic user information including user ID and display name as well as your settings" : "Асноўная інфармацыя пра карыстальніка, у тым ліку ідэнтыфікатар і імя для паказу, а таксама вашы налады",
     "Cancel export" : "Скасаваць экспарт",
     "Cancel" : "Скасаваць",
     "Close" : "Закрыць",

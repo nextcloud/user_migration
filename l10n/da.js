@@ -3,7 +3,7 @@ OC.L10N.register(
     {
     "Files" : "Filer",
     "Data migration" : "Datamigrering",
-    "Export" : "Eksporter",
+    "Export" : "Eksportér",
     "Cancel" : "Annuller",
     "Close" : "Luk",
     "Import" : "Importér"

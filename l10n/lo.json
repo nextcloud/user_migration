@@ -1,6 +1,8 @@
 { "translations": {
     "Files" : "ຟາຍ",
+    "Export" : "Export",
     "Cancel" : "ຍົກເລີກ",
-    "Close" : "ປິດ"
+    "Close" : "ປິດ",
+    "Import" : "Import"
 },"pluralForm" :"nplurals=1; plural=0;"
 }

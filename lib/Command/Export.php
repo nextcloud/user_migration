@@ -55,6 +55,11 @@ class Export extends Base {
 				'Comma-separated list of data type ids, pass <comment>--types=none</comment> to only export base user data',
 				false,
 			)
+			->addOption(
+				'disable',
+				mode: InputOption::VALUE_NONE,
+				description: 'Disable the user before starting the export.',
+			)
 			->addArgument(
 				'user',
 				InputArgument::REQUIRED,
@@ -153,6 +158,11 @@ class Export extends Base {
 			$exportName = $user->getUID() . '_' . date('Y-m-d_H-i-s');
 			$partSuffix = '.part';
 			$exportPath = "$folder/$exportName.zip$partSuffix";
+
+			if ($input->getOption('disable')) {
+				$user->setEnabled(false);
+				$io->writeln('User ' . $user->getUID() . ' was disabled');
+			}
 
 			$resource = fopen($exportPath, 'w');
 			$exportDestination = new ExportDestination($resource, $exportPath);

@@ -5,9 +5,4 @@
       <code><![CDATA[$versions]]></code>
     </MethodSignatureMismatch>
   </file>
-  <file src="lib/Command/Export.php">
-    <InvalidArgument>
-      <code><![CDATA[$this]]></code>
-    </InvalidArgument>
-  </file>
 </files>

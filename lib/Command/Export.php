@@ -15,7 +15,6 @@ use OCA\UserMigration\Service\UserMigrationService;
 use OCP\IUser;
 use OCP\IUserManager;
 use OCP\UserMigration\IMigrator;
-use Symfony\Component\Console\Command\HelpCommand;
 use Symfony\Component\Console\Formatter\WrappableOutputFormatterInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -58,13 +57,14 @@ class Export extends Base {
 			)
 			->addArgument(
 				'user',
-				InputArgument::OPTIONAL,
+				InputArgument::REQUIRED,
 				'user to export',
 			)
 			->addArgument(
 				'folder',
 				InputArgument::OPTIONAL,
 				'local folder to export into',
+				getcwd()
 			);
 	}
 
@@ -72,25 +72,6 @@ class Export extends Base {
 		$io = new SymfonyStyle($input, $output);
 		/** @var WrappableOutputFormatterInterface $formatter */
 		$formatter = $io->getFormatter();
-
-		// Filter for only explicitly passed arguments
-		$args = array_filter(
-			$input->getArguments(),
-			fn (?string $value, string $arg) => $arg === 'command' ? false : !empty($value),
-			ARRAY_FILTER_USE_BOTH,
-		);
-		// Filter for only explicitly passed options
-		$options = array_filter(
-			$input->getOptions(),
-			fn ($value) => $value !== false,
-		);
-
-		// Show help if no arguments or options are passed
-		if (empty($args) && empty($options)) {
-			$help = new HelpCommand();
-			$help->setCommand($this);
-			return $help->run($input, $io);
-		}
 
 		$migrators = $this->migrationService->getMigrators();
 
@@ -153,10 +134,6 @@ class Export extends Base {
 		}
 
 		$uid = $input->getArgument('user');
-		if (empty($uid)) {
-			$io->error('Missing user argument');
-			return 1;
-		}
 
 		$user = $this->userManager->get($uid);
 		if (!$user instanceof IUser) {
@@ -165,14 +142,10 @@ class Export extends Base {
 		}
 
 		$folder = $input->getArgument('folder');
-		if (empty($folder)) {
-			$io->error('Missing folder argument');
-			return 1;
-		}
 
 		try {
 			if (!is_writable($folder)) {
-				$io->error('The target folder must exist and be writable by the web server user');
+				$io->error('The target folder (' . $folder . ') must exist and be writable by the web server user');
 				return 1;
 			}
 			$folder = realpath($folder);

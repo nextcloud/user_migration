@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace OCA\UserMigration\Service;
 
 use OC\AppFramework\Bootstrap\Coordinator;
-use OC\Cache\CappedMemoryCache;
 use OCA\UserMigration\BackgroundJob\UserExportJob;
 use OCA\UserMigration\BackgroundJob\UserImportJob;
 use OCA\UserMigration\Db\UserExport;
@@ -21,9 +20,11 @@ use OCA\UserMigration\ExportDestination;
 use OCA\UserMigration\NotExportableException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\BackgroundJob\IJobList;
+use OCP\Cache\CappedMemoryCache;
 use OCP\Files\File;
 use OCP\Files\IRootFolder;
 use OCP\Files\NotFoundException;
+use OCP\IAppConfig;
 use OCP\IConfig;
 use OCP\IUser;
 use OCP\IUserManager;
@@ -42,23 +43,6 @@ use Throwable;
 class UserMigrationService {
 	use TMigratorBasicVersionHandling;
 
-	protected IRootFolder $root;
-
-	protected IConfig $config;
-
-	protected IUserManager $userManager;
-
-	protected ContainerInterface $container;
-
-	// Allow use of the private Coordinator class here to get and run registered migrators
-	protected Coordinator $coordinator;
-
-	protected UserExportMapper $exportMapper;
-
-	protected UserImportMapper $importMapper;
-
-	protected IJobList $jobList;
-
 	protected CappedMemoryCache $internalCache;
 
 	protected const ENTITY_JOB_MAP = [
@@ -66,24 +50,18 @@ class UserMigrationService {
 		UserImport::class => UserImportJob::class,
 	];
 
+	// Allow use of the private Coordinator class here to get and run registered migrators
 	public function __construct(
-		IRootFolder $rootFolder,
-		IConfig $config,
-		IUserManager $userManager,
-		ContainerInterface $container,
-		Coordinator $coordinator,
-		UserExportMapper $exportMapper,
-		UserImportMapper $importMapper,
-		IJobList $jobList,
+		private IRootFolder $rootFolder,
+		private IConfig $config,
+		private IUserManager $userManager,
+		private ContainerInterface $container,
+		private Coordinator $coordinator,
+		private UserExportMapper $exportMapper,
+		private UserImportMapper $importMapper,
+		private IJobList $jobList,
+		private IAppConfig $appConfig,
 	) {
-		$this->root = $rootFolder;
-		$this->config = $config;
-		$this->userManager = $userManager;
-		$this->container = $container;
-		$this->coordinator = $coordinator;
-		$this->exportMapper = $exportMapper;
-		$this->importMapper = $importMapper;
-		$this->jobList = $jobList;
 		$this->internalCache = new CappedMemoryCache();
 
 		$this->mandatory = true;
@@ -132,7 +110,7 @@ class UserMigrationService {
 	 */
 	public function checkExportability(IUser $user, ?array $filteredMigratorList = null): void {
 		try {
-			$userFolder = $this->root->getUserFolder($user->getUID());
+			$userFolder = $this->rootFolder->getUserFolder($user->getUID());
 			$freeSpace = ceil($userFolder->getFreeSpace() / 1024);
 		} catch (Throwable $e) {
 			throw new NotExportableException('Error calculating amount of free storage space available');
@@ -299,7 +277,7 @@ class UserMigrationService {
 
 		$versions = array_merge(
 			['core' => $this->config->getSystemValue('version')],
-			\OC_App::getAppVersions()
+			$this->appConfig->getAppInstalledVersions()
 		);
 
 		try {

@@ -64,14 +64,14 @@ case $input in
         git add CHANGELOG.md
         git add appinfo/info.xml
 
-        # Create commit
-        git commit --signoff --message $tag
-
-        # Create tag
-        git tag $tag
+        # Bump npm version, commit and tag
+        npm version --allow-same-version -f $version
 
         # Show the result
         git log -1 -p
+
+        # Add signoff
+        git commit --amend -s
         ;;
     *)
         echo "You say No"

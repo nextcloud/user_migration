@@ -277,7 +277,8 @@ class UserMigrationService {
 
 		$versions = array_merge(
 			['core' => $this->config->getSystemValue('version')],
-			$this->appConfig->getAppInstalledVersions()
+			// TODO: When dropping support for Nextcloud <32, switch to $this->appConfig->getAppInstalledVersions()
+			\OC_App::getAppVersions()
 		);
 
 		try {

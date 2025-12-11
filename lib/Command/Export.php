@@ -10,8 +10,11 @@ declare(strict_types=1);
 namespace OCA\UserMigration\Command;
 
 use OC\Core\Command\Base;
+use OCA\UserMigration\AppInfo\Application;
 use OCA\UserMigration\ExportDestination;
 use OCA\UserMigration\Service\UserMigrationService;
+use OCP\AppFramework\Utility\ITimeFactory;
+use OCP\IConfig;
 use OCP\IUser;
 use OCP\IUserManager;
 use OCP\UserMigration\IMigrator;
@@ -26,6 +29,8 @@ class Export extends Base {
 	public function __construct(
 		private IUserManager $userManager,
 		private UserMigrationService $migrationService,
+		private IConfig $config,
+		private ITimeFactory $timeFactory,
 	) {
 		parent::__construct();
 	}
@@ -173,6 +178,7 @@ class Export extends Base {
 			if (rename($path, $finalPath) === false) {
 				throw new \Exception('Failed to rename ' . basename($path) . ' to ' . basename($finalPath));
 			}
+			$this->config->setUserValue($user->getUID(), Application::APP_ID, 'lastExport', (string)$this->timeFactory->getTime());
 			$io->writeln("Export saved in $finalPath");
 		} catch (\Exception $e) {
 			if ($io->isDebug()) {

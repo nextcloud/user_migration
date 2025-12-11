@@ -46,6 +46,7 @@ This app allows users to easily migrate from one instance to another using an ex
 	</dependencies>
 
 	<commands>
+		<command>OCA\UserMigration\Command\Manage</command>
 		<command>OCA\UserMigration\Command\Export</command>
 		<command>OCA\UserMigration\Command\Import</command>
 	</commands>

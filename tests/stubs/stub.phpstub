@@ -125,8 +125,9 @@ namespace OC\Cache {
 namespace OC\Core\Command {
 	use Symfony\Component\Console\Input\InputInterface;
 	use Symfony\Component\Console\Output\OutputInterface;
+	use Symfony\Component\Console\Command\Command;
 
-	class Base {
+	class Base extends Command {
 		public const OUTPUT_FORMAT_PLAIN = 'plain';
 		public const OUTPUT_FORMAT_JSON = 'json';
 		public const OUTPUT_FORMAT_JSON_PRETTY = 'json_pretty';
@@ -139,5 +140,6 @@ namespace OC\Core\Command {
 		public function setName(string $name) {}
 		public function getHelper(string $name) {}
 		protected function writeArrayInOutputFormat(InputInterface $input, OutputInterface $output, array $items, string $prefix = '  - ') {}
+		protected function writeTableInOutputFormat(InputInterface $input, OutputInterface $output, array $items): void {}
 	}
 }

@@ -63,7 +63,7 @@ This file is generated from multiple sources. Included packages:
 	- version: 0.2.0
 	- license: BSD-2-Clause
 - @nextcloud/auth
-	- version: 2.5.1
+	- version: 2.5.3
 	- license: GPL-3.0-or-later
 - @nextcloud/axios
 	- version: 2.5.1
@@ -90,7 +90,7 @@ This file is generated from multiple sources. Included packages:
 	- version: 3.3.0
 	- license: GPL-3.0-or-later
 - @nextcloud/logger
-	- version: 3.0.2
+	- version: 3.0.3
 	- license: GPL-3.0-or-later
 - @nextcloud/password-confirmation
 	- version: 5.3.1

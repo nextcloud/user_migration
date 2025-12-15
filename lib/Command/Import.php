@@ -9,8 +9,10 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration\Command;
 
+use OCA\UserMigration\AppInfo\Application;
 use OCA\UserMigration\ImportSource;
 use OCA\UserMigration\Service\UserMigrationService;
+use OCP\IConfig;
 use OCP\IUserManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -23,6 +25,7 @@ class Import extends Command {
 	public function __construct(
 		private IUserManager $userManager,
 		private UserMigrationService $migrationService,
+		private IConfig $config,
 	) {
 		parent::__construct();
 	}
@@ -73,6 +76,8 @@ class Import extends Command {
 			$io->writeln("Importing from {$path}…");
 			$importSource = new ImportSource($path);
 			$this->migrationService->import($importSource, $user, $io);
+			/* Reset exported state of user after import */
+			$this->config->deleteUserValue($user->getUID(), Application::APP_ID, 'lastExport');
 			$io->writeln("Successfully imported from {$path}");
 		} catch (\Exception $e) {
 			if ($io->isDebug()) {

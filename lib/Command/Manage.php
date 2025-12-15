@@ -13,6 +13,7 @@ use OC\Core\Command\Base;
 use OCA\UserMigration\AppInfo\Application;
 use OCA\UserMigration\Service\UserMigrationService;
 use OCP\AppFramework\Utility\ITimeFactory;
+use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IConfig;
 use OCP\IDBConnection;
 use OCP\IUserManager;
@@ -46,6 +47,12 @@ class Manage extends Base {
 				100,
 			)
 			->addOption(
+				'since',
+				null,
+				InputOption::VALUE_REQUIRED,
+				'Filter by minimum export date',
+			)
+			->addOption(
 				'delete',
 				null,
 				InputOption::VALUE_NONE,
@@ -54,7 +61,13 @@ class Manage extends Base {
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int {
-		$values = iterator_to_array($this->queryUsers((int)$input->getOption('limit')));
+		if ((string)$input->getOption('since') !== '') {
+			$since = new \DateTime($input->getOption('since'));
+			$output->writeln('<info>Since ' . $since->format(\DateTimeInterface::ATOM) . '</info>');
+		} else {
+			$since = null;
+		}
+		$values = iterator_to_array($this->queryUsers((int)$input->getOption('limit'), $since));
 		$this->writeTableInOutputFormat($input, $output, $values);
 		if ($input->getOption('delete')) {
 			/** @var QuestionHelper $helper */
@@ -73,13 +86,18 @@ class Manage extends Base {
 		return self::SUCCESS;
 	}
 
-	private function queryUsers(int $limit): \Generator {
+	private function queryUsers(int $limit, ?\DateTime $since): \Generator {
 		$qb = $this->connection->getQueryBuilder();
 		$qb->select('userid', 'configvalue')
 			->from('preferences')
 			->where($qb->expr()->eq('appid', $qb->createNamedParameter(Application::APP_ID)))
-			->andWhere($qb->expr()->eq('configkey', $qb->createNamedParameter('lastExport')))
-			->orderBy('configvalue')
+			->andWhere($qb->expr()->eq('configkey', $qb->createNamedParameter('lastExport')));
+
+		if ($since !== null) {
+			$qb->andWhere($qb->expr()->gte('configvalue', $qb->createNamedParameter($since->getTimestamp(), IQueryBuilder::PARAM_INT)));
+		}
+
+		$qb->orderBy('configvalue')
 			->setMaxResults($limit);
 
 		$result = $qb->executeQuery();

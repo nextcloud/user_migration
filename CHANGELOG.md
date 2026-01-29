@@ -9,11 +9,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [8.0.0-alpha.1] - 2025-01-09
+## [10.0.0] - 2026-01-19
+
+### Changes
+
+* Add Nextcloud 33 support
+* Support Nextcloud 29 and newer
+* Add option to disable user before export from occ
+* Add user_migration:manage command and last export date
+* Dependency bumps
+
+## [9.0.0] - 2025-08-21
+
+### Changes
+
+* Add Nextcloud 32 support
+* Abort early if file does not exist
+* Fix fileid type in notification rich object
+* Dependency bumps
+
+## [8.0.0] - 2025-05-26
 
 ### Changes
 
 * Nextcloud 31 compatibility
+* Move into migration settings section
 * Dependency bumps
 
 ## [7.0.1] - 2024-08-22

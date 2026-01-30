@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace OCA\UserMigration\AppInfo;
 
 use OCA\UserMigration\Migrator\FilesMigrator;
+use OCA\UserMigration\Migrator\TablesMigrator;
 use OCA\UserMigration\Notification\Notifier;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
@@ -28,6 +29,7 @@ class Application extends App implements IBootstrap {
 
 	public function register(IRegistrationContext $context): void {
 		$context->registerUserMigrator(FilesMigrator::class);
+		$context->registerUserMigrator(TablesMigrator::class);
 		$context->registerNotifierService(Notifier::class);
 	}
 }

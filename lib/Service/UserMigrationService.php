@@ -327,6 +327,7 @@ class UserMigrationService {
 			foreach ($data as $app => $values) {
 				foreach ($values as $key => $value) {
 					$type = $userConfig->getValueType($userId, $app, $key);
+					/** @psalm-suppress UndefinedClass ValueType only exists in 32 and higher, but in this if branch we know it exists */
 					switch ($type) {
 						default:
 						case ValueType::MIXED:

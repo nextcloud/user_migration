@@ -21,6 +21,7 @@ use OCA\UserMigration\NotExportableException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\BackgroundJob\IJobList;
 use OCP\Cache\CappedMemoryCache;
+use OCP\Config\Exceptions\UnknownKeyException;
 use OCP\Config\IUserConfig;
 use OCP\Config\ValueType;
 use OCP\Files\File;
@@ -326,7 +327,12 @@ class UserMigrationService {
 			$userId = $user->getUID();
 			foreach ($data as $app => $values) {
 				foreach ($values as $key => $value) {
-					$type = $userConfig->getValueType($userId, $app, $key);
+					try {
+						$type = $userConfig->getValueType($userId, $app, $key);
+					} catch (UnknownKeyException) {
+						/** If type is unknown, default to mixed */
+						$type = ValueType::MIXED;
+					}
 					/** @psalm-suppress UndefinedClass ValueType only exists in 32 and higher, but in this if branch we know it exists */
 					switch ($type) {
 						default:

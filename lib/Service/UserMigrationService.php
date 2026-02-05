@@ -21,6 +21,9 @@ use OCA\UserMigration\NotExportableException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\BackgroundJob\IJobList;
 use OCP\Cache\CappedMemoryCache;
+use OCP\Config\Exceptions\UnknownKeyException;
+use OCP\Config\IUserConfig;
+use OCP\Config\ValueType;
 use OCP\Files\File;
 use OCP\Files\IRootFolder;
 use OCP\Files\NotFoundException;
@@ -314,9 +317,56 @@ class UserMigrationService {
 		$output->writeln('Importing settings from settings.json…');
 
 		$data = json_decode($importSource->getFileContents('settings.json'), true, 512, JSON_THROW_ON_ERROR);
-		foreach ($data as $app => $values) {
-			foreach ($values as $key => $value) {
-				$this->config->setUserValue($user->getUID(), $app, $key, $value);
+
+		if (interface_exists(IUserConfig::class)) {
+			/*
+			 * Starting with 32, we have to use the correct type
+			 * When dropping support for <32, IUserConfig should be injected instead
+			 */
+			$userConfig = \OCP\Server::get(IUserConfig::class);
+			$userId = $user->getUID();
+			foreach ($data as $app => $values) {
+				foreach ($values as $key => $value) {
+					try {
+						$type = $userConfig->getValueType($userId, $app, $key);
+					} catch (UnknownKeyException) {
+						/** If type is unknown, default to mixed */
+						$type = ValueType::MIXED;
+					}
+					/** @psalm-suppress UndefinedClass ValueType only exists in 32 and higher, but in this if branch we know it exists */
+					switch ($type) {
+						default:
+						case ValueType::MIXED:
+							$this->config->setUserValue($userId, $app, $key, $value);
+							break;
+						case ValueType::STRING:
+							$userConfig->setValueString($userId, $app, $key, $value);
+							break;
+						case ValueType::INT:
+							$userConfig->setValueInt($userId, $app, $key, (int)$value);
+							break;
+						case ValueType::FLOAT:
+							$userConfig->setValueFloat($userId, $app, $key, (float)$value);
+							break;
+						case ValueType::BOOL:
+							if (is_string($value)) {
+								$value = in_array(strtolower($value), ['1', 'true', 'yes', 'on']);
+							} elseif (!is_bool($value)) {
+								$value = (bool)$value;
+							}
+							$userConfig->setValueBool($userId, $app, $key, $value);
+							break;
+						case ValueType::ARRAY:
+							$userConfig->setValueArray($userId, $app, $key, $value);
+							break;
+					}
+				}
+			}
+		} else {
+			foreach ($data as $app => $values) {
+				foreach ($values as $key => $value) {
+					$this->config->setUserValue($user->getUID(), $app, $key, $value);
+				}
 			}
 		}
 	}

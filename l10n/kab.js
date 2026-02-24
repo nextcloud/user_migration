@@ -2,6 +2,7 @@ OC.L10N.register(
     "user_migration",
     {
     "Files" : "Ifuyla",
+    "Export" : "Sifeḍ",
     "Cancel" : "Sefsex",
     "Close" : "Mdel"
 },

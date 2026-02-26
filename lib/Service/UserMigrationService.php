@@ -331,6 +331,7 @@ class UserMigrationService {
 						$type = $userConfig->getValueType($userId, $app, $key);
 					} catch (UnknownKeyException) {
 						/** If type is unknown, default to mixed */
+						/** @psalm-suppress UndefinedClass ValueType only exists in 32 and higher, but in this if branch we know it exists */
 						$type = ValueType::MIXED;
 					}
 					/** @psalm-suppress UndefinedClass ValueType only exists in 32 and higher, but in this if branch we know it exists */

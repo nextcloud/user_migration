@@ -75,7 +75,7 @@ class Import extends Command {
 			}
 			$io->writeln("Importing from {$path}…");
 			$importSource = new ImportSource($path);
-			$this->migrationService->import($importSource, $user, $io);
+			$user = $this->migrationService->import($importSource, $user, $io);
 			/* Reset exported state of user after import */
 			$this->config->deleteUserValue($user->getUID(), Application::APP_ID, 'lastExport');
 			$io->writeln("Successfully imported from {$path}");

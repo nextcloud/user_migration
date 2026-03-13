@@ -190,7 +190,7 @@ class UserMigrationService {
 		$exportDestination->close();
 	}
 
-	public function import(IImportSource $importSource, ?IUser $user = null, ?OutputInterface $output = null): void {
+	public function import(IImportSource $importSource, ?IUser $user = null, ?OutputInterface $output = null): IUser {
 		$output = $output ?? new NullOutput();
 
 		try {
@@ -215,6 +215,8 @@ class UserMigrationService {
 
 			$uid = $user->getUID();
 			$output->writeln("Successfully imported $uid");
+
+			return $user;
 		} finally {
 			$importSource->close();
 		}

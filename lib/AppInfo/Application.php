@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace OCA\UserMigration\AppInfo;
 
+use OCA\UserMigration\Migrator\DeckMigrator;
 use OCA\UserMigration\Migrator\FilesMigrator;
 use OCA\UserMigration\Notification\Notifier;
 use OCP\AppFramework\App;
@@ -29,5 +30,6 @@ class Application extends App implements IBootstrap {
 	public function register(IRegistrationContext $context): void {
 		$context->registerUserMigrator(FilesMigrator::class);
 		$context->registerNotifierService(Notifier::class);
+		$context->registerUserMigrator(DeckMigrator::class);
 	}
 }

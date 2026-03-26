@@ -316,7 +316,7 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 				try {
 					$systemTagObject = $this->systemTagManager->getTag($systemTag, true, true);
 				} catch (TagNotFoundException $e) {
-					$systemTagObject = $this->systemTagManager->createTag($systemTag, true, true);
+					$systemTagObject = $this->systemTagManager->createTag($systemTag, true, true, $user);
 				}
 				$systemTagIds[] = $systemTagObject->getId();
 			}

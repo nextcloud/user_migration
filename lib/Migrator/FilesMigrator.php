@@ -339,6 +339,11 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 					}
 				} catch (TagNotFoundException) {
 					try {
+						if (!$this->systemTagManager->canUserCreateTag($user)) {
+							/* FIXME This should be remove when passing the user to the createTag method is supported by all supported Nextcloud versions */
+							throw new TagCreationForbiddenException();
+						}
+						/** @psalm-suppress TooManyArguments The extra argument is supported on >=34 and ignored below */
 						$systemTagObject = $this->systemTagManager->createTag($systemTag, true, true, $user);
 					} catch (TagCreationForbiddenException|TagAlreadyExistsException) {
 						/* Not allowed to create tag or a restricted tag with the same name exists, skip */

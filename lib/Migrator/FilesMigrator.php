@@ -25,6 +25,8 @@ use OCP\ITagManager;
 use OCP\IUser;
 use OCP\SystemTag\ISystemTagManager;
 use OCP\SystemTag\ISystemTagObjectMapper;
+use OCP\SystemTag\TagAlreadyExistsException;
+use OCP\SystemTag\TagCreationForbiddenException;
 use OCP\SystemTag\TagNotFoundException;
 use OCP\UserMigration\IExportDestination;
 use OCP\UserMigration\IImportSource;
@@ -300,8 +302,14 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 		$taggedFiles = json_decode($importSource->getFileContents(static::PATH_TAGS), true, 512, JSON_THROW_ON_ERROR);
 		$tagger = $this->tagManager->load(Application::APP_ID, [], false, $uid);
 		foreach ($taggedFiles as $path => $tags) {
+			try {
+				$node = $userFolder->get((string)$path);
+			} catch (NotFoundException) {
+				/* File/Folder not found, skip */
+				continue;
+			}
 			foreach ($tags as $tag) {
-				if ($tagger->tagAs($userFolder->get($path)->getId(), $tag) === false) {
+				if ($tagger->tagAs($node->getId(), $tag) === false) {
 					throw new UserMigrationException("Failed to import tag $tag for path $path");
 				}
 			}
@@ -311,16 +319,40 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 
 		$systemTaggedFiles = json_decode($importSource->getFileContents(static::PATH_SYSTEMTAGS), true, 512, JSON_THROW_ON_ERROR);
 		foreach ($systemTaggedFiles as $path => $systemTags) {
+			try {
+				$node = $userFolder->get((string)$path);
+				if (!$node->isUpdateable()) {
+					/* Node is read-only, cannot tag */
+					continue;
+				}
+			} catch (NotFoundException) {
+				/* File/Folder not found, skip */
+				continue;
+			}
 			$systemTagIds = [];
 			foreach ($systemTags as $systemTag) {
 				try {
 					$systemTagObject = $this->systemTagManager->getTag($systemTag, true, true);
-				} catch (TagNotFoundException $e) {
-					$systemTagObject = $this->systemTagManager->createTag($systemTag, true, true);
+					if (!$this->systemTagManager->canUserAssignTag($systemTagObject, $user)) {
+						/* Should not happen because we requested an assignable and visible tag, but let’s make sure */
+						continue;
+					}
+				} catch (TagNotFoundException) {
+					try {
+						if (!$this->systemTagManager->canUserCreateTag($user)) {
+							/* FIXME This should be remove when passing the user to the createTag method is supported by all supported Nextcloud versions */
+							throw new TagCreationForbiddenException();
+						}
+						/** @psalm-suppress TooManyArguments The extra argument is supported on >=34 and ignored below */
+						$systemTagObject = $this->systemTagManager->createTag($systemTag, true, true, $user);
+					} catch (TagCreationForbiddenException|TagAlreadyExistsException) {
+						/* Not allowed to create tag or a restricted tag with the same name exists, skip */
+						continue;
+					}
 				}
 				$systemTagIds[] = $systemTagObject->getId();
 			}
-			if ($this->systemTagMapper->assignTags((string)$userFolder->get($path)->getId(), 'files', $systemTagIds) === false) {
+			if ($this->systemTagMapper->assignTags((string)$node->getId(), 'files', $systemTagIds) === false) {
 				throw new UserMigrationException("Failed to import system tags for path $path");
 			}
 		}
@@ -329,6 +361,12 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 
 		$comments = json_decode($importSource->getFileContents(static::PATH_COMMENTS), true, 512, JSON_THROW_ON_ERROR);
 		foreach ($comments as $path => $fileComments) {
+			try {
+				$node = $userFolder->get((string)$path);
+			} catch (NotFoundException) {
+				/* File/Folder not found, skip */
+				continue;
+			}
 			foreach ($fileComments as $fileComment) {
 				if (($fileComment['actorType'] === 'users') || ($fileComment['actorType'] === ICommentsManager::DELETED_USER)) {
 					$actorId = $fileComment['actorId'];
@@ -340,7 +378,7 @@ class FilesMigrator implements IMigrator, ISizeEstimationMigrator {
 						$actorId = ICommentsManager::DELETED_USER;
 						$actorType = ICommentsManager::DELETED_USER;
 					}
-					$commentObject = $this->commentsManager->create($actorType, $actorId, 'files', (string)$userFolder->get($path)->getId());
+					$commentObject = $this->commentsManager->create($actorType, $actorId, 'files', (string)$node->getId());
 					$commentObject->setMessage($fileComment['message']);
 					$commentObject->setVerb($fileComment['verb']);
 					$commentObject->setCreationDateTime(new \DateTime($fileComment['creationDateTime']));

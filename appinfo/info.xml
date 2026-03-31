@@ -22,7 +22,7 @@ This app allows users to easily migrate from one instance to another using an ex
 - **⚙ Go into `Personal settings` > `Data migration` and start the import**
 - **🎉 Enjoy your stay on your new instance** and close you old account
 	]]></description>
-	<version>10.1.0</version>
+	<version>10.2.0</version>
 	<licence>agpl</licence>
 	<author>Côme Chilliet</author>
 	<author>Christopher Ng</author>

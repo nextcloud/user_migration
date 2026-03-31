@@ -320,6 +320,13 @@ class UserMigrationService {
 
 		$data = json_decode($importSource->getFileContents('settings.json'), true, 512, JSON_THROW_ON_ERROR);
 
+		if (isset($data['settings']['email']) && $user->canChangeEmail()) {
+			$value = mb_strtolower(trim($data['settings']['email']));
+			if (filter_var($value, FILTER_VALIDATE_EMAIL) || $value === '') {
+				$user->setSystemEMailAddress($value);
+			}
+		}
+
 		if (interface_exists(IUserConfig::class)) {
 			/*
 			 * Starting with 32, we have to use the correct type
@@ -329,8 +336,13 @@ class UserMigrationService {
 			$userId = $user->getUID();
 			foreach ($data as $app => $values) {
 				foreach ($values as $key => $value) {
+					/* Avoid issues with numeric keys */
+					$key = (string)$key;
+					if (!$this->isAppSettingImportAllowed($app, $key)) {
+						continue;
+					}
 					try {
-						$type = $userConfig->getValueType($userId, $app, (string)$key);
+						$type = $userConfig->getValueType($userId, $app, $key);
 					} catch (UnknownKeyException) {
 						/** If type is unknown, default to mixed */
 						/** @psalm-suppress UndefinedClass ValueType only exists in 32 and higher, but in this if branch we know it exists */
@@ -368,10 +380,102 @@ class UserMigrationService {
 		} else {
 			foreach ($data as $app => $values) {
 				foreach ($values as $key => $value) {
+					/* Avoid issues with numeric keys */
+					$key = (string)$key;
+					if (!$this->isAppSettingImportAllowed($app, $key)) {
+						continue;
+					}
 					$this->config->setUserValue($user->getUID(), $app, $key, $value);
 				}
 			}
 		}
+	}
+
+	private function isAppSettingImportAllowed(string $appid, string $key): bool {
+		$allowedKeys = [
+			'calendar' => [
+				'currentView',
+				'defaultReminder',
+				'eventLimit',
+				'firstRun',
+				'showTasks',
+				'showWeekNr',
+				'showWeekends',
+				'skipPopover',
+				'slotDuration',
+				'tasksSidebar',
+				'timezone',
+			],
+			'collectives' => ['user_folder'],
+			'contacts' => ['enableSocialSync'],
+			'core' => [
+				'apporder',
+				'first_day_of_week',
+				'lang',
+				'locale',
+				'templateDirectory',
+				'timezone',
+				'whatsNewLastRead',
+			],
+			'dashboard' => ['firstRun','layout','statuses'],
+			'dav' => ['attachmentsFolder','generateBirthdayCalendar','user_status_automation'],
+			'end_to_end_encryption' => ['e2eeInBrowserEnabled'],
+			'files' => [
+				'crop_image_previews',
+				'default_view',
+				'file_sorting',
+				'file_sorting_direction',
+				'files_views_configs',
+				'folder_tree',
+				'grid_view',
+				'show_Quick_Access',
+				'show_dialog_deletion',
+				'show_dialog_file_extension',
+				'show_favorites',
+				'show_files_extensions',
+				'show_grid,show_hidden',
+				'show_mime_column',
+				'show_shareoverview',
+				'show_sharing_menu',
+				'sort_favorites_first',
+				'sort_folders_first',
+			],
+			'files_sharing' => [
+				'default_accept',
+				'share_folder',
+			],
+			'firstrunwizard' => ['apphint','show'],
+			'notifications' => ['sound_notification','sound_talk'],
+			'photos' => ['croppedLayout','photosLocation','photosSourceFolders'],
+			'recommendations' => ['enabled'],
+			'systemtags' => ['last_used'],
+			'text' => ['is_full_width_editor','workspace_enabled'],
+			'theming' => [
+				'background',
+				'backgroundVersion',
+				'background_color',
+				'background_image',
+				'enabled-themes',
+				'force_enable_blur_filter',
+				'primary_color',
+				'shortcuts_disabled',
+			],
+			'twofactor_nextcloud_notification' => ['enabled'],
+			'weather_status' => ['address','altitude','favorites','lat','lon','mode'],
+			'whiteboard' => ['recording_auto_upload_on_disconnect'],
+		];
+		if (isset($allowedKeys[$appid]) && in_array($key, $allowedKeys[$appid])) {
+			return true;
+		}
+		if ($appid === 'activity') {
+			if (str_starts_with($key, 'notify_')) {
+				return true;
+			}
+			if (in_array($key, ['configured'])) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

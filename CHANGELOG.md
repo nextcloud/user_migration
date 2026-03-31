@@ -9,6 +9,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [10.2.0] - 2026-03-31
+
+### Changes
+
+* Cast key to string when retrieving value type by @yukogan-gh in https://github.com/nextcloud/user_migration/pull/1064
+* Restrict tag creation by @come-nc in https://github.com/nextcloud/user_migration/pull/1073
+* fix: Add an allowlist for app settings by @come-nc in https://github.com/nextcloud/user_migration/pull/1072
+* fix: Fix importing a user as a new one from occ by @come-nc in https://github.com/nextcloud/user_migration/pull/1054
+* Dependency bumps
+* docs: add samin-z as owner by @blizzz in https://github.com/nextcloud/user_migration/pull/1065
+
 ## [10.1.0] - 2026-02-05
 
 ### Changes

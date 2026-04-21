@@ -64,6 +64,7 @@ class UserMigrationService {
 		private UserImportMapper $importMapper,
 		private IJobList $jobList,
 		private IAppConfig $appConfig,
+		private ISecureRandom $secureRandom,
 	) {
 		$this->internalCache = new CappedMemoryCache();
 
@@ -258,7 +259,7 @@ class UserMigrationService {
 		if ($user === null) {
 			$user = $this->userManager->createUser(
 				$data['uid'],
-				\OC::$server->getSecureRandom()->generate(10, ISecureRandom::CHAR_ALPHANUMERIC)
+				$this->secureRandom->generate(10, ISecureRandom::CHAR_ALPHANUMERIC)
 			);
 		}
 

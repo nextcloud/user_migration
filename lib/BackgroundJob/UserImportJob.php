@@ -75,6 +75,13 @@ class UserImportJob extends QueuedJob {
 			return;
 		}
 
+		if (!$authorObject->isEnabled()) {
+			$this->logger->warning('Could not import: Author is disabled ' . $author);
+			$this->failedNotication($import);
+			$this->mapper->delete($import);
+			return;
+		}
+
 		try {
 			$import->setStatus(UserImport::STATUS_STARTED);
 			$this->mapper->update($import);

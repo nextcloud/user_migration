@@ -4,6 +4,7 @@ OC.L10N.register(
     "Files" : "Ifuyla",
     "Export" : "Sifeḍ",
     "Cancel" : "Sefsex",
-    "Close" : "Mdel"
+    "Close" : "Mdel",
+    "Import" : "Kter"
 },
 "nplurals=2; plural=(n != 1);");

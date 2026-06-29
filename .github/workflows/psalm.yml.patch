@@ -1,5 +1,5 @@
 diff --git a/.github/workflows/psalm.yml b/.github/workflows/psalm.yml
-index d69fd28..11de100 100644
+index 82f306e..eebe49f 100644
 --- a/.github/workflows/psalm.yml
 +++ b/.github/workflows/psalm.yml
 @@ -35,10 +35,10 @@ jobs:
@@ -8,7 +8,7 @@ index d69fd28..11de100 100644
  
 -      - name: Set up php${{ steps.versions.outputs.php-available }}
 +      - name: Set up php${{ steps.versions.outputs.php-min }}
-         uses: shivammathur/setup-php@accd6127cb78bee3e8082180cb391013d204ef9f # v2.37.0
+         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
          with:
 -          php-version: ${{ steps.versions.outputs.php-available }}
 +          php-version: ${{ steps.versions.outputs.php-min }}

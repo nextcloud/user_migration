@@ -190,7 +190,7 @@ class Notifier implements INotifier
             return $user;
         }
 
-        throw new \InvalidArgumentException('User not found');
+        throw $this->createNotificationException('User not found');
     }
 
     /**
@@ -202,7 +202,7 @@ class Notifier implements INotifier
         $userFolder = $this->root->getUserFolder($user->getUID());
         $file = $userFolder->get(ExportDestination::EXPORT_FILENAME);
         if (!$file instanceof File) {
-            throw new \InvalidArgumentException('User export is not a file');
+            throw $this->createNotificationException('User export is not a file');
         }
 
         return $file;
@@ -217,7 +217,7 @@ class Notifier implements INotifier
         $userFolder = $this->root->getUserFolder($user->getUID());
         $file = $userFolder->get($path);
         if (!$file instanceof File) {
-            throw new \InvalidArgumentException("Import file \"{$path}\" is not a file");
+            throw $this->createNotificationException("Import file \"{$path}\" is not a file");
         }
 
         return $file;

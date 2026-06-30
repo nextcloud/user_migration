@@ -21,6 +21,7 @@ use OCP\IUserManager;
 use OCP\L10N\IFactory;
 use OCP\Notification\INotification;
 use OCP\Notification\INotifier;
+use OCP\Notification\UnknownNotificationException;
 
 class Notifier implements INotifier {
 	protected IFactory $l10nFactory;
@@ -46,12 +47,18 @@ class Notifier implements INotifier {
 		return $this->l10nFactory->get(Application::APP_ID)->t('User migration');
 	}
 
+	private function createNotificationException(string $message): \Exception {
+		return class_exists(UnknownNotificationException::class)
+			? new UnknownNotificationException($message)
+			: new \InvalidArgumentException($message);
+	}
+
 	/**
 	 * @throws \InvalidArgumentException When the notification was not prepared by a notifier
 	 */
 	public function prepare(INotification $notification, string $languageCode): INotification {
 		if ($notification->getApp() !== Application::APP_ID) {
-			throw new \InvalidArgumentException('Unhandled app');
+			throw $this->createNotificationException('Unhandled app');
 		}
 
 		if ($notification->getSubject() === 'exportDone') {
@@ -68,7 +75,7 @@ class Notifier implements INotifier {
 			return $this->handleImportFailed($notification, $languageCode);
 		}
 
-		throw new \InvalidArgumentException('Unhandled subject');
+		throw $this->createNotificationException('Unhandled subject');
 	}
 
 	public function handleExportFailed(INotification $notification, string $languageCode): INotification {

@@ -48,9 +48,9 @@ class Notifier implements INotifier {
 	}
 
 	private function createNotificationException(string $message): \Exception {
-    	return class_exists(UnknownNotificationException::class)
-        	? new UnknownNotificationException($message)
-        	: new \InvalidArgumentException($message);
+		return class_exists(UnknownNotificationException::class)
+			? new UnknownNotificationException($message)
+			: new \InvalidArgumentException($message);
 	}
 
 	/**

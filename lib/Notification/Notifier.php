@@ -48,13 +48,11 @@ class Notifier implements INotifier {
 	}
 
 	private function createNotificationException(string $message): \Exception {
-		return class_exists(UnknownNotificationException::class)
-			? new UnknownNotificationException($message)
-			: new \InvalidArgumentException($message);
+		return new UnknownNotificationException($message);
 	}
 
 	/**
-	 * @throws \InvalidArgumentException When the notification was not prepared by a notifier
+	 * @throws \OCP\Notification\UnknownNotificationException When the notification is not known
 	 */
 	public function prepare(INotification $notification, string $languageCode): INotification {
 		if ($notification->getApp() !== Application::APP_ID) {

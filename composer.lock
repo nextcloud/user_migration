@@ -405,12 +405,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/nextcloud-deps/ocp.git",
-                "reference": "f8c70c8d28000510f865028e24bb5cfe562f8b77"
+                "reference": "b4e88c70c4cb9b69ca9c48473c4983cbcbe7f554"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nextcloud-deps/ocp/zipball/f8c70c8d28000510f865028e24bb5cfe562f8b77",
-                "reference": "f8c70c8d28000510f865028e24bb5cfe562f8b77",
+                "url": "https://api.github.com/repos/nextcloud-deps/ocp/zipball/b4e88c70c4cb9b69ca9c48473c4983cbcbe7f554",
+                "reference": "b4e88c70c4cb9b69ca9c48473c4983cbcbe7f554",
                 "shasum": ""
             },
             "require": {
@@ -441,7 +441,7 @@
                 "issues": "https://github.com/nextcloud-deps/ocp/issues",
                 "source": "https://github.com/nextcloud-deps/ocp/tree/stable29"
             },
-            "time": "2025-11-30T00:58:59+00:00"
+            "time": "2026-07-25T01:42:41+00:00"
         },
         {
             "name": "psr/cache",
@@ -706,5 +706,5 @@
     "platform-overrides": {
         "php": "8.0"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }

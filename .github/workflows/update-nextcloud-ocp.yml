@@ -27,11 +27,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        branches:
-          - ${{ github.event.repository.default_branch }}
-          - 'stable34'
-          - 'stable33'
-          - 'stable32'
+        include:
+          - branches: ${{ github.event.repository.default_branch }}
+            server: 'stable29'
 
     name: update-nextcloud-ocp-${{ matrix.branches }}
 
@@ -76,7 +74,7 @@ jobs:
         id: update_branch
         env:
           USE_COMPOSER_BIN: ${{ steps.check_composer_bin.outputs.files_exists }}
-          BRANCH_NAME: ${{ matrix.branches }}
+          BRANCH_NAME: ${{ matrix.server || matrix.branches }}
         run: |
           COMPOSER_CMD='composer'
           if [[ "$USE_COMPOSER_BIN" == 'true' ]]; then

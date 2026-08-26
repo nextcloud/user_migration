@@ -23,7 +23,7 @@ This app allows users to easily migrate from one instance to another using an ex
 - **🎉 Enjoy your stay on your new instance** and close you old account
 	]]></description>
 	<version>10.6.0-dev.0</version>
-	<licence>agpl</licence>
+	<licence>AGPL-3.0-or-later</licence>
 	<author>Côme Chilliet</author>
 	<author>Christopher Ng</author>
 	<namespace>UserMigration</namespace>

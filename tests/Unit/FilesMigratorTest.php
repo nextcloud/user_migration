@@ -18,6 +18,7 @@ use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\IHomeStorage;
 use OCP\Files\IRootFolder;
+use OCP\Files\IUserFolder;
 use OCP\IL10N;
 use OCP\ITagManager;
 use OCP\ITags;
@@ -37,6 +38,7 @@ class FilesMigratorTest extends TestCase {
 	private ISystemTagObjectMapper $systemTagMapper;
 	private ICommentsManager $commentsManager;
 	private IL10N $l10n;
+
 	private FilesMigrator $filesMigrator;
 
 	protected function setUp(): void {
@@ -49,7 +51,12 @@ class FilesMigratorTest extends TestCase {
 		$this->commentsManager = $this->createMock(ICommentsManager::class);
 		$this->l10n = $this->createMock(IL10N::class);
 
-		$this->userFolder = $this->createMock(Folder::class);
+		/* Support both <35 and >=35 */
+		if (interface_exists(IUserFolder::class)) {
+			$this->userFolder = $this->createMock(IUserFolder::class);
+		} else {
+			$this->userFolder = $this->createMock(Folder::class);
+		}
 		$this->userFolder
 			->method('getPath')
 			->willReturn('/tmp/testuser');

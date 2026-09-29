@@ -268,7 +268,9 @@ class UserMigrationService {
 		}
 
 		$user->setEnabled($data['enabled']);
-		$user->setDisplayName($data['displayName']);
+		if ($this->config->getSystemValueBool('allow_user_to_change_display_name', true)) {
+			$user->setDisplayName($data['displayName']);
+		}
 
 		return $user;
 	}

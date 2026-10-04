@@ -23,7 +23,7 @@ OC.L10N.register(
     "This may take a while." : "Toto môže chvíľu trvať.",
     "Please do not use your account while exporting." : "Prosím, nepoužívajte váš účet počas exportu.",
     "Export" : "Export",
-    "Please select the data you want to export" : "Prosím vyberte údaje ktoré chcete exportovať",
+    "Please select the data you want to export" : "Prosím, vyberte údaje, ktoré chcete exportovať",
     "User information and settings" : "Informácie o užívateľovi a nastavenia",
     "Basic user information including user ID and display name as well as your settings" : "Základné informácie o používateľovi vrátane ID a zobrazovaného mena ako aj vaše nastavenia",
     "Show export status" : "Zobraziť stav exportu",

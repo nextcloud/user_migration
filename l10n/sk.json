@@ -6,7 +6,7 @@
     "Your export of {user} failed." : "Váš export užívateľa {user} zlyhal.",
     "User export done" : "Export užívateľa je dokončený",
     "Your export of {user} has completed: {file}" : "Váš export užívateľa {user} bol dokončený: {file}",
-    "User import failed" : "Import užívateľa zlyhal",
+    "User import failed" : "Import používateľa zlyhal",
     "Your import to {user} failed." : "Váš import užívateľa {user} zlyhal.",
     "User import done" : "Import užívateľa je dokončený",
     "Your import of {file} into {user} has completed." : "Váš import {file} do {user} bol dokončený.",

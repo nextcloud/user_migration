@@ -268,7 +268,9 @@ class UserMigrationService {
 		}
 
 		$user->setEnabled($data['enabled']);
-		$user->setDisplayName($data['displayName']);
+		if ($user->canChangeDisplayName()) {
+			$user->setDisplayName($data['displayName']);
+		}
 
 		return $user;
 	}

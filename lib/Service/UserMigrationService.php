@@ -115,9 +115,17 @@ class UserMigrationService {
 	public function checkExportability(IUser $user, ?array $filteredMigratorList = null): void {
 		try {
 			$userFolder = $this->rootFolder->getUserFolder($user->getUID());
-			$freeSpace = ceil($userFolder->getFreeSpace() / 1024);
+			$freeSpace = $userFolder->getFreeSpace();
+			if ($freeSpace > 0) {
+				$freeSpace = ceil($freeSpace / 1024);
+			}
 		} catch (Throwable $e) {
 			throw new NotExportableException('Error calculating amount of free storage space available');
+		}
+
+		if ($freeSpace < 0) {
+			// Free space is unknown or unlimited, no need to check for export size
+			return;
 		}
 
 		try {

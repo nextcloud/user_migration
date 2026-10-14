@@ -3,8 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { showWarning, showError } from '@nextcloud/dialogs'
-
+import { showError, showWarning } from '@nextcloud/dialogs'
 import logger from './logger.js'
 
 /**
@@ -12,7 +11,7 @@ import logger from './logger.js'
  *
  * @return {string}
  */
-const parseMessage = (error) => {
+function parseMessage(error) {
 	if (typeof error === 'string') {
 		return error || 'Unknown error'
 	}
@@ -25,7 +24,7 @@ const parseMessage = (error) => {
  *
  * @return {void}
  */
-export const handleWarning = (error, toastOptions = {}) => {
+export function handleWarning(error, toastOptions = {}) {
 	const message = parseMessage(error)
 	logger.warn(message, { error })
 	showWarning(message, toastOptions)
@@ -37,7 +36,7 @@ export const handleWarning = (error, toastOptions = {}) => {
  *
  * @return {void}
  */
-export const handleError = (error, toastOptions = {}) => {
+export function handleError(error, toastOptions = {}) {
 	const message = parseMessage(error)
 	logger.error(message, { error })
 	showError(message, toastOptions)
@@ -49,10 +48,10 @@ export const handleError = (error, toastOptions = {}) => {
  *
  * @return {string}
  */
-export const formatQueryParamArray = (name, values) => {
+export function formatQueryParamArray(name, values) {
 	if (values.length === 0) {
 		return `?${name}[]=`
 	}
 
-	return `?${values.map(value => `${name}[]=${value}`).join('&')}`
+	return `?${values.map((value) => `${name}[]=${value}`).join('&')}`
 }

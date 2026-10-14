@@ -3,14 +3,12 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import Vue from 'vue'
 import { getRequestToken } from '@nextcloud/auth'
-import { translate as t, translatePlural as n } from '@nextcloud/l10n'
-
-import logger from './shared/logger.js'
+import { translatePlural as n, translate as t } from '@nextcloud/l10n'
+import Vue from 'vue'
 import PersonalSettings from './views/Personal/Settings.vue'
+import logger from './shared/logger.js'
 
-// eslint-disable-next-line camelcase, no-undef
 __webpack_nonce__ = btoa(getRequestToken())
 
 Vue.prototype.t = t
@@ -19,5 +17,5 @@ Vue.prototype.logger = logger
 
 export default new Vue({
 	el: '#personal-settings',
-	render: h => h(PersonalSettings),
+	render: (h) => h(PersonalSettings),
 })

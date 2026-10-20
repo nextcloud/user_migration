@@ -5,16 +5,16 @@
 
 import axios from '@nextcloud/axios'
 import { confirmPassword } from '@nextcloud/password-confirmation'
-import '@nextcloud/password-confirmation/dist/style.css'
 import { generateOcsUrl } from '@nextcloud/router'
-
-import { APP_ID, API_VERSION } from '../shared/constants.js'
+import { API_VERSION, APP_ID } from '../shared/constants.js'
 import { formatQueryParamArray } from '../shared/utils.js'
+
+import '@nextcloud/password-confirmation/dist/style.css'
 
 /**
  * @return {object}
  */
-export const getMigrators = async () => {
+export async function getMigrators() {
 	const url = generateOcsUrl('/apps/{appId}/api/v{apiVersion}/migrators', { appId: APP_ID, apiVersion: API_VERSION })
 	const response = await axios.get(url)
 
@@ -24,7 +24,7 @@ export const getMigrators = async () => {
 /**
  * @return {object}
  */
-export const getStatus = async () => {
+export async function getStatus() {
 	const url = generateOcsUrl('/apps/{appId}/api/v{apiVersion}/status', { appId: APP_ID, apiVersion: API_VERSION })
 	const response = await axios.get(url)
 
@@ -34,7 +34,7 @@ export const getStatus = async () => {
 /**
  * @return {object}
  */
-export const cancelJob = async () => {
+export async function cancelJob() {
 	const url = generateOcsUrl('/apps/{appId}/api/v{apiVersion}/cancel', { appId: APP_ID, apiVersion: API_VERSION })
 
 	await confirmPassword()
@@ -49,7 +49,7 @@ export const cancelJob = async () => {
  *
  * @return {object}
  */
-export const checkExportability = async (migrators) => {
+export async function checkExportability(migrators) {
 	const url = generateOcsUrl('/apps/{appId}/api/v{apiVersion}/export', { appId: APP_ID, apiVersion: API_VERSION }) + formatQueryParamArray('migrators', migrators)
 	const response = await axios.get(url)
 
@@ -61,7 +61,7 @@ export const checkExportability = async (migrators) => {
  *
  * @return {object}
  */
-export const queueExportJob = async (migrators) => {
+export async function queueExportJob(migrators) {
 	const url = generateOcsUrl('/apps/{appId}/api/v{apiVersion}/export', { appId: APP_ID, apiVersion: API_VERSION })
 
 	await confirmPassword()
@@ -78,7 +78,7 @@ export const queueExportJob = async (migrators) => {
  *
  * @return {object}
  */
-export const queueImportJob = async (path) => {
+export async function queueImportJob(path) {
 	const url = generateOcsUrl('/apps/{appId}/api/v{apiVersion}/import', { appId: APP_ID, apiVersion: API_VERSION })
 
 	await confirmPassword()

@@ -5,12 +5,14 @@
 
 <template>
 	<section>
-		<ExportSection :loading="loading"
+		<ExportSection
+			:loading="loading"
 			:notifications-enabled="notificationsEnabled"
 			:migrators="migrators"
 			:status="status"
 			@refresh-status="onRefreshStatus" />
-		<ImportSection :loading="loading"
+		<ImportSection
+			:loading="loading"
 			:notifications-enabled="notificationsEnabled"
 			:status="status"
 			@refresh-status="onRefreshStatus" />
@@ -19,11 +21,9 @@
 
 <script>
 import { getCapabilities } from '@nextcloud/capabilities'
-
-import { getMigrators, getStatus } from '../../services/migrationService.js'
-
 import ExportSection from '../../components/ExportSection.vue'
 import ImportSection from '../../components/ImportSection.vue'
+import { getMigrators, getStatus } from '../../services/migrationService.js'
 import { handleError } from '../../shared/utils.js'
 
 // Polling interval in seconds

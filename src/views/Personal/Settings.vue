@@ -5,12 +5,14 @@
 
 <template>
 	<section>
-		<ExportSection :loading="loading"
+		<ExportSection
+			:loaded="loaded"
 			:notifications-enabled="notificationsEnabled"
 			:migrators="migrators"
 			:status="status"
 			@refresh-status="onRefreshStatus" />
-		<ImportSection :loading="loading"
+		<ImportSection
+			:loaded="loaded"
 			:notifications-enabled="notificationsEnabled"
 			:status="status"
 			@refresh-status="onRefreshStatus" />
@@ -19,18 +21,16 @@
 
 <script>
 import { getCapabilities } from '@nextcloud/capabilities'
-
-import { getMigrators, getStatus } from '../../services/migrationService.js'
-
 import ExportSection from '../../components/ExportSection.vue'
 import ImportSection from '../../components/ImportSection.vue'
+import { getMigrators, getStatus } from '../../services/migrationService.js'
 import { handleError } from '../../shared/utils.js'
 
 // Polling interval in seconds
 const STATUS_POLLING_INTERVAL = 30
 
 export default {
-	name: 'Settings',
+	name: 'MigrationSettings',
 
 	components: {
 		ExportSection,
@@ -39,7 +39,7 @@ export default {
 
 	data() {
 		return {
-			loading: true,
+			loaded: false,
 			migrators: [],
 			status: { current: null },
 		}
@@ -54,7 +54,7 @@ export default {
 	async created() {
 		await this.fetchMigrators()
 		await this.fetchStatus()
-		this.loading = false
+		this.loaded = true
 		setInterval(this.fetchStatus, STATUS_POLLING_INTERVAL * 1000)
 	},
 

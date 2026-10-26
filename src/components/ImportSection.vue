@@ -4,13 +4,15 @@
 -->
 
 <template>
-	<NcSettingsSection :name="t('user_migration', 'Import')"
-		:description="!loading ? t('user_migration', 'Please note that existing data may be overwritten') : ''"
-		:limit-width="false">
-		<template v-if="!loading">
-			<div v-if="status.current === 'import'"
+	<NcSettingsSection
+		:name="t('user_migration', 'Import')"
+		:description="loaded ? t('user_migration', 'Please note that existing data may be overwritten') : ''">
+		<template v-if="loaded">
+			<div
+				v-if="status.current === 'import'"
 				class="section__status">
-				<NcButton type="secondary"
+				<NcButton
+					variant="secondary"
 					:aria-label="t('user_migration', 'Show import status')"
 					:disabled="status.current === 'export' || cancellingImport"
 					@click.stop.prevent="openModal">
@@ -19,7 +21,8 @@
 					</template>
 					{{ t('user_migration', 'Show status') }}
 				</NcButton>
-				<NcButton type="tertiary"
+				<NcButton
+					variant="tertiary"
 					:aria-label="t('user_migration', 'Cancel import')"
 					:disabled="status.status !== 'waiting' || cancellingImport"
 					@click.stop.prevent="cancelImport">
@@ -29,7 +32,8 @@
 				<NcLoadingIcon v-if="cancellingImport" class="section__loading" :size="34" />
 			</div>
 			<div v-else class="section__status">
-				<NcButton type="primary"
+				<NcButton
+					variant="primary"
 					:aria-label="t('user_migration', 'Import your data')"
 					:disabled="status.current === 'export' || startingImport"
 					@click.stop.prevent="pickImportFile">
@@ -43,24 +47,29 @@
 
 			<span class="section__picker-error error">{{ filePickerError }}</span>
 
-			<NcModal v-if="modalOpened"
+			<NcModal
+				v-if="modalOpened"
 				@close="closeModal">
 				<div class="section__modal">
-					<NcEmptyContent :name="modalMessage"
+					<NcEmptyContent
+						:name="modalMessage"
 						:description="modalDescription">
 						<template #icon>
 							<PackageUp />
 						</template>
 						<template #action>
 							<div class="section__modal-action">
-								<NcLoadingIcon v-if="status.status === 'waiting' || status.status === 'started'"
+								<NcLoadingIcon
+									v-if="status.status === 'waiting' || status.status === 'started'"
 									class="section__icon"
 									:size="40" />
 								<template v-else>
-									<CheckCircleOutline class="section__icon"
+									<CheckCircleOutline
+										class="section__icon"
 										:size="40" />
-									<NcButton class="section__modal-button"
-										type="primary"
+									<NcButton
+										class="section__modal-button"
+										variant="primary"
 										:aria-label="t('user_migration', 'Close import status')"
 										@click.stop.prevent="closeModal">
 										{{ t('user_migration', 'Close') }}
@@ -77,18 +86,16 @@
 </template>
 
 <script>
-import { getFilePickerBuilder, FilePickerType } from '@nextcloud/dialogs'
-
+import { FilePickerType, getFilePickerBuilder } from '@nextcloud/dialogs'
 import { NcButton, NcEmptyContent, NcLoadingIcon, NcModal, NcSettingsSection } from '@nextcloud/vue'
 import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue'
 import InformationOutline from 'vue-material-design-icons/InformationOutline.vue'
 import PackageUp from 'vue-material-design-icons/PackageUp.vue'
-
-import { queueImportJob, cancelJob } from '../services/migrationService.js'
+import { cancelJob, queueImportJob } from '../services/migrationService.js'
 import { handleError } from '../shared/utils.js'
 
 /** @type {import('@nextcloud/dialogs').IFilePickerFilter} */
-const filterEntry = (entry) => {
+function filterEntry(entry) {
 	if (entry.mime === 'httpd/unix-directory') {
 		return true
 	}
@@ -121,10 +128,12 @@ export default {
 			type: Boolean,
 			default: false,
 		},
-		loading: {
+
+		loaded: {
 			type: Boolean,
-			default: true,
+			default: false,
 		},
+
 		status: {
 			type: Object,
 			default: () => ({}),

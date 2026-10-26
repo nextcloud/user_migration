@@ -1,6 +1,5 @@
 # SPDX-FileCopyrightText: 2022 Nextcloud GmbH and Nextcloud contributors
 # SPDX-License-Identifier: AGPL-3.0-or-later
-/.eslintrc.js
 /.git
 /.github
 /.gitignore
@@ -20,6 +19,7 @@
 /phpunit.integration.xml
 /psalm.xml
 /screenshots
+/eslintrc.config.js
 /stylelint.config.js
 /webpack.config.js
 /.php-cs-fixer.dist.php

@@ -4,7 +4,6 @@
  */
 
 import { getLoggerBuilder } from '@nextcloud/logger'
-
 import { APP_ID } from './constants.js'
 
 export default getLoggerBuilder()

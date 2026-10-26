@@ -4,34 +4,39 @@
 -->
 
 <template>
-	<NcSettingsSection :name="t('user_migration', 'Export')"
-		:description="!loading ? t('user_migration', 'Please select the data you want to export') : ''"
-		:limit-width="false">
-		<template v-if="!loading">
+	<NcSettingsSection
+		:name="t('user_migration', 'Export')"
+		:description="loaded ? t('user_migration', 'Please select the data you want to export') : ''">
+		<template v-if="loaded">
 			<div class="section__grid">
 				<!-- Base user data is permanently enabled -->
 				<div class="section__checkbox">
-					<NcCheckboxRadioSwitch :checked="true"
+					<NcCheckboxRadioSwitch
+						:model-value="true"
 						:disabled="true">
 						{{ t('user_migration', 'User information and settings') }}
 					</NcCheckboxRadioSwitch>
 					<em class="section__description">{{ t('user_migration', 'Basic user information including user ID and display name as well as your settings') }}</em>
 				</div>
-				<div v-for="({ id, displayName, description }) in sortedMigrators"
+				<div
+					v-for="({ id, displayName, description }) in sortedMigrators"
 					:key="id"
 					class="section__checkbox">
-					<NcCheckboxRadioSwitch name="migrators"
-						:value="id"
-						:checked.sync="selectedMigrators">
+					<NcCheckboxRadioSwitch
+						v-model="selectedMigrators"
+						name="migrators"
+						:value="id">
 						{{ displayName }}
 					</NcCheckboxRadioSwitch>
 					<em class="section__description">{{ description }}</em>
 				</div>
 			</div>
 
-			<div v-if="status.current === 'export'"
+			<div
+				v-if="status.current === 'export'"
 				class="section__status">
-				<NcButton type="secondary"
+				<NcButton
+					variant="secondary"
 					:aria-label="t('user_migration', 'Show export status')"
 					:disabled="status.current === 'import' || cancellingExport"
 					@click.stop.prevent="openModal">
@@ -40,7 +45,8 @@
 					</template>
 					{{ t('user_migration', 'Show status') }}
 				</NcButton>
-				<NcButton type="tertiary"
+				<NcButton
+					variant="tertiary"
 					:aria-label="t('user_migration', 'Cancel export')"
 					:disabled="status.status !== 'waiting' || cancellingExport"
 					@click.stop.prevent="cancelExport">
@@ -50,7 +56,8 @@
 				<NcLoadingIcon v-if="cancellingExport" class="section__loading" :size="34" />
 			</div>
 			<div v-else class="section__status">
-				<NcButton type="primary"
+				<NcButton
+					variant="primary"
 					:aria-label="t('user_migration', 'Export your data')"
 					:disabled="status.current === 'import' || startingExport"
 					@click.stop.prevent="startExport">
@@ -63,24 +70,29 @@
 				<NcLoadingIcon v-if="startingExport" class="section__loading" :size="34" />
 			</div>
 
-			<NcModal v-if="modalOpened"
+			<NcModal
+				v-if="modalOpened"
 				@close="closeModal">
 				<div class="section__modal">
-					<NcEmptyContent :name="modalMessage"
+					<NcEmptyContent
+						:name="modalMessage"
 						:description="modalDescription">
 						<template #icon>
 							<PackageDown />
 						</template>
 						<template #action>
 							<div class="section__modal-action">
-								<NcLoadingIcon v-if="status.status === 'waiting' || status.status === 'started'"
+								<NcLoadingIcon
+									v-if="status.status === 'waiting' || status.status === 'started'"
 									class="section__icon"
 									:size="40" />
 								<template v-else>
-									<CheckCircleOutline class="section__icon"
+									<CheckCircleOutline
+										class="section__icon"
 										:size="40" />
-									<NcButton class="section__modal-button"
-										type="primary"
+									<NcButton
+										class="section__modal-button"
+										variant="primary"
 										:aria-label="t('user_migration', 'Close export status')"
 										@click.stop.prevent="closeModal">
 										{{ t('user_migration', 'Close') }}
@@ -101,8 +113,7 @@ import { NcButton, NcCheckboxRadioSwitch, NcEmptyContent, NcLoadingIcon, NcModal
 import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue'
 import InformationOutline from 'vue-material-design-icons/InformationOutline.vue'
 import PackageDown from 'vue-material-design-icons/PackageDown.vue'
-
-import { queueExportJob, cancelJob, checkExportability } from '../services/migrationService.js'
+import { cancelJob, checkExportability, queueExportJob } from '../services/migrationService.js'
 import { handleError, handleWarning } from '../shared/utils.js'
 
 export default {
@@ -125,14 +136,17 @@ export default {
 			type: Boolean,
 			default: false,
 		},
-		loading: {
+
+		loaded: {
 			type: Boolean,
-			default: true,
+			default: false,
 		},
+
 		migrators: {
 			type: Array,
 			default: () => [],
 		},
+
 		status: {
 			type: Object,
 			default: () => ({}),
@@ -181,14 +195,14 @@ export default {
 	watch: {
 		sortedMigrators: {
 			immediate: true,
-			handler(migrators, oldMigrators) {
+			handler(migrators) {
 				this.selectedMigrators = migrators.map(({ id }) => id)
 			},
 		},
 
 		selectedMigrators: {
 			immediate: false,
-			async handler(migrators, oldMigrators) {
+			async handler(migrators) {
 				try {
 					const { estimatedSize, units, warning } = await checkExportability(migrators)
 					if (warning) {

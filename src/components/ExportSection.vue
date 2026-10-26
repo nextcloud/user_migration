@@ -6,9 +6,8 @@
 <template>
 	<NcSettingsSection
 		:name="t('user_migration', 'Export')"
-		:description="!loading ? t('user_migration', 'Please select the data you want to export') : ''"
-		:limit-width="false">
-		<template v-if="!loading">
+		:description="loaded ? t('user_migration', 'Please select the data you want to export') : ''">
+		<template v-if="loaded">
 			<div class="section__grid">
 				<!-- Base user data is permanently enabled -->
 				<div class="section__checkbox">
@@ -138,9 +137,9 @@ export default {
 			default: false,
 		},
 
-		loading: {
+		loaded: {
 			type: Boolean,
-			default: true,
+			default: false,
 		},
 
 		migrators: {
@@ -196,14 +195,14 @@ export default {
 	watch: {
 		sortedMigrators: {
 			immediate: true,
-			handler(migrators, oldMigrators) {
+			handler(migrators) {
 				this.selectedMigrators = migrators.map(({ id }) => id)
 			},
 		},
 
 		selectedMigrators: {
 			immediate: false,
-			async handler(migrators, oldMigrators) {
+			async handler(migrators) {
 				try {
 					const { estimatedSize, units, warning } = await checkExportability(migrators)
 					if (warning) {

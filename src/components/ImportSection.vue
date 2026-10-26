@@ -6,9 +6,8 @@
 <template>
 	<NcSettingsSection
 		:name="t('user_migration', 'Import')"
-		:description="!loading ? t('user_migration', 'Please note that existing data may be overwritten') : ''"
-		:limit-width="false">
-		<template v-if="!loading">
+		:description="loaded ? t('user_migration', 'Please note that existing data may be overwritten') : ''">
+		<template v-if="loaded">
 			<div
 				v-if="status.current === 'import'"
 				class="section__status">
@@ -130,9 +129,9 @@ export default {
 			default: false,
 		},
 
-		loading: {
+		loaded: {
 			type: Boolean,
-			default: true,
+			default: false,
 		},
 
 		status: {

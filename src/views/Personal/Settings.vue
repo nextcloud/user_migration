@@ -6,13 +6,13 @@
 <template>
 	<section>
 		<ExportSection
-			:loading="loading"
+			:loaded="loaded"
 			:notifications-enabled="notificationsEnabled"
 			:migrators="migrators"
 			:status="status"
 			@refresh-status="onRefreshStatus" />
 		<ImportSection
-			:loading="loading"
+			:loaded="loaded"
 			:notifications-enabled="notificationsEnabled"
 			:status="status"
 			@refresh-status="onRefreshStatus" />
@@ -30,7 +30,7 @@ import { handleError } from '../../shared/utils.js'
 const STATUS_POLLING_INTERVAL = 30
 
 export default {
-	name: 'Settings',
+	name: 'MigrationSettings',
 
 	components: {
 		ExportSection,
@@ -39,7 +39,7 @@ export default {
 
 	data() {
 		return {
-			loading: true,
+			loaded: false,
 			migrators: [],
 			status: { current: null },
 		}
@@ -54,7 +54,7 @@ export default {
 	async created() {
 		await this.fetchMigrators()
 		await this.fetchStatus()
-		this.loading = false
+		this.loaded = true
 		setInterval(this.fetchStatus, STATUS_POLLING_INTERVAL * 1000)
 	},
 

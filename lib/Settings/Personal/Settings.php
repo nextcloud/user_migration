@@ -12,10 +12,13 @@ namespace OCA\UserMigration\Settings\Personal;
 use OCA\UserMigration\AppInfo\Application;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\Settings\ISettings;
+use OCP\Util;
 
 class Settings implements ISettings {
 
 	public function getForm(): TemplateResponse {
+		Util::addScript(Application::APP_ID, Application::APP_ID . '-personalSettings');
+		Util::addStyle(Application::APP_ID, Application::APP_ID . '-personalSettings');
 		return new TemplateResponse(Application::APP_ID, 'settings/personal/settings');
 	}
 

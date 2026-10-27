@@ -17,9 +17,15 @@
     "dev": "vite --mode development build",
     "lint": "eslint --ext .js,.vue src",
     "lint:fix": "eslint --ext .js,.vue src --fix",
-    "stylelint": "stylelint css/*.css css/*.scss src/**/*.scss src/**/*.vue",
-    "stylelint:fix": "stylelint css/*.css css/*.scss src/**/*.scss src/**/*.vue --fix",
+    "stylelint": "stylelint src/**/*.scss src/**/*.vue",
+    "stylelint:fix": "stylelint src/**/*.scss src/**/*.vue --fix",
     "watch": "vite --mode development build --watch"
+  },
+  "allowScripts": {
+    "@parcel/watcher": true,
+    "core-js": true,
+    "esbuild": true,
+    "vue-demi": true
   },
   "browserslist": [
     "extends @nextcloud/browserslist-config"
@@ -47,11 +53,5 @@
   "engines": {
     "node": "^24.0.0",
     "npm": "^11.3.0"
-  },
-  "allowScripts": {
-    "@parcel/watcher": true,
-    "vue-demi": true,
-    "core-js": true,
-    "esbuild": true
   }
 }

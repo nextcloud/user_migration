@@ -441,7 +441,8 @@
                 "issues": "https://github.com/nextcloud-deps/ocp/issues",
                 "source": "https://github.com/nextcloud-deps/ocp/tree/stable29"
             },
-            "time": "2026-07-25T01:42:41+00:00"
+            "time": "2026-07-25T01:42:41+00:00",
+            "published-time": "2026-07-25T01:42:46+00:00"
         },
         {
             "name": "psr/cache",
@@ -706,5 +707,5 @@
     "platform-overrides": {
         "php": "8.0"
     },
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.11.0"
 }

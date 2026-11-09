@@ -32,3 +32,8 @@ updates:
   labels:
     - 3. to review
     - dependencies
+  groups:
+    vite:
+      patterns:
+        - "vite"
+        - "@nextcloud/vite-config"

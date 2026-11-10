@@ -24,6 +24,7 @@ use OCP\Cache\CappedMemoryCache;
 use OCP\Config\Exceptions\UnknownKeyException;
 use OCP\Config\IUserConfig;
 use OCP\Config\ValueType;
+use OCP\EventDispatcher\IEventDispatcher;
 use OCP\Files\File;
 use OCP\Files\IRootFolder;
 use OCP\Files\NotFoundException;
@@ -31,6 +32,7 @@ use OCP\IAppConfig;
 use OCP\IConfig;
 use OCP\IUser;
 use OCP\IUserManager;
+use OCP\Log\Audit\CriticalActionPerformedEvent;
 use OCP\Security\ISecureRandom;
 use OCP\UserMigration\IExportDestination;
 use OCP\UserMigration\IImportSource;
@@ -65,6 +67,7 @@ class UserMigrationService {
 		private IJobList $jobList,
 		private IAppConfig $appConfig,
 		private ISecureRandom $secureRandom,
+		private IEventDispatcher $eventDispatcher,
 	) {
 		$this->internalCache = new CappedMemoryCache();
 
@@ -197,6 +200,15 @@ class UserMigrationService {
 		}
 
 		$exportDestination->close();
+
+		$this->eventDispatcher->dispatchTyped(
+			new CriticalActionPerformedEvent(
+				'Exported user {user}',
+				['user' => $uid],
+				false,
+				'user_migration.user.exported',
+			)
+		);
 	}
 
 	public function import(IImportSource $importSource, ?IUser $user = null, ?OutputInterface $output = null): IUser {
@@ -224,6 +236,15 @@ class UserMigrationService {
 
 			$uid = $user->getUID();
 			$output->writeln("Successfully imported $uid");
+
+			$this->eventDispatcher->dispatchTyped(
+				new CriticalActionPerformedEvent(
+					'Imported user {user}',
+					['user' => $uid],
+					false,
+					'user_migration.user.imported',
+				)
+			);
 
 			return $user;
 		} finally {

@@ -205,7 +205,8 @@ class UserMigrationService {
 			new CriticalActionPerformedEvent(
 				'Exported user {user}',
 				['user' => $uid],
-				operation: 'user_migration.user.export'
+				false,
+				'user_migration.user.exported',
 			)
 		);
 	}
@@ -240,7 +241,8 @@ class UserMigrationService {
 				new CriticalActionPerformedEvent(
 					'Imported user {user}',
 					['user' => $uid],
-					operation: 'user_migration.user.import'
+					false,
+					'user_migration.user.imported',
 				)
 			);
 

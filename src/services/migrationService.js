@@ -9,7 +9,7 @@ import { generateOcsUrl } from '@nextcloud/router'
 import { API_VERSION, APP_ID } from '../shared/constants.js'
 import { formatQueryParamArray } from '../shared/utils.js'
 
-import '@nextcloud/password-confirmation/dist/style.css'
+import '@nextcloud/password-confirmation/style.css'
 
 /**
  * @return {object}
